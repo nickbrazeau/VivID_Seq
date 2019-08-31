@@ -27,7 +27,10 @@ fasta_fetch <- function(id){
   return(f)
 }
 
-seqacc$fasta <- purrr::map(seqacc$ids, fasta_fetch)
+seqacc$fasta <- NA
+for(i in 1:length(seqacc$id)){
+  seqacc$fasta[i] <- fasta_fetch(seqacc$id[i])
+} 
 
 
 outfastas <- purrr::map(seqacc, `[[`, "fasta")

@@ -1,0 +1,54 @@
+#! /usr/bin/env python3
+import os
+import sys
+import yaml
+import re
+import pandas as pd
+
+def load_ena_metadata(f):
+    """Get ena metadata from tab-separated file."""
+    accs=list()
+    df = pd.read_csv(f, delimiter = '\t', header=0)
+    for index, row in df.iterrows():
+        accs.append(row['R1'])
+        accs.append(row['R2'])
+    for i in range(0, len(accs)):
+        accs[i] = accs[i].replace('ftp.sra.ebi.ac.uk','')
+    return accs
+
+def find_sample(s):
+    smpls = list()
+    for i in range(0, len(s)):
+        smpls.append(re.search('\/(?!.*\/)(.+?)\.', s[i]).group(1) )
+    return(smpls)
+
+def find_prefix(s):
+    smpls = list()
+    for i in range(0, len(s)):
+        smpls.append(re.search('^.*/', s[i]).group(0) )
+    return(smpls)
+def make_ftp_path(prefix, smpl):
+    out = [os.path.join("{}{}.fastq.gz".format(prefix, smpl)) for s in smpl]
+    return out
+
+# Configs
+SCRROOT=config["scratch"]
+acc = load_ena_metadata(config["accessions"])
+smpl = find_sample(acc)
+accdict = {}
+for i in range(0, len(smpl)):
+    accdict[smpl[i]] = acc[i]
+
+rule all:
+	input: expand(os.path.join(SCRROOT,'{sample}' + '.log'), sample = accdict.keys())
+
+
+rule pullsamples:
+    params: acc = lambda wildcards: accdict[wildcards.sample],
+            outputdir = "/pine/scr/n/f/nfb/Projects/VivID_Seq/public_pe_seqs/"
+    output: log = os.path.join(SCRROOT, "{sample}" + ".log")
+    shell:
+        r"""
+        ascp -qT -l 300m -P33001 -i /nas/longleaf/home/nfb/.aspera/connect/etc/asperaweb_id_dsa.openssh \
+        era-fasp@fasp.sra.ebi.ac.uk:{params.acc} {params.outputdir} 2> {output.log}
+        """

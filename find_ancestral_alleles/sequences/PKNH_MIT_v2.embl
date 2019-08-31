@@ -1,0 +1,325 @@
+ID   PKNH_MIT_v2; SV ; ; ; ; ; 5957 BP.
+FH   Key             Location/Qualifiers
+FH
+FT   rRNA            2..32
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT00100"
+FT                   /previous_systematic_id="PKH_rRNA_16"
+FT   rRNA            33..70
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT00200"
+FT                   /previous_systematic_id="PKH_rRNA_20"
+FT   rRNA            71..125
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="RNA9"
+FT                   /locus_tag="PKNH_MIT00300"
+FT                   /previous_systematic_id="PKH_rRNA_9_1"
+FT   rRNA            126..165
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT00400"
+FT                   /previous_systematic_id="PKH_rRNA_17_2"
+FT   rRNA            complement(206..226)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="LSUC"
+FT                   /locus_tag="PKNH_MIT00500"
+FT                   /previous_systematic_id="PKH_rRNA_LSUC"
+FT   rRNA            complement(284..390)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="LSUG"
+FT                   /locus_tag="PKNH_MIT00600"
+FT                   /previous_systematic_id="PKH_rRNA_LSUG"
+FT   rRNA            complement(391..506)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="SSUB"
+FT                   /locus_tag="PKNH_MIT00700"
+FT                   /previous_systematic_id="PKH_rRNA_SSUB"
+FT   rRNA            complement(507..594)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="RNA1"
+FT                   /locus_tag="PKNH_MIT00800"
+FT                   /previous_systematic_id="PKH_rRNA_1"
+FT   rRNA            complement(595..625)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="RNA15"
+FT                   /locus_tag="PKNH_MIT00900"
+FT                   /previous_systematic_id="PKH_rRNA_15_2"
+FT   rRNA            complement(626..718)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT01000"
+FT                   /previous_systematic_id="PKH_rRNA_10_1"
+FT   CDS             complement(726..1517)
+FT                   /colour=7
+FT                   /EC_number="1.9.3.1"
+FT                   /GO="aspect=F;GOid=GO:0015002;term=heme-copper terminal
+FT                   oxidase
+FT                   activity;with=InterPro:IPR000298;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /GO="aspect=C;GOid=GO:0016020;term=membrane;with=InterPro:IPR000298;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /product="cytochrome c oxidase subunit 3"
+FT                   /primary_name="COX3"
+FT                   /locus_tag="PKNH_MIT01100"
+FT                   /previous_systematic_id="PKH_MIT0001"
+FT   rRNA            1512..1626
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="LSUF"
+FT                   /locus_tag="PKNH_MIT01200"
+FT                   /previous_systematic_id="PKH_rRNA_LSUF"
+FT   rRNA            1650..1688
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="SSUE"
+FT                   /locus_tag="PKNH_MIT01300"
+FT                   /previous_systematic_id="PKH_rRNA_8"
+FT   rRNA            1698..1763
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="RNA2"
+FT                   /locus_tag="PKNH_MIT01400"
+FT                   /previous_systematic_id="PKH_rRNA_9_2"
+FT   rRNA            1792..1827
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT01500"
+FT                   /previous_systematic_id="PKH_rRNA_21"
+FT   rRNA            1828..1908
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="RNA3"
+FT                   /locus_tag="PKNH_MIT01600"
+FT                   /previous_systematic_id="PKH_rRNA_10_2"
+FT   rRNA            complement(1914..2021)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="SSUA"
+FT                   /locus_tag="PKNH_MIT01700"
+FT                   /previous_systematic_id="PKH_rRNA_11"
+FT   CDS             2220..3470
+FT                   /colour=7
+FT                   /EC_number="1.9.3.1"
+FT                   /product="cytochrome c oxidase subunit 1"
+FT                   /GO="aspect=P;GOid=GO:0055114;term=oxidation-reduction
+FT                   process;with=InterPro:IPR036927;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /GO="aspect=F;GOid=GO:0020037;term=heme
+FT                   binding;with=InterPro:IPR000883;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /GO="aspect=F;GOid=GO:0005506;term=iron ion
+FT                   binding;with=InterPro:IPR000883;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /GO="aspect=F;GOid=GO:0004129;term=cytochrome-c oxidase
+FT                   activity;with=InterPro:IPR000883;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /GO="aspect=F;GOid=GO:0009055;term=electron carrier
+FT                   activity;with=InterPro:IPR000883;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /GO="aspect=C;GOid=GO:0016021;term=integral component of
+FT                   membrane;with=InterPro:IPR000883;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /GO="aspect=P;GOid=GO:0009060;term=aerobic
+FT                   respiration;with=InterPro:IPR000883;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /primary_name="COX1"
+FT                   /locus_tag="PKNH_MIT01800"
+FT                   /previous_systematic_id="PKH_MIT0002"
+FT   CDS             3489..4619
+FT                   /colour=7
+FT                   /EC_number="1.10.2.2"
+FT                   /GO="aspect=F;GOid=GO:0016491;term=oxidoreductase
+FT                   activity;with=InterPro:IPR036150;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /GO="aspect=F;GOid=GO:0009055;term=electron carrier
+FT                   activity;with=InterPro:IPR036150;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /GO="aspect=C;GOid=GO:0016020;term=membrane;with=InterPro:IPR036150;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /GO="aspect=P;GOid=GO:0022904;term=respiratory electron
+FT                   transport
+FT                   chain;with=InterPro:IPR016174;date=20180322;evidence=IEA;autocomment=From
+FT                   iprscan"
+FT                   /product="cytochrome b"
+FT                   /primary_name="CYTB"
+FT                   /locus_tag="PKNH_MIT01900"
+FT                   /synonym="COB"
+FT                   /previous_systematic_id="PKH_MIT0003"
+FT   rRNA            complement(4591..4615)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="LSUB"
+FT                   /locus_tag="PKNH_MIT02000"
+FT                   /previous_systematic_id="PKH_rRNA_12"
+FT   rRNA            4621..4692
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT02100"
+FT                   /previous_systematic_id="PKH_rRNA_RNA4"
+FT   rRNA            4712..4798
+FT                   /note="SSU rRNA fragment"
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT02200"
+FT                   /previous_systematic_id="PKH_rRNA_RNA5"
+FT   rRNA            4803..4860
+FT                   /note="LSU fragment"
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT02300"
+FT                   /previous_systematic_id="PKH_rRNA_RNA6"
+FT   rRNA            4882..4940
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT02400"
+FT                   /previous_systematic_id="PKH_rRNA_RNA12"
+FT   rRNA            4961..4985
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /note="LSU fragment"
+FT                   /locus_tag="PKNH_MIT02500"
+FT                   /previous_systematic_id="PKH_rRNA_RNA18"
+FT   rRNA            complement(4994..5023)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="RNA13"
+FT                   /locus_tag="PKNH_MIT02600"
+FT                   /previous_systematic_id="PKH_rRNA_13"
+FT   rRNA            complement(5024..5198)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="LSUA"
+FT                   /locus_tag="PKNH_MIT02700"
+FT                   /previous_systematic_id="PKH_rRNA_14"
+FT   rRNA            complement(5199..5280)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT02800"
+FT                   /previous_systematic_id="PKH_rRNA_RNA7"
+FT   rRNA            complement(5281..5337)
+FT                   /note="LSU fragment"
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT02900"
+FT                   /previous_systematic_id="PKH_rRNA_RNA11"
+FT   rRNA            complement(5338..5376)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT03000"
+FT                   /previous_systematic_id="PKH_rRNA_RNA22"
+FT   rRNA            complement(5377..5444)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="SSUD"
+FT                   /locus_tag="PKNH_MIT03100"
+FT                   /previous_systematic_id="PKH_rRNA_15_1"
+FT   rRNA            complement(5445..5505)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT03200"
+FT                   /previous_systematic_id="PKH_rRNA_SSUF"
+FT   rRNA            complement(5506..5546)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /note="SSU fragment"
+FT                   /locus_tag="PKNH_MIT03300"
+FT                   /previous_systematic_id="PKH_rRNA_RNA14"
+FT   rRNA            complement(5545..5574)
+FT                   /note="SSU fragment"
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /locus_tag="PKNH_MIT03400"
+FT                   /previous_systematic_id="PKH_rRNA_19_1"
+FT   rRNA            complement(5575..5770)
+FT                   /primary_name="LSUE"
+FT                   /locus_tag="PKNH_MIT03500"
+FT                   /previous_systematic_id="PKH_rRNA_17_1"
+FT   rRNA            complement(5771..5853)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="LSUD"
+FT                   /locus_tag="PKNH_MIT03600"
+FT                   /previous_systematic_id="PKH_rRNA_18"
+FT   rRNA            complement(5853..5928)
+FT                   /note="rRNA predicted from Pfalciparum sequence by RATT"
+FT                   /primary_name="RNA8"
+FT                   /locus_tag="PKNH_MIT03700"
+FT                   /previous_systematic_id="PKH_rRNA_19_2"
+SQ   Sequence 5957 BP; 1968 A; 916 C; 902 G; 2171 T; 0 other;
+     agcttttggt atctcgtaat gtagaacaat aatgggttga ccgtcaaatc cttttcatta        60
+     aaagagtgga ttaatgccca gccaacacca tccaatttga ttgggaataa tctgtgttac       120
+     aatacttttt gatcccaggc tggtaaaaaa tgtaaacttt tagcccgaaa gaatagaaac       180
+     agatgccagg ccaaaaaccc aaaaatagag ctatgacgct atcattttaa caagttagat       240
+     aaattctttc atagaactta acgtttcatc ttccatacat aaataaaacg gtagataggg       300
+     aacaaactgc ctcaagacgt tcttaaccca gctcacgcat cgcttctaac ggtgaactct       360
+     cattccaatg gaaccttgtt caagttcaaa tagattggta aggtatagcg tttactatcg       420
+     aatgaaacaa tgtattccac cgctagtgtt tgcttctaac attccacttg cttataactg       480
+     tatggacgta acctccaggc aaagaaaatg accggtcaaa acggaatcaa ttaactatgg       540
+     atagctgata ctaacaattt atcattactc aagtcagcat agtctatatg aaggtttcta       600
+     tggaaacaca cttcccttct cgccatttga tagcggttaa cctttctttt ccttacgtac       660
+     tctagctttt tacacaactt aattgtctat actagatact atggacgaaa caggacatat       720
+     attcattatt ctgaatagaa aaagaactct ataaataacc atacaatttc aacaaaatgc       780
+     cagtataata ttgtaatttg atcagtatga ggtaataata tataagatat accatataat       840
+     gaatatgacc attcacaatt agtatcgtaa acttctatta ttcttataaa atatattaat       900
+     aataataata aaccaactat aacatgtgaa aaatgtaaac ctgtaacaca ataaaataat       960
+     gtacctgata tagcatcatt tatacaatat cctaaatgta agtattcagt tgtttgaagt      1020
+     gatgcaaaac attctccaag taagtatatt ataaatataa tactagaaat ttctaaactc      1080
+     attccttttt ctattagaaa ttgtaaacat gctgtcatac atgatgcact tgctaaaata      1140
+     aatgtaatag ttaaaattaa cattcttgat gatgtgaaaa tgattccttc actatataat      1200
+     ggatatggag ataaactaaa atgtaaaata ccccagaagt atgtaataaa taataatgct      1260
+     tcagatataa ttatagataa cattcctgat actaatgatg aaaatacaga ataaaaactt      1320
+     tctctaatag aatatacaaa tattataaaa ataataggat tgaatgtaaa taaaatacca      1380
+     acagaaaaat attttaaaga tgttccatat aaagatgtta atgaaggata agatactaaa      1440
+     tgtgctttta tattattata gttactaaat ataaaaaata tatttataag aacggtaatt      1500
+     ttgtgtgccg ttaacatata acggtaagaa ggttcgccgg ggataacagg ttatagtata      1560
+     tatagagctc aaatctttat atactattgg cacctccatg tcgtctcatc gcagccttgc      1620
+     aataaataaa tattatttag cgtgtattgt tgccttgtac acaccgctcg tcacgcaaat      1680
+     ttatatcact aagataaaga actccaggcg ttaacctgta gagttgagat ggaaacagcc      1740
+     ggaaaggtat cattacgtcc aaactataag aatatatgaa atatactagc atgggacaaa      1800
+     aaaatattat gttgttggtt taagcccttt taccatacaa gagatcgcgt actttggact      1860
+     gaaaaaagct gtgaggaaac tacattaaag gaactcgact ggcctacaat ataagaacga      1920
+     acgcttttaa cgcctgacat ggatggataa tactcgactt ttccaaagta taaccgctgt      1980
+     cgctgggact gtatggatcg aatcttactt attcatatcc aagcctcatt tatgatttat      2040
+     ttttttttaa tagatataca cttattacaa attgcaatca taaaacttta ggtttatact      2100
+     atttatggtt ttcattttta tttggtagtt atggattttt attatctgtt attttacgta      2160
+     cagaattata ttcttcttct ttaagaataa ttgcacaaga aaatgttaat ttatacaata      2220
+     tgatatttac attacatgga ataattatga tattttttaa tataatgcca ggattatttg      2280
+     gaggattcgg taattatttt ctaccaattt tatgcggttc tccagaactt gcatatccaa      2340
+     gaattaatag tatatcttta ttattacaac caatagcttt tatattagtc attttatcta      2400
+     cagcagcaga atttggagga ggtactggat ggactttata tccaccattg agtacatcac      2460
+     ttatgtcttt atctcctgtt gcagtagatg taatcattat tggtctttta gtgtctggta      2520
+     ttgctagtat tatgtcttct ttaaatttta ttactactgt aatgcattta agatctaaag      2580
+     gtttaacact tggtatacta agtgtatcta catggtcatt aataattaca tctgtaatgt      2640
+     tattattgac attacctgta ttaacaggtg gtgttttaat gttattatca gatttacatt      2700
+     ttaatacatt attttttgat cctacatttg ctggagatcc tattctatat caacatctat      2760
+     tctggttctt tggacatcct gaagtatata ttttaatatt accagcattt ggagttatta      2820
+     gtcatgtaat atctacaaat tattgtagaa gcttattcgg taatcaatct atgattttag      2880
+     caatgagttg tattgctata ttaggaagtg ttgtatgggc tcatcatatg tatactacag      2940
+     gtttagaagt agatacaaga gcatttttta catctacaac tatattaata tctataccta      3000
+     ctggaacaaa aatatttaat tggatatgta catacatggg tagtaatttt ggtataactc      3060
+     atagttcatc tttattatca ttactattta tatgtacatt tacttttggt ggtactacag      3120
+     gagtaatatt aggaaatgca gctattgata ttgcattaca tgatacttat tatgtaattg      3180
+     ctcattttca ctttgtatta tctataggtg caataattgg attgtttaca ttagtaagta      3240
+     gttttcaaga aaactttttt ggtaaacatt tacgtgaaaa ttctataatt atactatggt      3300
+     caatcttatt ttttattgga gttgttttaa cattcttacc tatgcatttt cttggattta      3360
+     atgtaatgcc tagacgtatt cctgattatc cagacgcttt aaatggatgg aatatgattt      3420
+     gttcaattgg atcaactatg actttatttg ggtttttaat ttttaaataa tataaatttt      3480
+     ttgtttatat gaattattat tctattaatt tagctaaagc acatttatta aattacccat      3540
+     gcccattaaa tattaatttc ttatggaatt atggatttct tttaggtatt atattcttta      3600
+     tacaaatatt aacaggtgta tttttagcta gtcgttatac tccagaaatt tcttacgcat      3660
+     actacagtat acaacatatt ttaagagaat tatggagtgg atggtgtttt agatatatgc      3720
+     atgctacagg tgcatctctt gtatttttat taacttattt acatatttta agaggattaa      3780
+     attactcata tttatatcta ccattatcat ggatatcagg attaatcata tttgcattat      3840
+     ttatagttac agcttttata ggttatgttt taccttgggg acaaatgagt tattggggtg      3900
+     caactgtcat aactaattta ttatcttcaa ttccagtatt agtcatttgg ttatgtggag      3960
+     gatatacagt aagtgatcca acaattaaaa gattttttgt attacatttt atacttcctt      4020
+     ttgtagcatt atgtattgta tttatacata tattcttttt acatttacat ggtagcacta      4080
+     atcctttagg gtatgataca gctttaaaaa tacccttcta tccaaatcta ttaagtcttg      4140
+     atgtaaaagg atttaataat atatttatat tattcttatt acaaagtatt tttggtataa      4200
+     ttccattatc tcatccagat aatgctatat tagttaatac atatgttaca ccaattcaaa      4260
+     ttgttcctga atggtacttt ttaccatttt atgcaatgtt aaaaacaata cctagtaaaa      4320
+     cagcaggttt attaattgtt ttagcatctt tacaattatt atttttatta gctgaacaaa      4380
+     gaagtttaac tactataata caatttaaaa tgacatttgg tgctagagaa tattcagtac      4440
+     caatgatatg gtttatgtgt tcattctatg ctttattatg gattggatgt caattaccac      4500
+     aagatatttt cattttatat ggtcgtttat ttataatatt attcttcttt agtggattat      4560
+     ttacacttgt tcattataaa agaacacatt atgattacag ctcccaagca aacatttaaa      4620
+     ttacaagtct acgataagac aatatctctg tacactgatt agaacaatac agaccgtaag      4680
+     gttataatta tgttaaaagt taggataata aaataatagt taccatagct gtagatggat      4740
+     gcttcgatat atattatatt taagtattaa tcgagattac atgctcagcc gccaaaaata      4800
+     aaacgatatt attaccgtac aagccgttag caagacatga tagggagttg acaagttaaa      4860
+     gaagttctgg tttataatag atacgttata aaagttagga tgtatgggat aattgtagta      4920
+     caccttaatt ggtttaacaa tatttggttt atagatatta tgttcggtat tgcatgcctg      4980
+     gtgtttttaa attaagacgc tgacttcctg gctaaacttc ccaatgatat atcttccaaa      5040
+     tagatttcgt agaaaaccgt ctatattcat gtttgattga cctttaaccg ctaattacga      5100
+     atcttccaag aatatttcaa gagtccaagg ttcggtctat tattttcctg ttctgtaatt      5160
+     agatcacatg ttttatagtt catggagata tgactatacc actattcata gagacaactt      5220
+     atggcatctc tctcgatttc cagttgttga gttactaaga ggattctctc cacacttcaa      5280
+     ttcgtacttc cactaccaga atataatcac ctgttataat gttctaggtt ttttcgcgtt      5340
+     ttttcaggag aaatccgtat atcgatgttt ttaaaatcta cgctattgga ttcaacgtcc      5400
+     aggacttcct gacgtttaat aacgatttct acttccagca gccattttgg ttcagctaca      5460
+     agttcactgt caactaccat gttacgactt cgcaccgact gttttctttt accttacgag      5520
+     tcgatcagga aggtttcatc cttaaatctc gtaaccatgc caacacataa gaacttttta      5580
+     gggaagttaa ggtgctcagg gtcttaccgt cgggccgtat gattccacat attcatggat      5640
+     aattctattt attaggagtc tcacactagc gacaatgggg aagtcgttac accgttcatg      5700
+     caggacggag attacccgac aaggaatttt gctaccttag gaccgtttac gatacagccg      5760
+     ccgtttatca ttgatgccgg gcagatgtca gtaacttgaa ttattcatca gaattatcag      5820
+     tgacttgtgt tgtaacctta cagacgcttc cagaatataa cttcttataa atggtagcgc      5880
+     cggtttcccg ggtatccaat ccagtgctcc attcaaggca tagagactca gcctgtgttc      5940
+     aactttgtag gatttat                                                     5957
+//

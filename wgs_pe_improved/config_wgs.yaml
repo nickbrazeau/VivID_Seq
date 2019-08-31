@@ -1,0 +1,15 @@
+# configuration for alignment pipeline
+reference: /proj/ideel/resources/genomes/Pvivax/genomes/PvP01.fasta
+
+adapters: /nas02/apps/trimmomatic-0.36/Trimmomatic-0.36/adapters/TruSeq3-PE.fa
+min_trimmed_length: 30
+
+logs: jobs
+tmpdir: .tmp
+readbuffer: 1000000
+threads: 6
+memory: 12
+
+runs: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_pe_improved/vividseq_run_map.txt
+aligned: aln # go to scratch
+fastq: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_pe_improved/fastq

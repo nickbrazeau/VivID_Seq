@@ -1,0 +1,42 @@
+#! /usr/bin/env python3
+import os
+import sys
+import yaml
+import re
+import pandas as pd
+import numpy as np
+
+def load_ena_metadata(f):
+    """Get ena metadata from tab-separated file."""
+    smpls = list()
+    df = pd.read_csv(f, delimiter = '\t', header=0)
+    for index, row in df.iterrows():
+        smpls.append(row['R1'])
+        smpls.append(row['R2'])
+        smpls.replace('ftp.sra.ebi.ac.uk','')
+    return(smpls)
+
+def make_final_target(s):
+    target = list()
+    for i in range(0, len(s)):
+        target.append( (re.search('\/(?!.*\/)(.+?)\.', s[i]).group(1) + ".log") )
+    return(target)
+
+# get samples
+samples = load_ena_metadata(config["accessions"])
+# get final targets
+final_target = make_final_target(samples)
+
+rule all:
+	input: final_target
+
+
+rule pullsamples:
+    input: smpl = {samples},
+    params: key = config["shhkey"]
+    output: log = (re.search('\/(?!.*\/)(.+?)\.', {sample}).group(1) + ".log"),
+            dir = dir(config["outputdir"])
+    shell:
+        r"""
+        ascp -qT -l 300m -P33001 -i {params.key} era-fasp@fasp.sra.ebi.ac.uk:{input.smpl} {output.dir}
+        """

@@ -1,0 +1,3 @@
+accessions: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/scrape_pubseqs/ENA_master_acc_download_map_PE.tab.txt
+outputdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/public_pe_seqs/
+sshkey: /nas/longleaf/home/nfb/.aspera/connect/etc/asperaweb_id_dsa.openssh

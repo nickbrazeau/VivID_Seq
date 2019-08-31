@@ -1,0 +1,23 @@
+## basic config options
+reference: /proj/ideel/resources/genomes/Pvivax/genomes/PvP01.fasta
+regions: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/regions/mtdna.bed
+samples: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/variantsampling/all_bams.txt
+max_alleles: 3
+outdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/vcfs_gatk_joint
+tmpdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/tmp
+mem: 24
+mode: novel
+
+
+## hard-filter cutoffs
+min_DP: 5
+max_DP: 1000000
+min_RPRS_SNV: -8.0
+min_RPRS_indel: -20.0
+min_QD: 2.0
+max_FS_SNV: 60.0
+max_SOR_SNV: 3.0
+max_FS_indel: 200.0
+max_SOR_indel: 10.0
+min_MQRS: -12.5
+min_MQ: 25.0

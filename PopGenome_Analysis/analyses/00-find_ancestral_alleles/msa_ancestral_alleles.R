@@ -38,16 +38,87 @@ pb <- pb[21]
 names(pb) <- "Pberghei_mtdna"
 
 
+pf <- Biostrings::readDNAStringSet(filepath = "analyses/00-find_ancestral_alleles/sequences/PlasmoDB-45_Pfalciparum3D7_Genome.fasta")
+pf <- pf[16]
+names(pf) <- "Pfalciparum_mtdna"
+
 
 #.................
 # Class structure
 #.................
-plasm <- c(pv, po, pm, pk, pcyn, pchaub, pb)
-
+plasm <- c(pv, po, pm, pk, pcyn, pchaub, pb, pf)
+Biostrings::writeXStringSet(x=plasm,
+                            filepath = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/PopGenome_Analysis/analyses/00-find_ancestral_alleles/Plasmodium_MtDNA.fasta",
+                            format = "fasta")
 
 #........................................................
-# MSA
+# MARS and MSA
 #........................................................
+# system("bash runMars.sh")
+# both used default settings
+# Muscle version 3.8.31 from plasm.mars.msa@version
+plasm.mars <- Biostrings::readDNAStringSet(filepath = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/PopGenome_Analysis/analyses/00-find_ancestral_alleles/Plasmodium_MtDNA.mars.fasta")
+plasm.mars.msa <- msa::msaMuscle(plasm.mars)
+
+# make sure Pv doesn't get rotated
+plasm.mars[1][[1]] == plasm[1][[1]]
+
+sum( seqinr::s2c(as.character( plasm.mars[1][[1]] )) !=
+       seqinr::s2c(as.character( plasm[1][[1]] ))
+)
+
+#........................................................
+# Get Ancestral Allele
+#........................................................
+ancestralfa <- rep(NA, unique(plasm.mars.msa@unmasked@ranges@width))
+msamat <- as.matrix( plasm.mars.msa@unmasked )
+# reorder
+pv <- which(rownames( msamat ) == "Pvivax_mtdna")
+seq <- 1:nrow(msamat)
+seq <- seq[! 1:nrow(msamat) %in% pv ]
+
+msamat.ord <- msamat[c(pv,seq), ]
+
+# start walking along genome
+for(i in 1:ncol(msamat.ord)){
+  if(msamat.ord[1,i] == "-"){ # if pv has a gap, keep gap
+    ancestralfa[i] <- "-"
+  } else if(all(msamat.ord[2:nrow(msamat.ord),i] == "-")) {
+    ancestralfa[i] <- "N"
+  }
+  else{
+    alleletab <- table(msamat.ord[,i])
+    allele <- names(alleletab)[alleletab == max(alleletab)]
+    if(length(allele) > 1 | any(allele == "-")){ # not enough support to call ancestral state
+      ancestralfa[i] <- "N"
+    } else{
+      ancestralfa[i] <- allele
+    }
+  }
+}
+
+ancestralfa <- ancestralfa[ancestralfa != "-"]
+ancestralfa <- Biostrings::DNAStringSet( paste(ancestralfa, collapse = "") )
+names(ancestralfa) <- "ancestral_allele"
+
+#........................................................
+# Sanity Check
+#........................................................
+orig <- plasm[1]
+names(orig) <- "orig"
+mars <- plasm.mars[1]
+names(mars) <- "mars"
+test <- ancestralfa
+names(ancestralfa) <- "ancestraltest"
+out <- c(orig, mars, test)
+writeXStringSet(out, filepath="~/Desktop/sanitycheck.fasta")
+
+# looks reasonsable
+writeXStringSet(ancestralfa, filepath="~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/analyses/00-find_ancestral_alleles/ancestral.fa")
+
+
+
+
 
 
 

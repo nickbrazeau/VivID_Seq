@@ -1,6 +1,6 @@
 #! /bin/bash
 
-ROOT=/proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/scrape_pubseqs/snakescrap_ENA # root directory for project (non-scratch)
+ROOT=/proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/scrape_pubseqs/snakescrape_ENA_PE # root directory for project (non-scratch)
 WD=/pine/scr/n/f/nfb/Projects/VivID_Seq/public_pe_seqs/ # working directory for alignments (scratch)
 NODES=128 # don't overwhelm server
 WAIT=30 # number of seconds to wait for files to appear, absorbing some file system latency

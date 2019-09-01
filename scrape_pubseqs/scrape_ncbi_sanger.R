@@ -23,7 +23,7 @@ seqacc$id <- lapply(search, function(x){x$ids})
 ## Scrape/Fetch
 fasta_fetch <- function(id){
   f <- rentrez::entrez_fetch(db="nucleotide", rettype="fasta", id = id)
-  Sys.sleep(5)
+  Sys.sleep(10)
   return(f)
 }
 

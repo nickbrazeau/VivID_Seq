@@ -1,0 +1,22 @@
+# my files
+*.tab.txt
+
+# slurm outs and logs
+**/*out
+**/.log
+*out
+*log
+
+# symlinks
+**/*fastq.gz
+
+# snakemake
+**/.snakemake
+
+# mac
+.DS_Store
+._DS_Store
+**/~$*
+**/._*
+._*
+~$*

@@ -20,3 +20,18 @@
 **/._*
 ._*
 ~$*
+
+# R 
+.Rproj.user
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# files I generate
+*.RDS
+*.rds
+*.rda
+*fasta
+
+

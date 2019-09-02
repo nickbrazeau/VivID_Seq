@@ -1,6 +1,6 @@
 library(tidyverse)
 library(RSelenium)
-library(XML)
+
 
 # read in metadata
 smpls <- readxl::read_excel("~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx")

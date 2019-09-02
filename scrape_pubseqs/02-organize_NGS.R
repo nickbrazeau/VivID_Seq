@@ -1,9 +1,9 @@
 library(tidyverse)
 
 
-#...............................
+#...........................................................................................
 # Organize PE for Alignment
-#................................
+#............................................................................................
 pe <- readr::read_tsv("~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/scrape_pubseqs/ENA_master_acc_download_map_PE.tab.txt")
 pe.long <- pe %>% 
   dplyr::mutate(SRR1 = basename(R1),
@@ -17,17 +17,24 @@ pe.paths <- tibble::tibble(path = list.files(path = "",
                                               full.names = T)) %>% 
   dplyr::mutate(fastq = basename(path))
 
+#...............................
+# Make Symlink Architecture 
+#................................
 
-pe.out <- dplyr::left_join(pe.long, pe.paths) %>% 
+
+#...............................
+# Make Run Map
+#................................
+
+pe.run.map <- dplyr::left_join(pe.long, pe.paths) %>% 
   dplyr::mutate(read = ifelse(stringr::str_detect(fastq, "_1.fastq.gz"), "R1", "R2")
                 ) %>% 
   tidyr::spread(., key = "read", value = "path")
 
-# that should be write out now  
 
 
-#...............................
+
+#...........................................................................................
 # Organize SE for Alignment
-#................................
-
+#............................................................................................
 se <- readr::read_tsv("~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/scrape_pubseqs/ENA_master_acc_download_map_SE.tab.txt")

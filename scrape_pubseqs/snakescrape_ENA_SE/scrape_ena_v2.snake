@@ -11,7 +11,6 @@ def load_ena_metadata(f):
     df = pd.read_csv(f, delimiter = '\t', header=0)
     for index, row in df.iterrows():
         accs.append(row['R1'])
-        accs.append(row['R2'])
     for i in range(0, len(accs)):
         accs[i] = accs[i].replace('ftp.sra.ebi.ac.uk','')
     return accs
@@ -45,7 +44,7 @@ rule all:
 
 rule pullsamples:
     params: acc = lambda wildcards: accdict[wildcards.sample],
-            outputdir = "/pine/scr/n/f/nfb/Projects/VivID_Seq/public_pe_seqs/"
+            outputdir = "/pine/scr/n/f/nfb/Projects/VivID_Seq/public_se_seqs/"
     output: log = os.path.join(SCRROOT, "{sample}" + ".log")
     shell:
         r"""

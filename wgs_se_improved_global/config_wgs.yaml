@@ -10,6 +10,6 @@ readbuffer: 1000000
 threads: 6
 memory: 12
 
-runs: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_pe_improved_global/globalvivid_run_map.tab.txt
+runs: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_se_improved_global/globalvivid_run_map.tab.txt
 aligned: aln # go to scratch
-fastq: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_pe_improved_global/fastq
+fastq: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_se_improved_global/fastq

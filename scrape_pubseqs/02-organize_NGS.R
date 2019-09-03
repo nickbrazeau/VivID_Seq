@@ -76,7 +76,8 @@ se.paths <- tibble::tibble(path = list.files(path = "~/Documents/MountPoints/mou
 # have to drop the pacbio redas 
 se.paths <- se.paths[ !grepl("SRR7255036|SRR7255038", se.paths$fastq), ]
 
-se.long.paths <- dplyr::left_join(se.long, se.paths, by = "fastq")
+se.long.paths <- dplyr::left_join(se.long, se.paths, by = "fastq") %>% 
+  dplyr::filter(!is.na(path))
 
 
 
@@ -84,7 +85,7 @@ se.long.paths <- dplyr::left_join(se.long, se.paths, by = "fastq")
 #...............................
 # Make Symlink Architecture 
 #................................
-symlink_architecture <- pe.long.paths %>% 
+symlink_architecture <- se.long.paths %>% 
   magrittr::set_colnames(c("smpl", "fastq", "from")) %>% 
   dplyr::mutate(to = paste0(smpl, "/", fastq)) %>% 
   dplyr::select(-c("fastq")) %>% 
@@ -93,20 +94,20 @@ symlink_architecture <- pe.long.paths %>%
                             from))
 
 readr::write_tsv(x = symlink_architecture, 
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/wgs_pe_improved_global/symlink_architecture.tab.txt",
+                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/wgs_se_improved_global/symlink_architecture.tab.txt",
                  col_names = F)  
 
 #...............................
 # Make Run Map
 #................................
-globalvivid_run_map <- pe.long.paths %>% 
+globalvivid_run_map <- se.long.paths %>% 
   dplyr::select(-c("path")) %>% 
-  dplyr::mutate(fastq = stringr::str_split_fixed(fastq, "_", n=2)[,1]) %>% 
+  dplyr::mutate(fastq = gsub(".fastq.gz", "", fastq)) %>% 
   dplyr::filter(!duplicated(.)) %>% 
   dplyr::mutate(x = ".")
 
 readr::write_tsv(x = globalvivid_run_map, 
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/wgs_pe_improved_global/globalvivid_run_map.tab.txt",
+                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/wgs_se_improved_global/globalvivid_run_map.tab.txt",
                  col_names = F)  
 
 

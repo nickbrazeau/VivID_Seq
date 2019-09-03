@@ -1,7 +1,7 @@
 #! /bin/bash
 
-ROOT=/proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_pe_improved/ # root directory for project (non-scratch)
-WD=/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved/ # working directory for alignments (scratch)
+ROOT=/proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_pe_improved_global/ # root directory for project (non-scratch)
+WD=/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/ # working directory for alignments (scratch)
 NODES=1028 # max number of cluster nodes
 WAIT=30 # number of seconds to wait for files to appear, absorbing some file system latency
 

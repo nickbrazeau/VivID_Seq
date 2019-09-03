@@ -29,7 +29,7 @@ symlink_architecture <- pe.long.paths %>%
   dplyr::mutate(to = paste0(smpl, "/", fastq)) %>% 
   dplyr::select(-c("fastq")) %>% 
   dplyr::mutate(from = gsub("/Users/nickbrazeau/Documents/MountPoints/mountedScratchLL/", 
-                            "/proj/ideel/meshnick/users/NickB/", 
+                            "/pine/scr/n/f/nfb/", 
                             from))
     
 readr::write_tsv(x = symlink_architecture, 

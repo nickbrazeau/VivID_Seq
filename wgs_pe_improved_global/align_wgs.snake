@@ -44,8 +44,6 @@ TMP_DIR = config["tmpdir"]
 MAX_RECORDS_IN_RAM = config["readbuffer"]
 LOGROOT = config["logs"]
 
-## global software configuration; probably won't change much
-PICARD = "/nas02/apps/picard-2.10.3/picard-2.10.3/picard.jar"
 
 ## read run manifest, assigning runs to samples
 runs, samples = load_run_metadata(config["runs"])
@@ -54,7 +52,7 @@ runs, samples = load_run_metadata(config["runs"])
 lane_bams = defaultdict(list)
 for rg,(lib, sample) in runs.items():
 	lane_bams[sample].append( os.path.join(ALNROOT, "lanes_raw", "{}/{}.aligned.bam".format(sample, rg)) )
-final_target = [ os.path.join(ALNROOT, "merged", "{}.bam.bai".format(s)) for s in samples ]
+final_target = [ os.path.join(ALNROOT, "merged", "{}.bai".format(s)) for s in samples ]
 
 rule all:
 	input: final_target
@@ -63,13 +61,14 @@ rule index_merged:
 	input:
 		"{alnroot}/merged/{sample}.bam"
 	output:
-		"{alnroot}/merged/{sample}.bam.bai"
+		"{alnroot}/merged/{sample}.bai"
 	params:
 		memory = str(6),
 		threads =  str( int(config["threads"]) - 1 )
 	shell:
 		r"""
-		java -jar -Xmx4g -XX:ParallelGCThreads={params.threads} {PICARD} BuildBamIndex \
+		gatk --java-options "-Xmx4g -XX:ParallelGCThreads={params.threads}" \
+		BuildBamIndex \
 			INPUT={input} \
 			OUTPUT={output} \
 			TMP_DIR={TMP_DIR} \

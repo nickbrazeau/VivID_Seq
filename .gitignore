@@ -1,11 +1,14 @@
 # my files
-*.tab.txt
+**/*.tab.txt
+**/*.txt
+**/touch_files.sh
 
 # slurm outs and logs
 **/*out
 **/.log
 *out
 *log
+
 
 # symlinks
 **/*fastq.gz

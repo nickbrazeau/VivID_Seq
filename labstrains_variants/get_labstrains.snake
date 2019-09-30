@@ -99,7 +99,7 @@ rule joint_genotype:
 	output:
 		os.path.join(OUTDIR, "firstpass.vcf.gz")
 	params:
-		maxalleles = MAXALLELES,
+		maxalleles = config["max_alleles"],
 		ref = REF,
 		memory = str(int(config["mem"]))
 	shell:

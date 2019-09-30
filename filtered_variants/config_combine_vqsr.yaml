@@ -1,0 +1,16 @@
+# input files
+bamlist: <path>/final_bams.list
+reference: /proj/ideel/resources/genomes/Pvivax/genomes/PvP01.fasta
+
+# known and truth sets for building VQSR model
+snps_vcf_TP: <path>/vcfs_gatk_labstrains/clean.core_nonsuspicious.vcf.gz
+snps_prior_TP: 15
+snps_vcf_TPFP: $IDEEL/pv_published/vcfs_gatk_labstrains/clean.core_all.vcf.gz
+snps_prior_TPFP: 8
+snps_tranches: [ 100.0, 99.9, 99.0, 90.0 ]
+snps_ncomponents: 3
+snps_input_annotations: [ QD, MQ, MQRankSum, ReadPosRankSum, FS, SOR ]
+snps_filter_level: 90.0
+
+# resource requirements
+recal_memory: 16

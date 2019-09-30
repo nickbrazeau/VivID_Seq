@@ -1,13 +1,13 @@
 #! /bin/bash
 
-ROOT=/proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/raw_variants
-WD=/pine/scr/n/f/nfb/Projects/VivID_Seq/vcfs_gatk_joint_raw/
-NODES=1028 # max number of cluster nodes
+ROOT=
+WD=
+NODES=18  
 WAIT=30 # number of seconds to wait for files to appear, absorbing some file system latency
 
 snakemake \
-	--snakefile $ROOT/call_gatk4.snake \
-	--configfile $ROOT/config.yaml \
+	--snakefile $ROOT/align_wgs.snake \
+	--configfile config_wgs.yaml \
 	--printshellcmds \
 	--directory $WD \
 	--cluster $ROOT/launch.py \

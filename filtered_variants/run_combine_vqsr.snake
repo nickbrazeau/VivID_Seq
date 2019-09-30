@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 """
 run_vqsr.snake
-Implement GATK VQSR and apply to variant filtering. 
+Implement GATK VQSR and apply to variant filtering.
 
 """
 

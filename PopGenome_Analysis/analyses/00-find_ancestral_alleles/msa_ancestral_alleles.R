@@ -1,3 +1,9 @@
+#################################################################################
+#### Purpose of this script is to find the ancestral alleles of the
+#### P. vivax by determining which allele is ancestral (e.g. most conserved under the assumption of no recurrent mutation)
+#### among the various Plasmodium species
+#################################################################################
+
 library(tidyverse)
 library(Biostrings)
 library(msa)

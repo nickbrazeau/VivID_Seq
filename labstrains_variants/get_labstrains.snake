@@ -1,29 +1,15 @@
 #! /usr/bin/env python
 
 """
+Purpose of this script is to hard filter lab strains
+for variant recalibration
 """
 
 import os
 import sys
-from collections import OrderedDict
-
-## load samples from file
-def load_samples(f):
-	s, b = [], []
-	with open(f, "r") as ff:
-		for line in ff:
-			if line.startswith("#"):
-				continue
-			bam_entry = line.strip().split().pop(0)
-			folder, bn = os.path.split(bam_entry)
-			iid = os.path.splitext(bn)[0]
-			s.append(iid)
-			b.append(bam_entry)
-	return s, dict(zip(s,b))
 
 ## read configuration stuff
-# list of *.bam files to process, which are assumed to be named like {sample}.bam
-SAMPLES = os.path.expandvars(config["samples"])
+GVCFlist = os.path.expandvars(config["gvcflist"])
 # root directory for pipeline outputs
 OUTDIR = os.path.expandvars(config["outdir"])
 # temporary directory used by Java; probably should point to scratch space
@@ -31,53 +17,19 @@ TMPDIR = os.path.expandvars(config["tmpdir"])
 # reference genome
 REF = os.path.expandvars(config["reference"])
 
-if not "mode" in config:
-	config["mode"] = "novel"
-else:
-	if config["mode"] == "known":
-		KNOWN_SITES = os.path.expandvars(config["known_sites"])
-	elif config["mode"] == "novel":
-		pass
-	else:
-		sys.exit(1)
 
-## get list of samples and chunks to call
-samples, bam_list = load_samples(SAMPLES)
-regions, interval_files = load_regions(pbt.BedTool(REGIONS), IVLDIR)
-#print(bam_list)
-#print(regions.keys(), interval_files)
-
-## make lists of chunk-wise intermediate files
-gvcfs_by_chunk = OrderedDict()
-for rname in regions.keys():
-	gvcfs_by_chunk[rname] = expand(os.path.join(OUTDIR, "chunks/{region}/{sample}.g.vcf.gz"), sample = samples, region = rname)
-#print(gvcfs_by_chunk)
-
-## other intermediate targets
-combined_gvcfs = expand(os.path.join(OUTDIR, "chunks/{region}/combined.g.vcf.gz"), region = regions.keys())
-
-if config["mode"] == "novel":
-	raw_vcfs = expand(os.path.join(OUTDIR, "chunks/{region}/firstpass.vcf.gz"), region = regions.keys())
-	final_target = os.path.join(OUTDIR, "all_raw.vcf.gz")
-elif config["mode"] == "known":
-	raw_vcfs = expand(os.path.join(OUTDIR, "chunks/{region}/merged.vcf.gz"), region = regions.keys())
-	final_target = os.path.join(OUTDIR, "all_genotyped.vcf.gz")
-
-filtered_vcfs = expand(os.path.join(OUTDIR, "chunks/{region}/filtered.vcf.gz"), region = regions.keys())
-vcf_list = os.path.join(OUTDIR, "chunks/all_vcfs.list")
-
-## DONE
+## final targets
 rule all:
 	input:
-		os.path.join(OUTDIR, "filtered.vcf.gz"),
-		final_target
+		os.path.join(OUTDIR, "Pvlabstrains_raw.vcf.gz"),
+		os.path.join(OUTDIR, "Pvlabstrains_filtered.vcf.gz")
 
 ## final tidy-up
 rule tidy_up:
 	input:
-		os.path.join(OUTDIR, "firstpass.vcf.gz")
+		os.path.join(OUTDIR, "Pvlabstrains_raw.vcf.gz")
 	output:
-		os.path.join(OUTDIR, "filtered.vcf.gz")
+		os.path.join(OUTDIR, "Pvlabstrains_filtered.vcf.gz")
 	params:
 		ref = REF,
 		memory = str(int(config["mem"]))
@@ -92,33 +44,15 @@ rule tidy_up:
 			-O {output}
 		"""
 
-## combine into single file
-rule concat_vcfs:
-	input:
-		vcfs = filtered_vcfs,
-		flist = vcf_list
-	output: os.path.join(OUTDIR, "firstpass.vcf.gz")
-	shell:
-		r"""
-		bcftools concat -Oz {input.vcfs} >{output} && bcftools index --tbi {output}
-		"""
 
-## make text file with list of per-chunk annotated, filtered VCFs
-rule make_vcf_list:
-	input: filtered_vcfs
-	output: vcf_list
-	run:
-		with open(vcf_list, "w") as lfile:
-			for vcf in filtered_vcfs:
-				print(vcf, file = lfile)
 
 ## add entries to FILTER per GATK4 hard-filtering best practices; don't actually apply the filter
 # see https://informatics.fas.harvard.edu/whole-genome-resquencing-for-population-genomics-fastq-to-vcf.html#variantcalling
 rule filter_vars:
 	input:
-		os.path.join(OUTDIR, "chunks/{region}/firstpass.vcf.gz")
+		os.path.join(OUTDIR, "firstpass.vcf.gz")
 	output:
-		os.path.join(OUTDIR, "chunks/{region}/filtered.vcf.gz")
+		os.path.join(OUTDIR, "Pvlabstrains_raw.vcf.gz")
 	params:
 		ref = REF,
 		memory = str(int(config["mem"])),
@@ -156,27 +90,17 @@ rule filter_vars:
 			-O {output}
 		"""
 
-## concatenate chunks into UNFILTERED single file for VQSR
-rule concat_raw_vcfs:
-	input:
-		vcfs = raw_vcfs
-	output:
-		final_target
-	shell:
-		r"""
-		bcftools concat -Oz {input} >{output} && bcftools index --tbi {output}
-		"""
+
 
 ## DISCOVERY MODE: perform joint calling chunk-wise
 rule joint_genotype:
 	input:
-		combined_gvcf = os.path.join(OUTDIR, "chunks/{region}/combined.g.vcf.gz")
+		combined_gvcf = os.path.join(OUTDIR, "combined.g.vcf.gz")
 	output:
-		os.path.join(OUTDIR, "chunks/{region}/firstpass.vcf.gz")
+		os.path.join(OUTDIR, "firstpass.vcf.gz")
 	params:
 		maxalleles = MAXALLELES,
 		ref = REF,
-		interval_file = lambda w: interval_files[w.region],
 		memory = str(int(config["mem"]))
 	shell:
 		r"""
@@ -184,17 +108,15 @@ rule joint_genotype:
 			-R {params.ref} \
 			-V {input.combined_gvcf} \
 			-O {output} \
-			-L {params.interval_file} \
 			--max-alternate-alleles {params.maxalleles}
 		"""
 
-## DISCOVERY MODE: make chunk-wise GVCFs in prep for joint calling
+## DISCOVERY MODE: join GVCFs in prep for joint calling
 rule combine_gvcfs:
 	input:
-		gvcfs = lambda w: gvcfs_by_chunk[w.region],
-		gvcf_list = os.path.join(OUTDIR, "chunks/{region}/gvcfs.list")
+		gvcf_list = os.path.join(OUTDIR, GVCFlist)
 	output:
-		combined_gvcf = os.path.join(OUTDIR, "chunks/{region}/combined.g.vcf.gz")
+		combined_gvcf = os.path.join(OUTDIR, "combined.g.vcf.gz")
 	params:
 		ref = REF,
 		memory = str(int(config["mem"]))
@@ -204,18 +126,4 @@ rule combine_gvcfs:
 			-R {params.ref} \
 			--variant {input.gvcf_list} \
 			-O {output.combined_gvcf}
-		"""
-
-## GENOTYPING MODE: simply merge chunk-wise VCFs
-rule merge_gvcfs:
-	input:
-		gvcfs = lambda w: gvcfs_by_chunk[w.region],
-		gvcf_list = os.path.join(OUTDIR, "chunks/{region}/gvcfs.list")
-	output:
-		combined_gvcf = os.path.join(OUTDIR, "chunks/{region}/merged.vcf.gz")
-	params:
-		ref = REF
-	shell:
-		r"""
-		bcftools merge --file-list {input.labstrain_list} -Oz >{output} && bcftools index --tbi {output}
 		"""

@@ -1,16 +1,15 @@
 ## basic config options
 reference: /proj/ideel/resources/genomes/Pvivax/genomes/PvP01.fasta
-samples: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/lists/lab_strains.list
+gvcflist: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/lists/lab_strains.list
 max_alleles: 3
-outdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/vcfs_gatk_joint_raw
+outdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/vcfs_gatk_lab_strains
 tmpdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/tmp
 mem: 24
-mode: novel
 
 
 ## hard-filter cutoffs
 min_DP: 5
-max_DP: 1000000
+max_DP: 50000
 min_RPRS_SNV: -8.0
 min_RPRS_indel: -20.0
 min_QD: 2.0

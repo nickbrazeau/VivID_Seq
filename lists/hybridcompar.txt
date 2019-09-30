@@ -1,0 +1,8 @@
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_ViVIDSmpls/aln/merged/KP053-HYB.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_ViVIDSmpls/aln/merged/KP063-HYB.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_ViVIDSmpls/aln/merged/OM032-HYB.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_ViVIDSmpls/aln/merged/OM092-HYB.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS1061007.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS1061008.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS1061044.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS1061081.bam

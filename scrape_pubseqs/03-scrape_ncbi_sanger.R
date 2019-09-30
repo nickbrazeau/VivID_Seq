@@ -1,5 +1,5 @@
 setwd("/proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/scrape_pubseqs")
-ncbiapikey <- readr::read_tsv("/ncbi_api_key_forsanger.txt", col_names = F)
+ncbiapikey <- readr::read_tsv("ncbi_api_key_forsanger.txt", col_names = F)
 set_entrez_key(unname(unlist(ncbiapikey)))
 library(tidyverse) 
 library(rentrez)
@@ -39,8 +39,6 @@ for(i in 1:nrow(seqacc)){
 
 
 saveRDS(seqacc, "/pine/scr/n/f/nfb/Projects/VivID_Seq/public_sanger_seqs/global_sangerseq_seqacc.rds")
-
-outfastas <- purrr::map(seqacc, `[[`, "fasta")
 seqinr::write.fasta(sequences = outfastas,
                     names = seqacc$acc,
                     file.out = "/pine/scr/n/f/nfb/Projects/VivID_Seq/public_sanger_seqs/global_sangerseq_vivid.fasta")

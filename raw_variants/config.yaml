@@ -1,9 +1,9 @@
 ## basic config options
-reference: /proj/ideel/resources/genomes/Pvivax/genomes/PvP01.fasta
+ref: /proj/ideel/resources/genomes/Pvivax/genomes/PvP01.fasta
 regions: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/regions/mtdna.bed
-samples: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/variantsampling/all_bams.txt
+samples: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/lists/all_bams.txt
 max_alleles: 3
-outdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/vcfs_gatk_joint
+outdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/vcfs_gatk_joint_raw
 tmpdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/tmp
 mem: 24
 mode: novel

@@ -99,8 +99,7 @@ rule all:
 
 rule create_report:
 	input:
-		targets.values(),
-		"report.yaml"
+		targets.values()
 	output:
 		report_file
 	shell:

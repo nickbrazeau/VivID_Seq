@@ -1,0 +1,11 @@
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS258091.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS258178.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS258286.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS258349.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS365050.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS365051.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS417748.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS693266.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS693348.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS693469.bam
+/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged/SRS693899.bam

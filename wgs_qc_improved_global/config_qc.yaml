@@ -1,10 +1,10 @@
 # config file for QC pipeline
 reference: /proj/ideel/resources/genomes/Pvivax/genomes/PvP01.fasta
-runs: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_pe_improved_global/global_run_map.txt
+runs: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_pe_improved_global/globalvivid_run_map.tab.txt
 aligned: /pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged
 regions: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/regions/chroms.bed
 min_depth: 4
-max_depth: 10000
+max_depth: 1000000
 min_base_qual: 20
 min_mapping_qual: 10
 threads: 4

@@ -92,7 +92,7 @@ rule filter_vars:
 
 
 
-## DISCOVERY MODE: perform joint calling chunk-wise
+## DISCOVERY MODE: perform joint calling 
 rule joint_genotype:
 	input:
 		combined_gvcf = os.path.join(OUTDIR, "combined.g.vcf.gz")

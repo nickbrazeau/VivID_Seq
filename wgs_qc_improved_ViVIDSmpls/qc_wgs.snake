@@ -99,13 +99,16 @@ rule all:
 
 rule create_report:
 	input:
-		targets.values()
+		targets = targets.values(),
+		RMD = config["rmd"]
+	params:
+		report_rmd,
 	output:
 		report_file
 	shell:
 		r"""
 		Rscript -e \
-			"rmarkdown::render('wgs_qc_report.Rmd', clean=TRUE, output_file='{output}', output_format='html_document');"
+			"rmarkdown::render('{input.RMD}', clean=TRUE, output_file='{output}', output_format='html_document');"
 		"""
 
 rule windowed_coverage:

@@ -100,9 +100,7 @@ rule all:
 rule create_report:
 	input:
 		targets = targets.values(),
-		RMD = config["rmd"]
-	params:
-		report_rmd,
+		RMD = config["rmd"],
 	output:
 		report_file
 	shell:

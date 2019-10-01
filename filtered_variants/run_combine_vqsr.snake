@@ -9,7 +9,7 @@ import os
 import sys
 OUTDIR = config["outdir"]
 REF = os.path.expandvars(config["reference"])
-OUTFILE = os.path.join(OUTDIR, "firstpass.vcf.gz"),
+OUTFILE = os.path.join(OUTDIR, "VivID_final_smpls.vsqr.vcf.gz"),
 
 rule apply_snp_model:
 	input:

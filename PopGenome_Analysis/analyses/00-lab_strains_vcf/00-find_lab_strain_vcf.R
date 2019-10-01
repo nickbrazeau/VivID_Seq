@@ -24,3 +24,16 @@ labstrain.vcf <- vcfRmanip::select_samples(vcfRobject = vcf, smplvctr = labstrai
 
 labstrain.vcf.ss <- vcfRmanip::vcfR2segsites_gt(labstrain.vcf)
 
+
+
+labstrain.vcf.dp <- vcfR::extract.gt(labstrain.vcf, element = "DP")
+labstrain.vcf.dp <- apply(labstrain.vcf.dp, 2, function(x){return(as.numeric(x))})
+
+
+labstrain.vcf.dp %>%
+  as_tibble(.) %>%
+  tidyr::gather(., key = "smpl", value = "DP") %>%
+  ggplot() +
+  geom_boxplot(aes(x=factor(smpl), y = DP))
+
+

@@ -54,7 +54,7 @@ runs, samples = load_run_metadata(config["runs"])
 lane_bams = defaultdict(list)
 for rg,(lib, sample) in runs.items():
 	lane_bams[sample].append( os.path.join(ALNROOT, "lanes_raw", "{}/{}.aligned.bam".format(sample, rg)) )
-final_target = [ os.path.join(ALNROOT, "merged", "{}.bai".format(s)) for s in samples ]
+final_target = [ os.path.join(ALNROOT, "merged", "{}.bam.bai".format(s)) for s in samples ]
 
 rule all:
 	input: final_target
@@ -63,19 +63,19 @@ rule index_merged:
 	input:
 		"{alnroot}/merged/{sample}.bam"
 	output:
-		"{alnroot}/merged/{sample}.bai"
+		"{alnroot}/merged/{sample}.bam.bai"
 	params:
 		memory = str(6),
 		threads =  str( int(config["threads"]) - 1 )
 	shell:
 		r"""
-		gatk --java-options "-Xmx4g -XX:ParallelGCThreads={params.threads}" \
-		BuildBamIndex \
+		java -jar -Xmx4g -XX:ParallelGCThreads={params.threads} {PICARD} BuildBamIndex \
 			INPUT={input} \
 			OUTPUT={output} \
 			TMP_DIR={TMP_DIR} \
 			VALIDATION_STRINGENCY=LENIENT
 		"""
+		
 rule merge_lanes:
 	input:
 		lambda wildcards: lane_bams[wildcards.sample]

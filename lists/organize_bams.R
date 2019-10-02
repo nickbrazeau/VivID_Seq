@@ -19,7 +19,7 @@ all_bams$value <- gsub("/Users/nickbrazeau/Documents/MountPoints/mountedScratchL
 
 
 readr::write_tsv(x = all_bams,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/all_bams.txt",
+                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/all_bams.list",
                  col_names = F)
 
 
@@ -33,7 +33,7 @@ lab_strains <- all_bams$value[ all_bams$basenames %in% smpls$acc[smpls$host == "
 lab_strains <- tibble::enframe( lab_strains, name = NULL )
 
 readr::write_tsv(x = lab_strains,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/lab_strains.txt",
+                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/lab_strains.list",
                  col_names = F)
 
 
@@ -51,6 +51,6 @@ hybridcompar <- all_bams$value[ all_bams$basenames %in% hybridcompar ]
 hybridcompar <- tibble::enframe( hybridcompar, name = NULL )
 
 readr::write_tsv(x = hybridcompar,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/hybridcompar.txt",
+                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/hybridcompar.list",
                  col_names = F)
 

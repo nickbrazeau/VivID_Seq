@@ -15,4 +15,3 @@ snakemake \
 	--rerun-incomplete \
 	--keep-going \
 	--latency-wait $WAIT \
-#	--dryrun -p

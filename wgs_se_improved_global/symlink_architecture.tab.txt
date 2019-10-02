@@ -1,0 +1,1 @@
+SRS1607662	/pine/scr/n/f/nfb/Projects/VivID_Seq/public_se_seqs//SRR4019023.fastq.gz	SRS1607662/SRR4019023.fastq.gz

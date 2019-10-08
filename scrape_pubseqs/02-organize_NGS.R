@@ -82,7 +82,7 @@ se.long.paths <- dplyr::left_join(se.long, se.paths, by = "fastq") %>%
 # Note, India samples SRS805922, SRS807702, SRS807711, SRS807712, SRS805942, SRS805943, SRS807544, SRS807701
 # have both PE and SE reads. Drop all SE reads (as we will not combine these) due to different error mode
 
-se <- se[!se$acc %in% pe$acc, ]
+se.long.paths <- se.long.paths[!se.long.paths$acc %in% pe.long.paths$acc, ]
 
 # This just leaves us with the one Ancient DNA sample from Spain
 

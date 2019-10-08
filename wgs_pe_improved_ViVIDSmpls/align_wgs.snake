@@ -55,8 +55,7 @@ lane_bams = defaultdict(list)
 for rg,(lib, sample) in runs.items():
 	lane_bams[sample].append( os.path.join(ALNROOT, "lanes_raw", "{}/{}.aligned.bam".format(sample, rg)) )
 
-final_target = [ os.path.join(ALNROOT, "merged", "{}.bam.bai".format(s)) for s in samples ,
-				 os.path.join(ALNROOT, "lanes_raw", "{}/{}.aligned.bam".format(sample, rg)) for rg,(lib, sample) in runs.items() ]
+final_target = [ os.path.join(ALNROOT, "merged", "{}.bam.bai".format(s)) for s in samples , os.path.join(ALNROOT, "lanes_raw", "{}/{}.aligned.bam".format(sample, rg)) for rg,(lib, sample) in runs.items() ]
 
 rule all:
 	input: final_target

@@ -1,7 +1,7 @@
 #! /bin/bash
 
-ROOT=/proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_pe_improved_ViVIDSmpls/ # root directory for project (non-scratch)
-WD=/pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_ViVIDSmpls/ # working directory for alignments (scratch)
+ROOT=/proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/eda_batch_effects/ # root directory for project (non-scratch)
+WD=/pine/scr/n/f/nfb/Projects/VivID_Seq/eda_batch_effects/ # working directory for alignments (scratch)
 NODES=1028 # max number of cluster nodes
 WAIT=30 # number of seconds to wait for files to appear, absorbing some file system latency
 
@@ -15,4 +15,4 @@ snakemake \
 	--rerun-incomplete \
 	--keep-going \
 	--latency-wait $WAIT \
-#	--dryrun -p
+	--dryrun -p

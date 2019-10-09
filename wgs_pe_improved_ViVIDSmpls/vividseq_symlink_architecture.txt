@@ -64,10 +64,10 @@ M3E9D /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVI
 M3E9D /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_3-M3E9D_CCTATCCT_S11_L003_R2_001.fastq.gz M3E9D/M3E9D_2019-10-08_2.fastq.gz
 S2V7X /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_4-S2V7X_GGCTCTGA_S12_L003_R1_001.fastq.gz S2V7X/S2V7X_2019-10-08_1.fastq.gz
 S2V7X /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_4-S2V7X_GGCTCTGA_S12_L003_R2_001.fastq.gz S2V7X/S2V7X_2019-10-08_2.fastq.gz
-Q8J60 /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_5-Q8J60_AGGCGAAG_S5_L002_R1_001.fastq.gz Q8J60/Q8J60_2019-10-08_1.fastq.gz
-Q8J60 /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_5-Q8J60_AGGCGAAG_S5_L002_R2_001.fastq.gz Q8J60/Q8J60_2019-10-08_2.fastq.gz
-O6Y4X /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_6-O6Y4X_TAATCTTA_S6_L002_R1_001.fastq.gz O6Y4X/O6Y4X_2019-10-08_1.fastq.gz
-O6Y4X /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_6-O6Y4X_TAATCTTA_S6_L002_R2_001.fastq.gz O6Y4X/O6Y4X_2019-10-08_2.fastq.gz
+Q8J6O /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_5-Q8J60_AGGCGAAG_S5_L002_R1_001.fastq.gz Q8J6O/Q8J6O_2019-10-08_1.fastq.gz
+Q8J6O /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_5-Q8J60_AGGCGAAG_S5_L002_R2_001.fastq.gz Q8J6O/Q8J6O_2019-10-08_2.fastq.gz
+O6Y4K /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_6-O6Y4X_TAATCTTA_S6_L002_R1_001.fastq.gz O6Y4K/O6Y4K_2019-10-08_1.fastq.gz
+O6Y4K /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_6-O6Y4X_TAATCTTA_S6_L002_R2_001.fastq.gz O6Y4K/O6Y4K_2019-10-08_2.fastq.gz
 D9U3K /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_7-D9U3K_CAGGACGT_S7_L002_R1_001.fastq.gz D9U3K/D9U3K_2019-10-08_1.fastq.gz
 D9U3K /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_7-D9U3K_CAGGACGT_S7_L002_R2_001.fastq.gz D9U3K/D9U3K_2019-10-08_2.fastq.gz
 R2H8J /proj/ideel/Seq_Reads/IDEEL_rawreads/Pvivax/2019-10-08_VivIDCapbyHTSF/VIVID_8-R2H8J_GTACTGAC_S8_L002_R1_001.fastq.gz R2H8J/R2H8J_2019-10-08_1.fastq.gz

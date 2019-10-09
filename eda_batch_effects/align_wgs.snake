@@ -51,7 +51,7 @@ PICARD = "/nas02/apps/picard-2.10.3/picard-2.10.3/picard.jar"
 runs, samples = load_run_metadata(config["runs"])
 
 ## make targets
-final_target = [ os.path.join(ALNROOT, "{}.aligned.bam".format(rg)) for rg,(lib, sample) in runs.items() )
+final_target = [ os.path.join(ALNROOT, "{}.aligned.bam".format(rg)) for rg in runs.items() )
 
 rule all:
 	input: final_target

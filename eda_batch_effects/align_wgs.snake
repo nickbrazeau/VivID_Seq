@@ -73,8 +73,11 @@ rule index_bam:
 			VALIDATION_STRINGENCY=LENIENT
 		"""
 rule sort:
-	input: "{alnroot}/{sample}/{rg}.bam"
-	output: "{alnroot}/{sample}/{rg}.sorted.bam"
+	input: "{alnroot}/{sample}/{rg}.bam",
+	output: "{alnroot}/{sample}/{rg}.sorted.bam",
+	params:
+		memory = str(6),
+		threads =  str( int(config["threads"]) - 1 )
 	shell:
 		r"""
 		java -jar -Xmx4g -XX:ParallelGCThreads={params.threads} {PICARD} SortSam \

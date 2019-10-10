@@ -51,16 +51,16 @@ PICARD = "/nas02/apps/picard-2.10.3/picard-2.10.3/picard.jar"
 runs, samples = load_run_metadata(config["runs"])
 
 ## make targets
-final_target = [os.path.join(ALNROOT, "{}/{}.aligned.bam.bai".format(sample, rg)) for rg,(lib, sample) in runs.items() ]
+final_target = [os.path.join(ALNROOT, "{}/{}.sorted.bam.bai".format(sample, rg)) for rg,(lib, sample) in runs.items() ]
 
 rule all:
 	input: final_target
 
 rule index_bam:
 	input:
-		"{alnroot}/{sample}/{rg}.aligned.bam"
+		"{alnroot}/{sample}/{rg}.sorted.bam"
 	output:
-		"{alnroot}/{sample}/{rg}.aligned.bam.bai"
+		"{alnroot}/{sample}/{rg}.sorted.bam.bai"
 	params:
 		memory = str(6),
 		threads =  str( int(config["threads"]) - 1 )
@@ -72,6 +72,16 @@ rule index_bam:
 			TMP_DIR={TMP_DIR} \
 			VALIDATION_STRINGENCY=LENIENT
 		"""
+rule sort:
+	input: "{alnroot}/{sample}/{rg}.bam"
+	output: "{alnroot}/{sample}/{rg}.sorted.bam"
+	shell:
+		r"""
+		java -jar -Xmx4g -XX:ParallelGCThreads={params.threads} {PICARD} SortSam \
+			INPUT={input} \
+			OUTPUT={output} \
+			TMP_DIR={TMP_DIR} \
+		"""
 
 rule trim_and_align:
 	input:
@@ -80,7 +90,7 @@ rule trim_and_align:
 		read1 = os.path.join(SEQROOT, "{sample}/{rg}_1.fastq.gz"),
 		read2 = os.path.join(SEQROOT, "{sample}/{rg}_2.fastq.gz")
 	output:
-		aligned = temp( os.path.join(ALNROOT, "{sample}/{rg}.aligned.bam") ),
+		aligned = temp( os.path.join(ALNROOT, "{sample}/{rg}.bam") ),
 		trimlog = os.path.join(SEQROOT, "{sample}/{rg}_trimming.log")
 		# split = "{alnroot}/lanes_raw/{sample}_{barcode}_{lane}.split.bam",
 		# discordant = "{alnroot}/lanes_raw/{sample}_{barcode}_{lane}.discordant.bam",

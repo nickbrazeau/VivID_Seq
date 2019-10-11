@@ -57,10 +57,8 @@ rule all:
 	input: final_target
 
 rule index_bam:
-	input:
-		"{alnroot}/{sample}/{rg}.sorted.bam"
-	output:
-		"{alnroot}/{sample}/{rg}.sorted.bam.bai"
+	input: "{alnroot}/{sample}/{rg}.sorted.bam"
+	output: "{alnroot}/{sample}/{rg}.sorted.bam.bai"
 	params:
 		memory = str(6),
 		threads =  str( int(config["threads"]) - 1 )
@@ -84,6 +82,7 @@ rule sort:
 			INPUT={input} \
 			OUTPUT={output} \
 			TMP_DIR={TMP_DIR} \
+			SORT_ORDER=coordinate
 		"""
 
 rule trim_and_align:

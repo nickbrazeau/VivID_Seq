@@ -1,6 +1,6 @@
 # config file for QC pipeline
 reference: /proj/ideel/resources/genomes/Pvivax/genomes/PvP01.fasta
-runs: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_pe_improved_global/globalvivid_run_map.tab.txt
+runs: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_qc_improved_global/sepeglobalvivid_run_map.tab.txt
 aligned: /pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged
 regions: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/regions/mtdna.bed
 rmd: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_qc_improved_global/wgs_qc_report.Rmd

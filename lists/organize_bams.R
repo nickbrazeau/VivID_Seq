@@ -23,34 +23,3 @@ readr::write_tsv(x = all_bams,
                  col_names = F)
 
 
-###############################################
-#### Read in Metadata & Write Lab strains  ####
-###############################################
-smpls <- readxl::read_excel("~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx")
-all_bams$basenames <- gsub(".bam", "", basename(all_bams$value))
-
-lab_strains <- all_bams$value[ all_bams$basenames %in% smpls$acc[smpls$host == "Lab_strain"]]
-lab_strains <- tibble::enframe( lab_strains, name = NULL )
-
-readr::write_tsv(x = lab_strains,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/lab_strains.list",
-                 col_names = F)
-
-
-
-###############################################
-#### Get Hybrid Capture Sample Comparison  ####
-###############################################
-# KP053-HYB,   KP063-HYB,   OM032-HYB,  OM092-HYB
-# SRS1061008,  SRS1061007,  SRS1061044, SRS1061081
-hybridcompar <- c("KP053-HYB", "KP063-HYB", "OM032-HYB", "OM092-HYB",
-                  "SRS1061008", "SRS1061007", "SRS1061044", "SRS1061081")
-
-
-hybridcompar <- all_bams$value[ all_bams$basenames %in% hybridcompar ]
-hybridcompar <- tibble::enframe( hybridcompar, name = NULL )
-
-readr::write_tsv(x = hybridcompar,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/hybridcompar.list",
-                 col_names = F)
-

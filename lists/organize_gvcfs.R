@@ -26,20 +26,3 @@ readr::write_tsv(x = lab_strains,
                  col_names = F)
 
 
-
-###############################################
-#### Get Hybrid Capture Sample Comparison  ####
-###############################################
-# KP053-HYB,   KP063-HYB,   OM032-HYB,  OM092-HYB
-# SRS1061008,  SRS1061007,  SRS1061044, SRS1061081
-hybridcompar <- c("KP053-HYB", "KP063-HYB", "OM032-HYB", "OM092-HYB",
-                  "SRS1061008", "SRS1061007", "SRS1061044", "SRS1061081")
-
-
-hybridcompar <- all_gvcfs$value[ all_gvcfs$basenames %in% hybridcompar ]
-hybridcompar <- tibble::enframe( hybridcompar, name = NULL )
-
-readr::write_tsv(x = hybridcompar,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/hybridcompar.gvcfs.list",
-                 col_names = F)
-

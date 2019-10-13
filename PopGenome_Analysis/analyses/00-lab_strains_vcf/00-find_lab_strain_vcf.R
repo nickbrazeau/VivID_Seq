@@ -11,7 +11,7 @@ library(vcfRmanip)
 #........................................................
 # Read in lab strains
 #........................................................
-labstrains <- readr::read_tsv("~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/lab_strains.txt",
+labstrains <- readr::read_tsv("~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/lab_strains.list",
                               col_names = F)
 labstrains <- gsub(".bam", "", basename(labstrains$X1))
 

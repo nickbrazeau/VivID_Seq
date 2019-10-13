@@ -1,0 +1,112 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Section 1: Quality control
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
+                      fig.align = 'center', fig.width = 8, fig.height = 8)
+Sys.setenv(RSTUDIO_PANDOC="/usr/local/Cellar/pandoc/2.7.3/bin/")
+
+```
+```{r}
+library(tidyverse)
+```
+```{r}
+###############################################
+####             Read in mtdt              ####
+###############################################
+smpls <- readxl::read_excel("~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx")
+```
+
+## Callable Loci
+```{r}
+###############################################
+####              Read in QC               ####
+###############################################
+# criterion that 95% of mitogenome must be "callable"
+callable <- round(5989*0.95, 0)
+read_callable_loci <- function(path){
+  ret <- readr::read_tsv(path, col_names = T)
+  ret$smpl <- basename(path)
+  ret$smpl <- gsub(".callable_summary.txt", "", ret$smpl)
+
+  ret <- ret %>%
+    dplyr::filter(state == "CALLABLE")
+
+  return(ret)
+
+}
+
+globalqc <- list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/wgs_qc_improved_global/qc/",
+                       pattern = ".callable_summary.txt", full.names = T)
+globalqc <- globalqc[!grepl("all.callable_summary.txt", globalqc)]
+vividqc <- list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/wgs_qc_improved_ViVIDSmpls/qc/",
+                       pattern = ".callable_summary.txt", full.names = T)
+qcpaths <- c(globalqc, vividqc)
+
+qc.results <- lapply(qcpaths, read_callable_loci) %>%
+  dplyr::bind_rows()
+
+qc.passed <- qc.results %>%
+  dplyr::filter(nBases >= callable) %>%
+  dplyr::select(c("smpl")) %>%
+  unlist(.)
+
+```
+
+```{r, results='asis'}
+smpls <- smpls %>% 
+  dplyr::rename(smpl = acc)
+
+qc.results.long <- dplyr::left_join(qc.results, smpls, by = "smpl")
+
+DT::datatable(qc.results.long, extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 20,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+
+```
+
+## Mean Depth
+```{r}
+
+read_mosdepth <- function(path){
+  ret <- readr::read_tsv(path, col_names = F)
+  ret$smpl <- basename(path)
+  ret$smpl <- gsub(".regions.bed.gz", "", ret$smpl)
+
+  return(ret)
+
+}
+
+globalqc <- list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/wgs_qc_improved_global/qc/",
+                       pattern = ".regions.bed.gz$", full.names = T)
+vividqc <- list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/wgs_qc_improved_ViVIDSmpls/qc/",
+                       pattern = ".regions.bed.gz$", full.names = T)
+qcpaths <- c(globalqc, vividqc)
+
+qc.results <- lapply(qcpaths, read_mosdepth) %>%
+  dplyr::bind_rows()
+
+
+```
+
+```{r, results='asis'}
+
+qc.results.long <- dplyr::left_join(qc.results, smpls, by = "smpl")
+
+DT::datatable(qc.results, extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 20,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+
+```
+
+

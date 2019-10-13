@@ -77,8 +77,7 @@ rule build_snp_model:
 		memory = config["recal_memory"],
 		snps_tranches = " -tranche ".join(str(_) for _ in config["snps_tranches"]),
 		snps_ncomponents = config["snps_ncomponents"],
-		snps_prior_TP = config["snps_prior_TP"],
-		snps_input_annotations = config["snps_input_annotations"]
+		snps_prior_TP = config["snps_prior_TP"]
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g -Xms{params.memory}g" \
@@ -90,7 +89,13 @@ rule build_snp_model:
 			--rscript-file {output.snps_plotter_file} \
 			--trust-all-polymorphic \
 			-tranche {params.snps_tranches} \
-			-an {params.snps_input_annotations} \
+			-an QD \
+			-an MQ \
+			-an MQRankSum \
+			-an ReadPosRankSum \
+			-an FS \
+			-an SOR \
+			-an DP \
 			-mode SNP \
 			--max-gaussians {params.snps_ncomponents} \
 			-resource TP,known=true,training=true,truth=true,prior={params.snps_prior_TP}:{input.snps_vcf_TP} \

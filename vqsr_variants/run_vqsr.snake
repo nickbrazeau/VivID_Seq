@@ -77,7 +77,8 @@ rule build_snp_model:
 		memory = config["recal_memory"],
 		snps_tranches = " -tranche ".join(str(_) for _ in config["snps_tranches"]),
 		snps_ncomponents = config["snps_ncomponents"],
-		snps_prior_TP = config["snps_prior_TP"]
+		snps_prior_TP = config["snps_prior_TP"],
+		snps_input_annotations = config["snps_input_annotations"]
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g -Xms{params.memory}g" \

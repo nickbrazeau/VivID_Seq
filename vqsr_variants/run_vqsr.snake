@@ -1,30 +1,52 @@
 #! /usr/bin/env python3
 """
 run_vqsr.snake
-Implement GATK VQSR and apply to variant filtering. 
+Implement GATK VQSR and apply to variant filtering.
 
 """
 
 import os
 import sys
 
+GVCFlist = os.path.expandvars(config["gvcflist"])
 REF = os.path.expandvars(config["reference"])
-INFILE = os.path.expandvars(config["raw_vcf"])
 TARGETS = os.path.expandvars(config["targets"])
 OUTFILE = "filtered.vcf.gz"
+
 
 rule all:
 	input: OUTFILE
 
+## final tidy-up
+rule tidy_up:
+	input:
+		os.path.join(OUTDIR, "combined.vsqrapplied.vcf.gz"),
+	output:
+		OUTFILE
+	params:
+		ref = REF,
+		memory = str(int(config["mem"]))
+	shell:
+		r"""
+		gatk --java-options "-Xmx{params.memory}g" SelectVariants \
+			-R {params.ref} \
+			-V {input} \
+			--set-filtered-gt-to-nocall \
+			--exclude-filtered \
+			--remove-unused-alternates \
+			-O {output}
+		"""
+
+
 rule apply_snp_model:
 	input:
-		vcf = INFILE,
+		joint_vcf = os.path.join(OUTDIR, "combined.joint.vcf.gz"),
 		ref = REF,
 		targets = TARGETS,
 		snps_tranches_file = "snps.tranches",
 		snps_recal_file = "snps.recal"
 	output:
-		OUTFILE
+		vsqr_vcf = os.path.join(OUTDIR, "combined.vsqrapplied.vcf.gz"),
 	params:
 		memory = config["recal_memory"],
 		snps_filter_level = config["snps_filter_level"]
@@ -33,7 +55,7 @@ rule apply_snp_model:
 		gatk --java-options "-Xmx{params.memory}g -Xms{params.memory}g" \
 			ApplyVQSR \
 			-V {input.vcf} \
-			-O {output} \
+			-O {output.vsqr_vcf} \
 			-R {input.ref} \
 			--intervals {input.targets} \
 			--truth-sensitivity-filter-level {params.snps_filter_level} \
@@ -44,7 +66,7 @@ rule apply_snp_model:
 
 rule build_snp_model:
 	input:
-		vcf = INFILE,
+		joint_vcf = os.path.join(OUTDIR, "combined.joint.vcf.gz"),
 		targets = TARGETS,
 		snps_vcf_TP = os.path.expandvars(config["snps_vcf_TP"]),
 		snps_vcf_TPFP = os.path.expandvars(config["snps_vcf_TPFP"])
@@ -55,15 +77,13 @@ rule build_snp_model:
 	params:
 		memory = config["recal_memory"],
 		snps_tranches = " -tranche ".join(str(_) for _ in config["snps_tranches"]),
-		snps_input_annotations = " -an ".join(config["snps_input_annotations"]),
 		snps_ncomponents = config["snps_ncomponents"],
-		snps_prior_TP = config["snps_prior_TP"],
-		snps_prior_TPFP = config["snps_prior_TPFP"]
+		snps_prior_TP = config["snps_prior_TP"]
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g -Xms{params.memory}g" \
 			VariantRecalibrator \
-			-V {input.vcf} \
+			-V {input.joint_vcf} \
 			-O {output.snps_recal} \
 			--intervals {input.targets} \
 			--tranches-file {output.snps_tranches_file} \
@@ -74,5 +94,40 @@ rule build_snp_model:
 			-mode SNP \
 			--max-gaussians {params.snps_ncomponents} \
 			-resource TP,known=true,training=true,truth=true,prior={params.snps_prior_TP}:{input.snps_vcf_TP} \
-			-resource TPFP,known=true,training=true,truth=false,prior={params.snps_prior_TPFP}:{input.snps_vcf_TPFP}
+		"""
+
+## DISCOVERY MODE: perform joint calling
+rule joint_genotype:
+	input:
+		combined_gvcf = os.path.join(OUTDIR, "combined.g.vcf.gz")
+	output:
+		joint_vcf = os.path.join(OUTDIR, "combined.joint.vcf.gz")
+	params:
+		maxalleles = config["max_alleles"],
+		ref = REF,
+		memory = str(int(config["mem"]))
+	shell:
+		r"""
+		gatk --java-options "-Xmx{params.memory}g" GenotypeGVCFs \
+			-R {params.ref} \
+			-V {input.combined_gvcf} \
+			-O {output.joint_vcf} \
+			--max-alternate-alleles {params.maxalleles}
+		"""
+
+## DISCOVERY MODE: join GVCFs in prep for joint calling
+rule combine_gvcfs:
+	input:
+		gvcf_list = os.path.join(GVCFlist)
+	output:
+		combined_gvcf = os.path.join(OUTDIR, "combined.g.vcf.gz")
+	params:
+		ref = REF,
+		memory = str(int(config["mem"]))
+	shell:
+		r"""
+		gatk --java-options "-Xmx{params.memory}g" CombineGVCFs \
+			-R {params.ref} \
+			--variant {input.gvcf_list} \
+			-O {output.combined_gvcf}
 		"""

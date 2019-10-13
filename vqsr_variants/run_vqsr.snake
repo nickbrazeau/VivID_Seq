@@ -54,7 +54,7 @@ rule apply_snp_model:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g -Xms{params.memory}g" \
 			ApplyVQSR \
-			-V {input.vcf} \
+			-V {input.joint_vcf} \
 			-O {output.vsqr_vcf} \
 			-R {input.ref} \
 			--intervals {input.targets} \

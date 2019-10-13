@@ -1,8 +1,8 @@
+library(tidyverse)
+library(rentrez)
 setwd("/proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/scrape_pubseqs")
 ncbiapikey <- readr::read_tsv("ncbi_api_key_forsanger.txt", col_names = F)
-set_entrez_key(unname(unlist(ncbiapikey)))
-library(tidyverse) 
-library(rentrez)
+rentrez::set_entrez_key(unname(unlist(ncbiapikey)))
 
 mtsanger <- readxl::read_excel("vivid_seq_public_sangerseq.xlsx")
 
@@ -11,13 +11,13 @@ mtsanger <- readxl::read_excel("vivid_seq_public_sangerseq.xlsx")
 seqacc <- tibble::tibble(acc = mtsanger$acc)
 search <- lapply(1:nrow(seqacc), function(x) return(list())) # nested list
 for(query in 1:nrow(seqacc)){
-  
-  acc.search <- rentrez::entrez_search(db= "nucleotide", 
+
+  acc.search <- rentrez::entrez_search(db= "nucleotide",
                                        seqacc$acc[query],
                                        retmax = 5,
                                        use_history = T)
   search[[query]] <- acc.search
-  
+
 }
 
 ## Get the IDs that we just found
@@ -30,7 +30,7 @@ fasta_fetch <- function(id){
   Sys.sleep(60)
   return(ret)
 }
-  
+
 
 seqacc$fasta <- NA
 for(i in 1:nrow(seqacc)){

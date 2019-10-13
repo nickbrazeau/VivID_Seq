@@ -25,7 +25,7 @@ rule tidy_up:
 		OUTFILE
 	params:
 		ref = REF,
-		memory = str(int(config["mem"]))
+		memory = str(int(config["recal_memory"]))
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g" SelectVariants \
@@ -105,7 +105,7 @@ rule joint_genotype:
 	params:
 		maxalleles = config["max_alleles"],
 		ref = REF,
-		memory = str(int(config["mem"]))
+		memory = str(int(config["recal_memory"]))
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g" GenotypeGVCFs \
@@ -123,7 +123,7 @@ rule combine_gvcfs:
 		combined_gvcf = os.path.join(OUTDIR, "combined.g.vcf.gz")
 	params:
 		ref = REF,
-		memory = str(int(config["mem"]))
+		memory = str(int(config["recal_memory"]))
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g" CombineGVCFs \

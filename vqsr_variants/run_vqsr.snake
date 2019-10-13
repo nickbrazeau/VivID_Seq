@@ -68,8 +68,7 @@ rule build_snp_model:
 	input:
 		joint_vcf = os.path.join(OUTDIR, "combined.joint.vcf.gz"),
 		targets = TARGETS,
-		snps_vcf_TP = os.path.expandvars(config["snps_vcf_TP"]),
-		snps_vcf_TPFP = os.path.expandvars(config["snps_vcf_TPFP"])
+		snps_vcf_TP = os.path.expandvars(config["snps_vcf_TP"])
 	output:
 		snps_recal = "snps.recal",
 		snps_tranches_file = "snps.tranches",

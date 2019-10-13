@@ -12,7 +12,7 @@ GVCFlist = os.path.expandvars(config["gvcflist"])
 REF = os.path.expandvars(config["reference"])
 TARGETS = os.path.expandvars(config["targets"])
 OUTFILE = "filtered.vcf.gz"
-
+OUTDIR = os.path.expandvars(config["OUTDIR"])
 
 rule all:
 	input: OUTFILE

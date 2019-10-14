@@ -57,7 +57,7 @@ rule filter_vars:
 		os.path.join(OUTDIR, "filtered.joint.vcf.gz")
 	params:
 		ref = REF,
-		memory = str(int(config["mem"])),
+		memory = str(int(config["recal_memory"])),
 		min_DP = config["min_DP"],
 		max_DP = config["max_DP"],
 		min_RPRS_SNV = config["min_RPRS_SNV"],

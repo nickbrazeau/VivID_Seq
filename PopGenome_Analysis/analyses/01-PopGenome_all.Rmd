@@ -1,0 +1,587 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Section 2: Genetic Statistics, All Samples Considered
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
+                      fig.align = 'center', fig.width = 8, fig.height = 8)
+```
+
+```{r}
+#---------------------------------------------------- 
+# Purpose of this script is to perform analyses
+# with the PopGenome Package
+#---------------------------------------------------- 
+library(tidyverse)
+library(PopGenome)
+
+mtdna <- PopGenome::readData(path = "data/fasta/",
+                             format = "fasta",
+                             include.unknown = T,
+                             progress_bar_switch=T,
+                             FAST=F,
+                             big.data=F)
+
+smpls <- readxl::read_excel("~/Documents/GitHub/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx") %>% 
+  dplyr::rename(smpls = acc) %>% 
+  dplyr::select(c("smpls", "vividregion"))
+fnlsmpls <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/final_smpl_list.RDS")
+
+fnlsmpls <- data.frame(smpls = fnlsmpls, stringsAsFactors = F) 
+fnlsmpls <- dplyr::left_join(fnlsmpls, smpls, by = "smpls")
+fnlsmpls$vividregion[is.na(fnlsmpls$vividregion)] <- "DRC"
+
+
+```
+
+```{r}
+#---------------------------------------------------- 
+# Define population structure & outgroup
+#---------------------------------------------------- 
+rgn <- split(fnlsmpls$smpls, factor(fnlsmpls$vividregion))
+mtdna.struct <- PopGenome::set.populations(mtdna,
+                                           rgn)
+
+mtdna.struct <- set.outgroup(mtdna.struct,
+                             c("Anc"))
+
+#---------------------------------------------------- 
+# Sliding Window Objects
+#---------------------------------------------------- 
+mtdna.struct.slide <- PopGenome::sliding.window.transform(
+  object = mtdna.struct,
+  width = 100, 
+  jump = 100,
+  type = 2, # all nucleotides
+  whole.data = T
+)
+mtdna.struct.slide@region.names
+
+#---------------------------------------------------- 
+# Keep Track of model liftovers
+#---------------------------------------------------- 
+
+liftover.mtdna_struct <- tibble::tibble(
+  pop = names(rgn),
+  popn = paste0("pop", 1:length(names(rgn)))
+)
+
+
+liftover.mtdna_struct_slide <- tibble::tibble(
+  pop = names(rgn),
+  popn = paste0("pop", 1:length(names(rgn)))
+)
+
+# between liftover
+join1 <- liftover.mtdna_struct %>% 
+  dplyr::rename(pop1 = popn)
+join2 <- liftover.mtdna_struct %>% 
+  dplyr::rename(pop2 = popn)
+
+liftover.btwn <- expand.grid(c(1:length(names(rgn))), c(1:length(names(rgn)))) %>% 
+  magrittr::set_colnames(c("pop1", "pop2")) %>% 
+  dplyr::mutate(pop1 = paste0("pop", pop1),
+                pop2 = paste0("pop", pop2)) %>% 
+  dplyr::filter(pop1 != pop2) %>% 
+  dplyr::left_join(join1, ., by = "pop1") %>% 
+  dplyr::left_join(join2, ., by = "pop2") %>% 
+  dplyr::mutate(pairs = paste0(pop1, "/", pop2)) %>% 
+  dplyr::select(c("pop.x", "pop.y", "pairs"))
+
+
+
+```
+
+## Global Summary Data
+```{r, results='asis'}
+out <- get.sum.data(mtdna.struct)
+rownames(out) <- NULL
+knitr::kable( out )
+
+```
+
+```{r, results='asis'}
+out <- get.sum.data(mtdna.struct)
+rownames(out) <- NULL
+knitr::kable( out )
+
+```
+
+```{r, results = 'asis'}
+
+mtdnasmpls <- lapply(mtdna.struct@populations, function(x){ return(length(x)) })
+counts <- data.frame(rgn = names(mtdnasmpls), count = unlist(mtdnasmpls))
+rownames(counts) <- NULL
+
+knitr::kable(counts)
+
+```
+
+
+```{r}
+
+#---------------------------------------------------- 
+# Basic Between and Within Diversity 
+#---------------------------------------------------- 
+mtdna.struct <- PopGenome::diversity.stats(mtdna.struct, 
+                                           pi = T)
+
+mtdna.struct <- diversity.stats.between(mtdna.struct,
+                                        haplotype.mode=T, 
+                                        nucleotide.mode=T)
+                                        
+
+
+#---------------------------------------------------- 
+# Diversity sliding windows
+#---------------------------------------------------- 
+mtdna.struct.slide <- PopGenome::diversity.stats(mtdna.struct.slide, 
+                                                 pi = T, 
+                                                 keep.site.info = F)
+
+#---------------------------------------------------- 
+# Neutrality all sites
+#---------------------------------------------------- 
+mtdna.struct <- PopGenome::neutrality.stats(mtdna.struct)
+
+#---------------------------------------------------- 
+# Neutrality sliding windows
+#---------------------------------------------------- 
+mtdna.struct.slide <- PopGenome::neutrality.stats(mtdna.struct.slide)
+
+
+#---------------------------------------------------- 
+# F-Statistics Global
+#---------------------------------------------------- 
+mtdna.struct <- PopGenome::F_ST.stats(
+  mtdna.struct,
+  detail = T,
+  mode = "ALL",
+  only.haplotype.counts = F
+  
+)
+
+#---------------------------------------------------- 
+# F-Statistics sliding windows
+#---------------------------------------------------- 
+mtdna.struct.slide <- PopGenome::F_ST.stats(
+  mtdna.struct.slide,
+  detail = T,
+  mode = "ALL",
+  only.haplotype.counts = F
+)
+
+
+```
+
+
+## Genetic Statistics
+
+### Diversity 
+
+#### Within-Population Diversity
+```{r}
+
+ret <- PopGenome::get.diversity(mtdna.struct, between = F)
+popn <- gsub(" ", "", rownames(ret))
+ret <- lapply(ret, as.data.frame) %>% 
+  dplyr::bind_rows() %>% 
+  dplyr::mutate(popn = popn) %>% 
+  dplyr::inner_join(liftover.mtdna_struct, ., by = "popn") %>% 
+  dplyr::select(-c("popn"))
+```
+
+```{r, results='asis'}
+
+DT::datatable(ret, extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 100,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+
+
+```
+
+
+#### Between-Population Diversity
+```{r}
+
+ret <- PopGenome::get.diversity(mtdna.struct, between=T)
+statnames <- rownames(ret)
+pairs <- colnames(ret[[1]])
+ret <- lapply(ret, as.data.frame) %>% 
+  dplyr::bind_rows(.) %>% 
+  t(.) %>% 
+  tibble::as_tibble(.) %>% 
+  magrittr::set_colnames(statnames) %>% 
+  dplyr::mutate(pairs = pairs) %>% 
+  dplyr::inner_join(liftover.btwn, ., by = "pairs") %>% 
+  dplyr::select(-c("pairs"))
+```
+
+```{r, results='asis'}
+DT::datatable(ret, extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 100,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+
+
+```
+
+
+
+### Neutrality 
+
+```{r}
+
+ret <- PopGenome::get.neutrality(mtdna.struct, 
+                                 theta = T,
+                                 stats = T)
+popn <- gsub(" ", "", rownames(ret))
+
+ret <- lapply(ret, as.data.frame) %>% 
+  dplyr::bind_rows() %>% 
+  dplyr::mutate(popn = popn) %>% 
+  dplyr::inner_join(liftover.mtdna_struct, ., by = "popn") %>% 
+  dplyr::select(-c("popn"))
+
+```
+
+```{r, results='asis'}
+DT::datatable(ret, extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 100,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+
+
+```
+
+
+
+
+### Structure 
+
+#### Differentiation Statistics Global
+```{r, results='asis'}
+
+ret <- PopGenome::get.F_ST(mtdna.struct, pairwise = F)
+rownames(ret) <- NULL
+
+DT::datatable(ret, extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 100,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+```
+
+#### Differentiation Statistics Between
+```{r}
+ret <- PopGenome::get.F_ST(mtdna.struct, pairwise = T)
+
+statnames <- rownames(ret)
+pairs <- colnames(ret[[1]])
+ret <- lapply(ret, as.data.frame) %>% 
+  dplyr::bind_rows(.) %>% 
+  t(.) %>% 
+  tibble::as_tibble(.) %>% 
+  magrittr::set_colnames(statnames) %>% 
+  dplyr::mutate(pairs = pairs) %>% 
+  dplyr::inner_join(liftover.btwn, ., by = "pairs") %>% 
+  dplyr::select(-c("pairs"))
+
+
+```
+
+```{r, results='asis'}
+
+DT::datatable(ret, extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 100,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+
+```
+
+### Hudson's Snn
+#### Global
+
+```{r}
+ret <- F_ST.stats.2(mtdna.struct,
+             snn = T,
+             Phi_ST = F)
+```
+
+```{r, results='asis'}
+knitr::kable(ret@Hudson.Snn)
+
+```
+
+
+#### Pairwise
+```{r}
+#---------------------------------------------------- 
+# Hudson's Snn Wrapper
+# https://github.com/cran/PopGenome/blob/master/R/GENOME.R
+#---------------------------------------------------- 
+
+pop.list <- t( combn(1:length(rgn), 2) ) %>% 
+  tibble::as_tibble(.) %>%  
+  magrittr::set_colnames(c("pop1", "pop2"))
+
+linker1 <- tibble::tibble(pop1 = 1:length(rgn), pop1names = names(rgn)) 
+linker2 <- tibble::tibble(pop2 = 1:length(rgn), pop2names = names(rgn)) 
+pop.list <- pop.list %>% 
+  dplyr::left_join(., linker1, by = "pop1") %>% 
+  dplyr::left_join(., linker2, by = "pop2")
+
+
+# need to make this pairwise wrapper for SNN
+snn_wrap <- function(pop1num, pop2num){
+  
+  if(pop1num == pop2num){
+    return(NA)
+  } else{
+    
+    ret <- F_ST.stats.2(mtdna.struct,
+                        snn = T,
+                        Phi_ST = F, 
+                        new.populations = 
+                          c(rgn[[pop1num]], rgn[[pop2num]]))
+    return(as.vector(ret@Hudson.Snn))
+  }
+}
+
+
+pop.list$snn <- purrr::map2(pop.list$pop1, pop.list$pop2, snn_wrap)
+
+#---------------------------------------------------- 
+# Tidy Up
+#---------------------------------------------------- 
+
+pop.list <- pop.list %>% 
+  dplyr::select(c("pop1names", "pop2names", "snn")) %>% 
+  tidyr::unnest(cols = "snn") %>% 
+    dplyr::mutate(pop1names = forcats::fct_rev(forcats::fct_reorder(.f = pop1names, .x = pop1names, .fun = length)),
+                pop2names = forcats::fct_rev(forcats::fct_reorder(.f = pop2names, .x = pop2names, .fun = length))) 
+
+
+
+```
+
+
+```{r, results='asis'}
+
+pop.dist <- pop.list %>% 
+  tidyr::spread(., key = "pop2names", value = "snn") 
+
+DT::datatable(pop.dist, extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 100,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+
+```
+
+```{r, results='asis}
+
+pop.list %>% 
+  ggplot() + 
+  geom_tile(aes(x=pop1names, y=pop2names, fill = snn)) + 
+  ggtitle("Pairwise Hudson's Snn") +
+  scale_fill_viridis_c("Snn") + 
+  theme_minimal() + 
+  theme(
+    plot.title = element_text(vjust = 0.5, hjust = 0.5, size = 11, face = "bold"), 
+    axis.title = element_blank(),
+    axis.text.y = element_text(size = 8),
+    axis.text.x = element_text(angle = 90, size = 8, hjust = 1),
+    legend.position = "right",
+    legend.text = element_text(hjust = 0.5, vjust = 0.5, size = 8),
+    plot.background = element_blank(),
+    panel.grid = element_blank()
+    )
+
+
+```
+
+
+
+## Sliding Windows
+### Within-Population Sliding Windows of Diversity
+```{r}
+
+out <- tibble::tibble(popn = gsub(" ", "", rownames(PopGenome::get.diversity(mtdna.struct.slide, between=F))),
+                      diversity = PopGenome::get.diversity(mtdna.struct.slide, between=F)
+                      )
+
+out$diversity <- purrr::map(out$diversity, function(x){
+  ret <- as.data.frame(x)
+  ret$intervals <- rownames(x)
+  ret$intervals <- gsub(" :", "", ret$intervals)
+  return(ret)
+})
+
+
+out <- dplyr::left_join(liftover.mtdna_struct_slide, out, by = "popn") %>% 
+  dplyr::select(-c("popn"))
+
+out <- out %>% 
+  tidyr::unnest(cols = "diversity")
+
+
+```
+
+```{r, results='asis'}
+
+DT::datatable(out, extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 50,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+```
+
+```{r}
+
+# housekeeping
+intrvllevels <- out %>% 
+  dplyr::select("intervals") %>% 
+  dplyr::filter(!duplicated(.))
+
+
+slidingHapDiversityPlot <- out %>% 
+  dplyr::select(c("intervals", "pop", "hap.diversity.within")) %>% 
+  dplyr::mutate(intervals_fct = factor(intervals, levels = unlist(intrvllevels), ordered = T)) %>% 
+  dplyr::group_by(pop) %>% 
+  ggplot(aes(x = intervals_fct, y = hap.diversity.within, 
+             group = factor(pop), color = factor(pop))) +
+  geom_line(size = 1.2) +
+  scale_color_manual("Region",
+                     values = c("#fdae6b", # AF
+                                "#a6bddb", #CAm
+                                "#e41a1c", # DRC
+                                "#c7e9c0", # EAs
+                                "#000000", # internal
+                                "#74c476", #ME
+                                "#4a1486", # NHA
+                                "#238b45", #SAm
+                                "#4292c6", # SAs
+                                "#084594" #SEA
+                                )) +
+  ylab("Within-Region Haplotype Diversity") +
+  theme_classic() +
+  theme(
+    axis.line = element_line(colour = 'black', size = 1.5),
+    axis.title.x = element_blank(),
+    axis.title.y = element_text(face = "bold", size = 12),
+    legend.title = element_text(face = "bold", size = 12),
+    legend.text = element_text(size = 11),
+    axis.text.x = element_text(size = 11, angle = 90, hjust = 1),
+    axis.text.y = element_text(size = 11)
+  )
+
+```
+
+```{r, results='asis'}
+plot(slidingHapDiversityPlot)
+
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/sliding_HapDiversity.jpg", height = 8, width = 11, units = "in", res = 500)
+plot(slidingHapDiversityPlot)
+graphics.off()
+
+```
+
+
+
+### Sliding Window Neutral Summary Statistics 
+
+```{r}
+
+out <- tibble::tibble(popn = gsub(" ", "", rownames(PopGenome::get.neutrality(mtdna.struct.slide))),
+                      neutrality = PopGenome::get.neutrality(mtdna.struct.slide)
+                      )
+
+out$neutrality <- purrr::map(out$neutrality, function(x){
+  ret <- as.data.frame(x)
+  ret$intervals <- rownames(x)
+  ret$intervals <- gsub(" :", "", ret$intervals)
+  return(ret)
+})
+
+
+out <- dplyr::left_join(liftover.mtdna_struct_slide, out, by = "popn") %>% 
+  dplyr::select(-c("popn"))
+
+out <- out %>% 
+  tidyr::unnest(cols = "neutrality")
+
+
+```
+
+```{r, results='asis'}
+
+DT::datatable(out, extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 50,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+```
+
+
+```{r}
+
+slidingTajimasDPlot <- out %>% 
+  dplyr::select(c("intervals", "pop", "Tajima.D")) %>% 
+  dplyr::mutate(intervals_fct = factor(intervals, levels = unlist(intrvllevels), ordered = T)) %>% 
+  dplyr::group_by(pop) %>% 
+  ggplot(aes(x = intervals_fct, y = Tajima.D, 
+             group = factor(pop), color = factor(pop))) +
+  geom_point(size = 2, alpha = 0.8) +
+  scale_color_manual("Region",
+                     values = c("#fdae6b", # AF
+                                "#a6bddb", #CAm
+                                "#e41a1c", # DRC
+                                "#c7e9c0", # EAs
+                                "#000000", # internal
+                                "#74c476", #ME
+                                "#4a1486", # NHA
+                                "#238b45", #SAm
+                                "#4292c6", # SAs
+                                "#084594" #SEA
+                                )) +
+  geom_hline(yintercept = 0, col = "red") +
+  ylab("Within-Region Tajima's D") +
+  theme_classic() +
+  theme(
+    axis.line = element_line(colour = 'black', size = 1.5),
+    axis.title.x = element_blank(),
+    axis.title.y = element_text(face = "bold", size = 12),
+    legend.title = element_text(face = "bold", size = 12),
+    legend.text = element_text(size = 11),
+    axis.text.x = element_text(size = 11, angle = 90, hjust = 1),
+    axis.text.y = element_text(size = 11)
+  )
+
+```
+```{r, results='asis'}
+
+plot( slidingTajimasDPlot )
+
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/sliding_TajimasD.jpg", height = 8, width = 11, units = "in", res = 500)
+plot(slidingTajimasDPlot)
+graphics.off()
+
+```
+

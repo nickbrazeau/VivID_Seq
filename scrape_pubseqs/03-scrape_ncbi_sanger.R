@@ -37,7 +37,7 @@ for(i in 1:nrow(seqacc)){
   seqacc$fasta[i] <- fasta_fetch(seqacc$id[i])
 }
 
-
+dir.create( "/pine/scr/n/f/nfb/Projects/VivID_Seq/public_sanger_seqs/", recursive = T)
 saveRDS(seqacc, "/pine/scr/n/f/nfb/Projects/VivID_Seq/public_sanger_seqs/global_sangerseq_seqacc.rds")
 seqinr::write.fasta(sequences = outfastas,
                     names = seqacc$acc,

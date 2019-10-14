@@ -32,7 +32,7 @@ rule tidy_up:
 		os.path.join(OUTDIR, "passed.joint.vcf.gz")
 	params:
 		ref = REF,
-		memory = str(int(config["mem"]))
+		memory = str(int(config["recal_memory"]))
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g" SelectVariants \

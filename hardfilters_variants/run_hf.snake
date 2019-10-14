@@ -38,7 +38,7 @@ rule tidy_up:
 		gatk --java-options "-Xmx{params.memory}g" SelectVariants \
 			-R {params.ref} \
 			-V {input.vcf} \
-			--intervals {input.targets} \
+			--intervals {input.target} \
 			--set-filtered-gt-to-nocall \
 			--exclude-filtered \
 			--remove-unused-alternates \
@@ -74,7 +74,7 @@ rule filter_vars:
 		gatk --java-options "-Xmx{params.memory}g" VariantFiltration \
 			-R {params.ref} \
 			-V {input.vcf} \
-			--intervals {input.targets} \
+			--intervals {input.target} \
 			--invalidate-previous-filters \
 			--genotype-filter-expression "!vc.hasAttribute('DP')" \
 			--genotype-filter-name "NoDP" \

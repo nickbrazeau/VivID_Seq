@@ -95,10 +95,9 @@ rule build_snp_model:
 			-an ReadPosRankSum \
 			-an FS \
 			-an SOR \
-			-an DP \
 			-mode SNP \
 			--max-gaussians {params.snps_ncomponents} \
-			-resource TP,known=true,training=true,truth=true,prior={params.snps_prior_TP}:{input.snps_vcf_TP}
+			-resource TP,known=false,training=true,truth=true,prior={params.snps_prior_TP}:{input.snps_vcf_TP}
 		"""
 
 ## DISCOVERY MODE: perform joint calling

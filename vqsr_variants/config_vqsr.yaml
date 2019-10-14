@@ -12,7 +12,7 @@ snps_vcf_TP: /pine/scr/n/f/nfb/Projects/VivID_Seq/vcfs_gatk_lab_strains/Pvlabstr
 snps_prior_TP: 15
 snps_tranches: [ 100.0, 99.9, 99.0, 90.0 ]
 snps_ncomponents: 2 # max gauss
-snps_filter_level: 90.0
+snps_filter_level: 99.9
 min_VSQLOD:
 # resource requirements
 recal_memory: 24

@@ -99,6 +99,7 @@ rule build_snp_model:
 			--max-gaussians {params.snps_ncomponents} \
 			-resource TP,known=false,training=true,truth=true,prior={params.snps_prior_TP}:{input.snps_vcf_TP}
 		"""
+		# drop -an DP because some lab strains have extreme, extreme DP
 
 ## DISCOVERY MODE: perform joint calling
 rule joint_genotype:

@@ -1,4 +1,5 @@
 library(ape)
+library(phangorn)
 #----------------------------------------------------
 # Read In
 #----------------------------------------------------
@@ -18,14 +19,14 @@ mtdna.dist.JC <- ape::dist.dna(mtdna.unique.ape, model="JC69")
 # Phangorn
 #.................................
 mtdna.unique.phangorn <- phangorn::as.phyDat(mtdna.unique.ape)
-tree.init <- nj(mtdna.dist.JC)
+tree.init <- ape::nj(mtdna.dist.JC)
 
 #.................................
 # JC Model
 #.................................
 JCfit.init <- phangorn::pml(tree.init, mtdna.unique.phangorn)
-fitJC <- optim.pml(JCfit.init, model = "JC",
-                   optNni=TRUE, optBf=TRUE, optQ=TRUE)
+fitJC <- phangorn::optim.pml(JCfit.init, model = "JC",
+                             optNni=TRUE, optBf=TRUE, optQ=TRUE)
 
 
 #.................................
@@ -40,8 +41,8 @@ JCbs <- phangorn::bootstrap.pml(fitJC, bs=iters,
 # GTR Model
 #.................................
 fitGTR.init <- phangorn::pml(tree.init, mtdna.unique.phangorn, k=4)
-fitGTR <- optim.pml(fitGTR.init, model="GTR",
-                    optNni=TRUE, optBf=TRUE, optQ=TRUE, optGamma=TRUE)
+fitGTR <- phangorn::optim.pml(fitGTR.init, model="GTR",
+                              optNni=TRUE, optBf=TRUE, optQ=TRUE, optGamma=TRUE)
 
 
 #.................................

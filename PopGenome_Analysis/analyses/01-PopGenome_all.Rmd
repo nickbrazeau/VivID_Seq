@@ -31,12 +31,15 @@ mtdna <- PopGenome::readData(path = "~/Documents/GitHub/VivID_Seq/PopGenome_Anal
 
 smpls <- readxl::read_excel("~/Documents/GitHub/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx") %>% 
   dplyr::rename(smpls = acc) %>% 
-  dplyr::select(c("smpls", "vividregion"))
+  dplyr::select(c("smpls", "country", "vividregion"))
 fnlsmpls <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/final_smpl_list.RDS")
 
 fnlsmpls <- data.frame(smpls = fnlsmpls, stringsAsFactors = F) 
 fnlsmpls <- dplyr::left_join(fnlsmpls, smpls, by = "smpls")
-fnlsmpls$vividregion[is.na(fnlsmpls$vividregion)] <- "DRC"
+
+# add drc details
+fnlsmpls$country[is.na(fnlsmpls$country)] <- "CD"
+fnlsmpls$vividregion[is.na(fnlsmpls$vividregion)] <- "AF"
 
 
 ```

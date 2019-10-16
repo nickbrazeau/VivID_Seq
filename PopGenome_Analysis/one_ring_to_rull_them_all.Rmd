@@ -1,0 +1,40 @@
+---
+title: "_P. vivax_ Global Mitochondrial Comparison"
+author: "Nicholas F. Brazeau"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: 
+  html_document:
+    highlight: textmate
+    theme: lumen
+    toc: yes
+    code_folding: hide
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
+                      fig.align = 'center')
+
+Sys.setenv(RSTUDIO_PANDOC="/usr/local/Cellar/pandoc/2.7.3/bin/")
+
+```
+
+```{r, child = 'analyses/00-qc_view/qc_summary.Rmd'}
+```
+
+```{r, child = 'analyses/01-PopGenome_all.Rmd'}
+```
+
+```{r, child = 'analyses/02-PopGenome_noclones.Rmd'}
+```
+
+<!-- ```{r, child = 'analyses/03-ape_ade4_all.Rmd'} -->
+<!-- ``` -->
+
+<!-- ```{r, child = 'analyses/04-ape_ade4_noclones.Rmd'} -->
+<!-- ``` -->
+
+<!-- ```{r, child = 'analyses/05-spatial_network.Rmd'} -->
+<!-- ``` -->
+

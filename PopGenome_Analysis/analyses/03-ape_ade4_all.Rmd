@@ -197,7 +197,6 @@ clad <- prop.clades(fitGTR$tree, bs, rooted = F)
 bootval <- data.frame(node = sort(unique(fitGTR$tree$edge[,1])),
                       bs = clad)
 
-
 ```
 
 

@@ -36,8 +36,10 @@ fnlsmpls <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derive
 
 fnlsmpls <- data.frame(smpls = fnlsmpls, stringsAsFactors = F) 
 fnlsmpls <- dplyr::left_join(fnlsmpls, smpls, by = "smpls")
-fnlsmpls$vividregion[is.na(fnlsmpls$vividregion)] <- "DRC"
 
+# add drc details
+fnlsmpls$country[is.na(fnlsmpls$country)] <- "CD"
+fnlsmpls$vividregion[is.na(fnlsmpls$vividregion)] <- "AF"
 
 ```
 

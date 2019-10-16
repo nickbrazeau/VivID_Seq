@@ -4,7 +4,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Genetic Statistics, All Samples Considered
+# Genetic Statistics, Only Unique Haplotypes
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
                       fig.align = 'center', fig.width = 8, fig.height = 8)
@@ -22,7 +22,7 @@ set.seed(48)
 ```
 
 ```{r}
-mtdna <- PopGenome::readData(path = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/fasta/",
+mtdna <- PopGenome::readData(path = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/noclonefasta/",
                              format = "fasta",
                              include.unknown = T,
                              progress_bar_switch=T,

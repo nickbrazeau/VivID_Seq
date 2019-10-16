@@ -4,7 +4,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Section 4: Phylogenetic Analyses
+# Phylogenetic Analyses, All Filtered Samples
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
                       fig.align = 'center', fig.width = 8, fig.height = 8)
@@ -16,13 +16,14 @@ library(tidyverse)
 library(Biostrings)
 library(ape)
 library(ggtree)
+set.seed(48)
 ```
 
 ```{r}
 #---------------------------------------------------- 
 # Read In
 #---------------------------------------------------- 
-mtdna <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/noclonefasta/unique_mtdna.fa")
+mtdna <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/fasta/mtdna_anc.fa")
 
 # going to drop the ancestral haplo here because I will do an unrooted tree
 # since we are not estimating the molecular clock
@@ -58,7 +59,7 @@ seqmat.long <- seqmat %>%
   tidyr::gather(., key = "smpls", value = "GT", 2:ncol(.)) %>% 
   dplyr::mutate(GT = factor(GT)) %>% 
   dplyr::left_join(., fnlsmpls, by = "smpls") %>% 
-  dplyr::mutate(POS = factor(POS, levels = c(1:5898), ordered = T)) 
+  dplyr::mutate(POS = factor(POS, levels = c(1:5989), ordered = T)) 
 
 gtplot <- seqmat.long %>% 
   ggplot() + 
@@ -69,7 +70,7 @@ gtplot <- seqmat.long %>%
         axis.title.x = element_blank())
 
 dir.create("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/")
-jpege("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/gtplot.jpg", height = 8, width = 11, units = "in", res = 500)
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/gtplot.jpg", height = 8, width = 11, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 
@@ -153,37 +154,24 @@ Looks like Hammings or JC are appropriate. Will use JC69 based on empirical evid
 
 ## MLE for Final Tree
 This follows the classic [Felsenstein's 1981 approach](https://link.springer.com/article/10.1007/BF01734359) as outlined by the [phangorn tutorial](https://cran.r-project.org/web/packages/phangorn/vignettes/Trees.pdf).
-
-### Jukes-Cantor Model Fit
+ 
 ```{r}
 
-# Using Phangorn
-mtdna.unique.phangorn <- phangorn::as.phyDat(mtdna.unique.ape)
-
-tree.init <- nj(mtdna.dist.JC)
-
-# initial fit of JC 
-JCfit.init <- phangorn::pml(tree.init, mtdna.unique.phangorn)
-fitJC <- optim.pml(JCfit.init, model = "JC",  
-                   optNni=TRUE, optBf=TRUE, optQ=TRUE)
+# TODO load results
 
 ```
 
+### Jukes-Cantor Model Fit
+
 ```{r, results='asis'}
 fitJC
-
 ```
 
 ### GTR Fit
 Note, I fit the process above JC69 model but am now going to maximize the Markovian DNA base-substituion model using a gamma distribution. This is the $GTR + \Gamma(4)$ (Global Time Reverse) model presented by [Tavaré 1986](http://www.damtp.cam.ac.uk/user/st321/CV_&_Publications_files/STpapers-pdf/T86.pdf). This model is widely considered the most flexible for a finite-sites, neutral sequence (i.e. the mtDNA).
-```{r}
-fitGTR.init <- phangorn::pml(tree.init, mtdna.unique.phangorn, k=4)
-fitGTR <- optim.pml(fitGTR.init, model="GTR", 
-                    optNni=TRUE, optBf=TRUE, optQ=TRUE, optGamma=TRUE)
-```
+
 ```{r, results='asis'}
 fitGTR
-
 ```
 
 ### Model Comparison
@@ -204,14 +192,10 @@ GTR model is a much better fit than JC (no surprise).
 ## Bootstrapping MLE-GTR Tree
 Going to bootstrapped our MLE tree under the GTR model for 1e4 iterations. 
 ```{r}
-
-iters <- 1e1
-bs <- phangorn::bootstrap.pml(fitGTR, bs=iters, 
-                              optNni=TRUE, optBf=TRUE, optQ=TRUE, optGamma=TRUE)
-
+# TODO load 
 clad <- prop.clades(fitGTR$tree, bs, rooted = F)
 bootval <- data.frame(node = sort(unique(fitGTR$tree$edge[,1])),
-                    bs = clad)
+                      bs = clad)
 
 
 ```

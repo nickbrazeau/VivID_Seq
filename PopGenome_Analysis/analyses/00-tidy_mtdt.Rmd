@@ -1,0 +1,167 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Tidy Metadata 
+
+```{r}
+library(tidyverse)
+set.seed(48)
+```
+
+```{r}
+
+#........................................................
+# Read in NGS sample data
+#........................................................
+smpls <- readxl::read_excel("~/Documents/GitHub/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx") %>%
+  dplyr::select(c("iid", "acc", "country", "vividregion"))
+
+drc <- data.frame(iid = c("D9U3K", "O6Y4K", "Q8J6O"),
+                  acc = c("D9U3K", "O6Y4K", "Q8J6O"),
+                  country = "CD",
+                  vividregion = "AF")
+
+smpls <- rbind.data.frame(smpls, drc) %>%
+  dplyr::filter(vividregion != "Lab")
+
+#........................................................
+# Read in Passed Sample Data
+#........................................................
+psdsmpls <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/final_smpl_list.RDS")
+psdsmpls <- tibble::tibble(acc = psdsmpls, passed = "Y")
+
+
+#........................................................
+# Read in Clonal Data
+#........................................................
+hapuid <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdna_uniquehap_list.RDS")
+hapuid <- purrr::map(hapuid, "unihapcounts") %>% 
+  dplyr::bind_rows() %>% 
+  dplyr::select(c("smpls")) %>% 
+  dplyr::rename(acc = smpls) %>% 
+  dplyr::mutate(hapuid = "Y")
+
+#........................................................
+# Bring it together
+#........................................................
+
+mtdt <- dplyr::left_join(smpls, psdsmpls, by = "acc") %>% 
+  dplyr::left_join(., hapuid, by = "acc") %>% 
+  dplyr::rename(smpls = acc)
+
+```
+
+```{r}
+#---------------------------------------------------- 
+# Get Country Centroids
+#---------------------------------------------------- 
+# https://gis.stackexchange.com/questions/71921/list-of-central-coordinates-centroid-for-all-countries
+wmap <- rworldmap::getMap(resolution="high")
+centroids <- rgeos::gCentroid(wmap, byid=TRUE)
+centroids <- as.data.frame(centroids)
+centroids$country <- rownames(centroids)
+
+# liftover country codes
+centroids$country <- countrycode::countrycode(sourcevar = centroids$country, 
+                                              origin = "country.name",
+                                              destination = "iso2c")
+
+
+#........................................................
+# Bring it together
+#........................................................
+
+mtdt <- dplyr::left_join(mtdt, centroids, by = "country") 
+
+```
+
+## Perform Geographic K-means for Regionality
+I broke the countries into various "political" regions... However, space doesn't follow these arbitrary borders... Will use K-means to partition data for statistics that need discrete classes (e.g. pairwise-$F_st$, Hudson's $S_nn$, etc.) 
+
+```{r}
+coords <- mtdt %>% 
+  dplyr::filter(vividregion != "NHA") %>% # exclude NHA which will get their own cluster
+  dplyr::select(c("country", "x", "y")) %>% 
+  dplyr::filter(!duplicated(.)) 
+
+#.............
+# K-means Clustering of Globe
+#.............
+keda <- data.frame(k = seq(1, 18, by = 1))
+keda$kmeans <- map(keda$k, function(k){return(kmeans(x = coords[,2:3], centers = k))})
+keda$wss <- map(keda$kmeans, "withinss")
+keda$totalwss <- map(keda$wss, function(x){return(sum(x))})
+
+```
+
+**First**, we need to find the inflection point to determine the optimal number of K-clusters (avoiding overfitting).
+```{r, results='asis'}
+
+keda.df <- keda %>% 
+  dplyr::select(c("k", "totalwss")) %>% 
+  tidyr::unnest(cols = totalwss)
+
+kesteda.plotObj <- keda.df %>% 
+  tibble::as_tibble(.) %>% 
+  ggplot() +
+  geom_line(aes(x=k, y=totalwss)) + 
+  geom_point(aes(x=k, y=totalwss)) +
+  geom_vline(xintercept = 4, color = "red", linetype = 2, alpha = 0.8) +
+  theme_minimal() + 
+  ylab("Total Within-Cluster Sum of Squares") +
+  xlab("K")
+plot(kesteda.plotObj)
+
+
+```
+**Four K groups looks reasonable to me**. Will also make Non-human apes it's own group, which was not considered above.
+
+```{r}
+
+# K means of 3 appears to be the inflection point
+k <- kmeans(coords[,2:3], 4)
+globepart <- cbind.data.frame(coords, k = k$cluster) %>% 
+  dplyr::select(c("country", "k"))
+
+mtdt <- dplyr::left_join(mtdt, globepart, by = "country") %>%
+  dplyr::mutate(k = ifelse(is.na(k) & vividregion == "NHA", 5, k),
+                k = factor(k, levels = c(1:5), labels = c("Americas", "Oceania", "Africa", "Asia", "NHA")))
+
+
+#---------------------------------------------------- 
+# Get World Background
+#---------------------------------------------------- 
+bb <- sf::st_bbox(
+  sf::st_sf(geom = sf::st_sfc(
+    sf::st_point(c(-108, -35)), # left lower
+    sf::st_point(c(150, -35)), # right lower
+    sf::st_point(c(-108, 50)), # left upper
+    sf::st_point(c(150, 50)), # right upper
+    crs = sf::st_crs("+proj=longlat +datum=WGS84 +no_defs"))
+  ))
+
+
+world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>% 
+  sf::st_crop(., y=bb) 
+
+```
+
+
+```{r, results='asis'}
+
+ggplot() + 
+  geom_sf(data = world, color = "#f0f0f0") +
+  geom_point(data = mtdt, aes(x = x, y = y, color = factor(k))) +
+  ggthemes::theme_map()
+
+```
+
+```{r}
+# housekeeping
+saveRDS(mtdt, file = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdt.RDS")
+
+```
+

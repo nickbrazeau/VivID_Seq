@@ -66,7 +66,7 @@ qc.results.long <- dplyr::left_join(qc.results, smpls, by = "smpl")
 DT::datatable(qc.results.long, extensions='Buttons',
                options = list(
               searching = T,
-              pageLength = 20,
+              pageLength = 10,
               dom = 'Bfrtip', 
               buttons = c('csv')))
 
@@ -103,7 +103,7 @@ qc.results.long <- dplyr::left_join(qc.results, smpls, by = "smpl")
 DT::datatable(qc.results, extensions='Buttons',
                options = list(
               searching = T,
-              pageLength = 20,
+              pageLength = 10,
               dom = 'Bfrtip', 
               buttons = c('csv')))
 

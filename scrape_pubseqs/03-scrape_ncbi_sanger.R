@@ -27,7 +27,7 @@ seqacc$id <- lapply(search, function(x){x$ids})
 # https://stackoverflow.com/questions/12193779/how-to-write-trycatch-in-r
 fasta_fetch <- function(id){
   ret <- rentrez::entrez_fetch(db="nucleotide", rettype="fasta", id = id)
-  Sys.sleep(60)
+  Sys.sleep(120)
   return(ret)
 }
 

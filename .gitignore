@@ -39,3 +39,28 @@
 *embl
 
 ncbi_api_key_forsanger.txt
+
+sandbox/
+
+*.jpg
+*.svg
+
+# RStudio files
+
+# knitr and R markdown default cache directories
+/*_cache/
+/cache/
+*png
+
+# Temporary files created by R markdown
+*.utf8.md
+*.knit.md
+
+# knitr outputs
+*.pdf
+*.html
+*.docx
+
+# MAC files
+.DS_Store
+~$*

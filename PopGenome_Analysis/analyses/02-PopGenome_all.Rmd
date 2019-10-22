@@ -29,18 +29,8 @@ mtdna <- PopGenome::readData(path = "~/Documents/GitHub/VivID_Seq/PopGenome_Anal
                              FAST=F,
                              big.data=F)
 
-smpls <- readxl::read_excel("~/Documents/GitHub/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx") %>% 
-  dplyr::rename(smpls = acc) %>% 
-  dplyr::select(c("smpls", "country", "vividregion"))
-fnlsmpls <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/final_smpl_list.RDS")
-
-fnlsmpls <- data.frame(smpls = fnlsmpls, stringsAsFactors = F) 
-fnlsmpls <- dplyr::left_join(fnlsmpls, smpls, by = "smpls")
-
-# add drc details
-fnlsmpls$country[is.na(fnlsmpls$country)] <- "CD"
-fnlsmpls$vividregion[is.na(fnlsmpls$vividregion)] <- "AF"
-
+mtdt <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdt.RDS") %>% 
+  dplyr::filter(passed == "Y")
 
 ```
 
@@ -48,7 +38,7 @@ fnlsmpls$vividregion[is.na(fnlsmpls$vividregion)] <- "AF"
 #---------------------------------------------------- 
 # Define population structure & outgroup
 #---------------------------------------------------- 
-rgn <- split(fnlsmpls$smpls, factor(fnlsmpls$vividregion))
+rgn <- split(mtdt$smpls, factor(mtdt$vividregion))
 mtdna.struct <- PopGenome::set.populations(mtdna,
                                            rgn)
 
@@ -220,12 +210,12 @@ smplder <- tibble::tibble(smpls = names(dersites),
 ```{r, results='asis'}
 
 smplder %>% 
-  dplyr::left_join(., fnlsmpls, by = "smpls") %>% 
+  dplyr::left_join(., mtdt, by = "smpls") %>% 
   dplyr::select(c("vividregion", "smpls", "DerivedSiteCount")) %>% 
   DT::datatable(., extensions='Buttons',
                options = list(
               searching = T,
-              pageLength = 20,
+              pageLength = 10,
               dom = 'Bfrtip', 
               buttons = c('csv')))
 
@@ -235,13 +225,13 @@ smplder %>%
 ```{r, results='asis'}
 
 smplder %>% 
-  dplyr::left_join(., fnlsmpls, by = "smpls") %>% 
+  dplyr::left_join(., mtdt, by = "smpls") %>% 
   dplyr::group_by(vividregion) %>% 
   dplyr::summarise(meanDerivedSite = mean(DerivedSiteCount)) %>% 
   DT::datatable(., extensions='Buttons',
                 options = list(
                   searching = T,
-                  pageLength = 20,
+                  pageLength = 10,
                   dom = 'Bfrtip', 
                   buttons = c('csv')))
 
@@ -266,7 +256,7 @@ ret <- lapply(ret, as.data.frame) %>%
 DT::datatable(ret, extensions='Buttons',
                options = list(
               searching = T,
-              pageLength = 100,
+              pageLength = 10,
               dom = 'Bfrtip', 
               buttons = c('csv')))
 
@@ -294,7 +284,7 @@ ret <- lapply(ret, as.data.frame) %>%
 DT::datatable(ret, extensions='Buttons',
                options = list(
               searching = T,
-              pageLength = 100,
+              pageLength = 10,
               dom = 'Bfrtip', 
               buttons = c('csv')))
 
@@ -324,7 +314,7 @@ ret <- lapply(ret, as.data.frame) %>%
 DT::datatable(ret, extensions='Buttons',
                options = list(
               searching = T,
-              pageLength = 100,
+              pageLength = 10,
               dom = 'Bfrtip', 
               buttons = c('csv')))
 
@@ -345,7 +335,7 @@ rownames(ret) <- NULL
 DT::datatable(ret, extensions='Buttons',
                options = list(
               searching = T,
-              pageLength = 25,
+              pageLength = 10,
               dom = 'Bfrtip', 
               buttons = c('csv')))
 ```
@@ -373,7 +363,7 @@ ret <- lapply(ret, as.data.frame) %>%
 DT::datatable(ret, extensions='Buttons',
                options = list(
               searching = T,
-              pageLength = 100,
+              pageLength = 10,
               dom = 'Bfrtip', 
               buttons = c('csv')))
 
@@ -454,7 +444,7 @@ pop.dist <- pop.list %>%
 DT::datatable(pop.dist, extensions='Buttons',
                options = list(
               searching = T,
-              pageLength = 100,
+              pageLength = 10,
               dom = 'Bfrtip', 
               buttons = c('csv')))
 
@@ -514,7 +504,7 @@ out <- out %>%
 DT::datatable(out, extensions='Buttons',
                options = list(
               searching = T,
-              pageLength = 50,
+              pageLength = 10,
               dom = 'Bfrtip', 
               buttons = c('csv')))
 ```
@@ -601,7 +591,7 @@ out <- out %>%
 DT::datatable(out, extensions='Buttons',
                options = list(
               searching = T,
-              pageLength = 50,
+              pageLength = 10,
               dom = 'Bfrtip', 
               buttons = c('csv')))
 ```

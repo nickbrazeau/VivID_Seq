@@ -4,7 +4,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Phylogenetic Analyses, All Filtered Samples
+# Phylogenetic Analyses, No Clonal Samples
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
                       fig.align = 'center', fig.width = 8, fig.height = 8)
@@ -15,6 +15,7 @@ knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'h
 library(tidyverse)
 library(Biostrings)
 library(ape)
+library(phangorn)
 library(ggtree)
 set.seed(48)
 ```
@@ -23,60 +24,18 @@ set.seed(48)
 #---------------------------------------------------- 
 # Read In
 #---------------------------------------------------- 
-mtdna <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/fasta/mtdna_anc.fa")
+mtdna <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/noclonefasta/unique_mtdna.fa")
 
 # going to drop the ancestral haplo here because I will do an unrooted tree
 # since we are not estimating the molecular clock
 mtdna <- mtdna[!names(mtdna) %in% "Anc"]
 
-smpls <- readxl::read_excel("~/Documents/GitHub/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx") %>% 
-  dplyr::rename(smpls = acc) %>% 
-  dplyr::select(c("smpls","country", "vividregion"))
 
-fnlsmpls <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/final_smpl_list.RDS")
-
-fnlsmpls <- data.frame(smpls = fnlsmpls, stringsAsFactors = F) 
-fnlsmpls <- dplyr::left_join(fnlsmpls, smpls, by = "smpls")
-fnlsmpls$vividregion[is.na(fnlsmpls$vividregion)] <- "DRC" 
-fnlsmpls$country[fnlsmpls$vividregion == "DRC"] <- "CD"
+mtdt <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdt.RDS") %>% 
+  dplyr::filter(hapuid == "Y")
 
 ```
 
-### Haplotype Viz
-```{r}
-
-seqmat <-  tibble::as_tibble( t(as.matrix(mtdna) ) )
-seqmat <- cbind.data.frame(POS = 1:nrow(seqmat), seqmat)
-
-seqmat <- seqmat[, !colnames(seqmat) %in% fnlsmpls$smpls[fnlsmpls$country == "GA"]]
-
-segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( length(unique(x)) > 1 ) })
-
-
-
-seqmat.long <- seqmat %>% 
-  dplyr::filter(segsites) %>% 
-  tidyr::gather(., key = "smpls", value = "GT", 2:ncol(.)) %>% 
-  dplyr::mutate(GT = factor(GT)) %>% 
-  dplyr::left_join(., fnlsmpls, by = "smpls") %>% 
-  dplyr::mutate(POS = factor(POS, levels = c(1:5989), ordered = T)) 
-
-gtplot <- seqmat.long %>% 
-  ggplot() + 
-  geom_tile(aes(x = smpls, y = factor(POS), fill = GT)) + 
-  scale_fill_manual(values = c("#4daf4a", "#377eb8", "#ffff33", "#d9d9d9", "#e41a1c")) +
-  facet_wrap(~country, scales = "free_x", nrow = 1, strip.position = "top") +
-  theme(axis.text = element_blank(),
-        axis.title.x = element_blank())
-
-dir.create("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/")
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/gtplot.jpg", height = 8, width = 11, units = "in", res = 500)
-plot(gtplot)
-graphics.off()
-
-
-
-```
 
 
 ### Distance Metrics
@@ -155,28 +114,36 @@ Looks like Hammings or JC are appropriate. Will use JC69 based on empirical evid
 ## MLE for Final Tree
 This follows the classic [Felsenstein's 1981 approach](https://link.springer.com/article/10.1007/BF01734359) as outlined by the [phangorn tutorial](https://cran.r-project.org/web/packages/phangorn/vignettes/Trees.pdf).
  
+
 ```{r}
-
-# TODO load results
+# phangorn objects
+mtdna.unique.phangorn <- phangorn::as.phyDat(mtdna.unique.ape)
+tree.init <- ape::nj(mtdna.dist.JC)
 
 ```
-
+ 
 ### Jukes-Cantor Model Fit
+```{r}
+JCfit.init <- phangorn::pml(tree.init, mtdna.unique.phangorn)
+# optimized fit
+fitJC <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/clonal_smpl_tree_results/JCmodelfit.RDS")
 
-```{r, results='asis'}
-fitJC
 ```
+
+
+
 
 ### GTR Fit
 Note, I fit the process above JC69 model but am now going to maximize the Markovian DNA base-substituion model using a gamma distribution. This is the $GTR + \Gamma(4)$ (Global Time Reverse) model presented by [Tavaré 1986](http://www.damtp.cam.ac.uk/user/st321/CV_&_Publications_files/STpapers-pdf/T86.pdf). This model is widely considered the most flexible for a finite-sites, neutral sequence (i.e. the mtDNA).
 
 ```{r, results='asis'}
-fitGTR
+fitGTR.init <- phangorn::pml(tree.init, mtdna.unique.phangorn, k=4)
+# optimized fit
+fitGTR <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/clonal_smpl_tree_results/GTRfit.RDS")
 ```
 
 ### Model Comparison
 ```{r, results='asis'}
-
 
 out <- cbind.data.frame(model = c("JC69", "GTR"),
                         as.data.frame(anova(fitJC, fitGTR)),
@@ -192,7 +159,7 @@ GTR model is a much better fit than JC (no surprise).
 ## Bootstrapping MLE-GTR Tree
 Going to bootstrapped our MLE tree under the GTR model for 1e4 iterations. 
 ```{r}
-# TODO load 
+bs <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/clonal_smpl_tree_results/GTR_bootstraptrees.RDS")
 clad <- prop.clades(fitGTR$tree, bs, rooted = F)
 bootval <- data.frame(node = sort(unique(fitGTR$tree$edge[,1])),
                       bs = clad)
@@ -209,11 +176,15 @@ tidytree <-  treeio::as.treedata(tree)
 #----------------------------------------------------
 # Need to do some liftover work
 #----------------------------------------------------
-fnlsmpls <- fnlsmpls %>% 
-  dplyr::rename(label = smpls)
+treemtdt <- mtdt %>% 
+  dplyr::rename(label = smpls) %>% 
+  dplyr::select(c("label", "country", "vividregion", "k", "hapuid")) %>% 
+  dplyr::mutate(country = ifelse(vividregion == "NHA", "NHA", country)) %>% 
+  dplyr::filter(hapuid == "Y")
 
-tidytree <- full_join(tidytree, fnlsmpls, by = 'label')
-tidytree@extraInfo$vividregion[is.na(tidytree@extraInfo$vividregion)] <- "internal"
+tidytree <- full_join(tidytree, treemtdt, by = 'label')
+tidytree@extraInfo$country[is.na(tidytree@extraInfo$vividregion)] <- "zinternal"
+tidytree@extraInfo$vividregion[is.na(tidytree@extraInfo$vividregion)] <- "zinternal"
 
 # add bootstrap
 bootval <- data.frame(node = sort(unique(tree$edge[,1])),
@@ -222,35 +193,45 @@ bootval <- data.frame(node = sort(unique(tree$edge[,1])),
 tidytree <- full_join(tidytree, bootval, by ="node")
 
 
-
 bstree_plotObj <- ggtree(tidytree, 
                          branch.length="none",
                          layout="circular", 
-                         aes(color = vividregion)) + 
+                         aes(color = country)) + 
+  geom_tiplab(aes(label = label), fontface = "bold", size = 1.1, color = "#000000") +
   geom_point2(aes(subset=!isTip, 
-                  fill=cut(bs, c(0, 800, 900, 1000))), 
+                  fill=cut(bs, c(0, 900, 950, 1000))), 
               shape=21, size=1) +
-  scale_fill_manual(values=c("white", "grey", "black"), guide='legend', 
+  scale_fill_manual(values=c("#d9d9d9", "#737373", "#000000"), guide='legend', 
                     name='Bootstrap Percentage(BP)', 
-                    breaks=c('(900,1e+03]', '(800,900]', '(0,800]'), 
-                    labels=expression(BP>=90,80 <= BP * " < 90", BP < 80)) + 
-  scale_color_manual("Region",
-                     values = c("#fdae6b", # AF
-                                "#a6bddb", #CAm
-                                "#e41a1c", # DRC
-                                "#c7e9c0", # EAs
-                                "#000000", # internal
-                                "#74c476", #ME
-                                "#4a1486", # NHA
-                                "#238b45", #SAm
-                                "#4292c6", # SAs
-                                "#084594" #SEA
-                                )) + 
-  theme_tree(legend.position=c(0.00, 0.5)) 
+                    breaks=c('(950,1e+03]', '(900,950]', '(0,900]'), 
+                    labels=expression(BP>=95, 90 <= BP * " < 95", BP < 90)) + 
+  scale_color_manual("Country",
+                    values = c("#33FDFF", # BR
+                               "#e41a1c", # CD
+                               "#33F600", # CN
+                               "#15FFF7", # CO
+                               "#A515FF", # ET
+                               "#2FFF15", # ID
+                               "#A515FF", # IN
+                               "#86FF52", # KH
+                               "#3ECE00", # LA
+                               "#921CFF", # LK
+                               "#FF6D1C", # MG
+                               "#A2FE10", # MM
+                               "#45FFEB", # MX
+                               "#00F52B", # MY
+                               "#F500E4", # NHA
+                               "#00A0F5", # PE
+                               "#00F571", # PG
+                               "#9FFC4C", # TH 
+                               "#72F201", # VN
+                               "#000000" # internal
+                    )) + 
+  theme_tree(legend.position=c(0.02, 0.5)) 
 
 ```
 
-```{r, results='asis'}
+```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
 plot(bstree_plotObj)
 
 jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_phylogenetic_tree.jpg", height = 8, width = 11, units = "in", res = 500)

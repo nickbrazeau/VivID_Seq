@@ -7,6 +7,8 @@ output:
     highlight: textmate
     theme: lumen
     toc: yes
+    toc_float: yes
+    toc_depth: 3
     code_folding: hide
 editor_options: 
   chunk_output_type: console
@@ -23,18 +25,21 @@ Sys.setenv(RSTUDIO_PANDOC="/usr/local/Cellar/pandoc/2.7.3/bin/")
 ```{r, child = 'analyses/00-qc_view/qc_summary.Rmd'}
 ```
 
-```{r, child = 'analyses/01-PopGenome_all.Rmd'}
+```{r, child = 'analyses/01-GTmat.Rmd'}
 ```
 
-```{r, child = 'analyses/02-PopGenome_noclones.Rmd'}
+```{r, child = 'analyses/02-PopGenome_all.Rmd'}
 ```
 
-<!-- ```{r, child = 'analyses/03-ape_ade4_all.Rmd'} -->
-<!-- ``` -->
+```{r, child = 'analyses/03-PopGenome_noclones.Rmd'}
+```
 
-<!-- ```{r, child = 'analyses/04-ape_ade4_noclones.Rmd'} -->
-<!-- ``` -->
+```{r, child = 'analyses/04-ape_ade4_all.Rmd'}
+```
 
-<!-- ```{r, child = 'analyses/05-spatial_network.Rmd'} -->
-<!-- ``` -->
+```{r, child = 'analyses/05-ape_ade4_noclones.Rmd'}
+```
+
+```{r, child = 'analyses/06-spatial_network.Rmd'}
+```
 

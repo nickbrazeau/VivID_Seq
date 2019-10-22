@@ -3,6 +3,7 @@
 #**/*.txt
 **/touch_files.sh
 
+
 # slurm outs and logs
 **/*out
 **/.log
@@ -40,6 +41,7 @@
 
 ncbi_api_key_forsanger.txt
 
+data/
 sandbox/
 
 *.jpg

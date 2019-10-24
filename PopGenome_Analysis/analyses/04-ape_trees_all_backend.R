@@ -4,8 +4,7 @@ library(phangorn)
 # Read In
 #----------------------------------------------------
 mtdna <- Biostrings::readDNAStringSet(filepath = "data/fasta/mtdna_anc.fa")
-# since we are not estimating the molecular clock
-mtdna <- mtdna[!names(mtdna) %in% "Anc"]
+# mtdna <- mtdna[!names(mtdna) %in% "Anc"]
 
 
 #.................................

@@ -198,6 +198,7 @@ bstree_plotObj <- ggtree(tidytree,
                          layout="circular", 
                          aes(color = country)) + 
   geom_tiplab(aes(label = label), fontface = "bold", size = 1.1, color = "#000000") +
+  geom_tippoint(aes(shape=country)) +
   geom_point2(aes(subset=!isTip, 
                   fill=cut(bs, c(0, 900, 950, 1000))), 
               shape=21, size=1) +

@@ -17,15 +17,21 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
                       fig.align = 'center')
-
+options(digits = 2)
 Sys.setenv(RSTUDIO_PANDOC="/usr/local/Cellar/pandoc/2.7.3/bin/")
 
+```
+
+```{r, child = 'analyses/00-tidy_mtdt.Rmd'}
 ```
 
 ```{r, child = 'analyses/00-qc_view/qc_summary.Rmd'}
 ```
 
 ```{r, child = 'analyses/01-GTmat.Rmd'}
+```
+
+```{r, child = 'analyses/07-annotate_variants.Rmd'}
 ```
 
 ```{r, child = 'analyses/02-PopGenome_all.Rmd'}
@@ -42,4 +48,5 @@ Sys.setenv(RSTUDIO_PANDOC="/usr/local/Cellar/pandoc/2.7.3/bin/")
 
 ```{r, child = 'analyses/06-spatial_network.Rmd'}
 ```
+
 

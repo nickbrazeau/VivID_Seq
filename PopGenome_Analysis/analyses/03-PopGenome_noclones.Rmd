@@ -100,12 +100,6 @@ knitr::kable( out )
 
 ```
 
-```{r, results='asis'}
-out <- get.sum.data(mtdna.struct)
-rownames(out) <- NULL
-knitr::kable( out )
-
-```
 
 ```{r, results = 'asis'}
 

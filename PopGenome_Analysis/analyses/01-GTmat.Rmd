@@ -121,8 +121,6 @@ mtdna <- mtdna[!names(mtdna) %in% "Anc"]
 seqmat <-  tibble::as_tibble( t(as.matrix(mtdna) ) )
 seqmat <- cbind.data.frame(POS = 1:nrow(seqmat), seqmat)
 
-#seqmat <- seqmat[, !colnames(seqmat) %in% mtdt$smpls[mtdt$country == "GA"]]
-
 segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( length(unique(x)) > 1 ) })
 
 
@@ -155,11 +153,6 @@ plot(gtplot)
 ### Filtered Calls, All Samples except NHA
 ```{r}
 
-mtdna <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/fasta/mtdna_anc.fa")
-
-# going to drop the ancestral haplo here because I will do an unrooted tree
-# since we are not estimating the molecular clock
-mtdna <- mtdna[!names(mtdna) %in% "Anc"]
 
 seqmat <-  tibble::as_tibble( t(as.matrix(mtdna) ) )
 seqmat <- cbind.data.frame(POS = 1:nrow(seqmat), seqmat)
@@ -197,15 +190,47 @@ plot(gtplot)
 **Without the non-human ape calls, we have 11 SNPs that we are making trees and calls on. Not a lot of information...**.
 
 
-
-### Filtered Calls, Removed Clones
+### Filtered Calls, Removed Clones 
 ```{r}
 
-mtdna <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/noclonefasta/unique_mtdna.fa")
+seqmat <-  tibble::as_tibble( t(as.matrix(mtdna) ) )
+seqmat <- cbind.data.frame(POS = 1:nrow(seqmat), seqmat)
 
-# going to drop the ancestral haplo here because I will do an unrooted tree
-# since we are not estimating the molecular clock
-mtdna <- mtdna[!names(mtdna) %in% "Anc"]
+segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( length(unique(x)) > 1 ) })
+
+
+seqmat.long <- seqmat %>% 
+  dplyr::filter(segsites) %>% 
+  tidyr::gather(., key = "smpls", value = "GT", 2:ncol(.)) %>% 
+  dplyr::mutate(GT = factor(GT)) %>% 
+  dplyr::left_join(., mtdt, by = "smpls") %>% 
+  dplyr::filter(hapuid == "Y") %>% 
+  dplyr::mutate(POS = factor(POS, levels = c(1:5989), ordered = T)) 
+
+gtplot <- seqmat.long %>% 
+  ggplot() + 
+  geom_tile(aes(x = smpls, y = POS, fill = GT)) + 
+  scale_fill_manual("Alleles", values = c("#4daf4a", "#377eb8", "#ffff33", "#e41a1c")) +
+  facet_wrap(~vividregion+country, scales = "free_x", nrow = 1, strip.position = "top") +
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank())
+
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_noclones_samples_gtplot.jpg", height = 8, width = 11, units = "in", res = 500)
+plot(gtplot)
+graphics.off()
+
+```
+
+```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
+
+plot(gtplot)
+
+```
+
+
+
+### Filtered Calls, Removed Clones and NHA
+```{r}
 
 seqmat <-  tibble::as_tibble( t(as.matrix(mtdna) ) )
 seqmat <- cbind.data.frame(POS = 1:nrow(seqmat), seqmat)
@@ -226,12 +251,12 @@ seqmat.long <- seqmat %>%
 gtplot <- seqmat.long %>% 
   ggplot() + 
   geom_tile(aes(x = smpls, y = POS, fill = GT)) + 
-  scale_fill_manual("Alleles", values = c("#4daf4a", "#377eb8", "#ffff33", "#d9d9d9", "#e41a1c")) +
+  scale_fill_manual("Alleles", values = c("#4daf4a", "#377eb8", "#ffff33", "#e41a1c")) +
   facet_wrap(~vividregion+country, scales = "free_x", nrow = 1, strip.position = "top") +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank())
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_noclones_samples_gtplot.jpg", height = 8, width = 11, units = "in", res = 500)
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_noclones_nonha_samples_gtplot.jpg", height = 8, width = 11, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 

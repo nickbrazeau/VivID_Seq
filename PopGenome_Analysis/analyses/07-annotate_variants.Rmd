@@ -1,0 +1,201 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Annotate Variants (NHA Samples Excluded)
+```{r}
+library(tidyverse)
+library(Biostrings)
+```
+
+```{r}
+#.................................
+# Read in data
+#.................................
+
+snps <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/final_vcf_snps.RDS")
+
+snps <- snps %>% 
+  dplyr::filter(vividregion != "NHA")
+
+snps.count <- snps %>% 
+  dplyr::group_by(POS) %>% 
+  dplyr::summarise(seg = length(unique(gt_GT))) %>% 
+  dplyr::filter(seg == 1) 
+
+
+snps.red <- snps %>% 
+  dplyr::filter(! POS %in% snps.count$POS)
+
+```
+```{r}
+#.................................
+# get fasta information
+#.................................
+pvp01 <- Biostrings::readDNAStringSet("~/Documents/MountPoints/mountIDEEL/resources/genomes/Pvivax/genomes/PvP01.fasta")
+pvp01.mtdna <- pvp01[names(pvp01) == "PvP01_MIT_v1"]
+# unset
+pvp01.mtdna <- pvp01$PvP01_MIT_v1
+
+
+#.................................
+# get GFF information
+#.................................
+gff <- "~/Documents/MountPoints/mountIDEEL/resources/genomes/Pvivax/info/gff/PvP01.gff3"
+geneid.end <- grep('##FASTA',readLines(gff))
+geneid.gff <- read.delim(file = gff,
+                         nrows = geneid.end-1, comment= "#", header=F)
+colnames(geneid.gff) <- c("seqname", "source", "feature", "start", "end", "score", "strand", "frame", "info")
+
+
+geneid.gff <- subset(geneid.gff, geneid.gff$feature == "gene") # subset to only genes, don't want the other mRNA, etc data
+
+geneid.gff.mtdna <- geneid.gff %>% 
+  dplyr::filter(seqname == "PvP01_MIT_v1") %>% 
+  dplyr::mutate(name = stringr::str_extract(info, pattern = "Name\\=(.*)"),
+                name = gsub("Name=", "", name)) %>% 
+  dplyr::filter(!is.na(name))
+
+# know from plasmodb that these other genes are rRNA encoding and not protein encoding
+
+#.................................
+# manipulate GFF information
+#.................................
+
+geneid.gff.mtdna$refseq <- purrr::pmap(geneid.gff.mtdna[,c("start", "end")], function(start, end){
+  ret <- pvp01.mtdna[start:end]
+  return(ret)
+}) 
+
+geneid.gff.mtdna <- geneid.gff.mtdna %>% 
+  dplyr::rename(chrom = seqname)
+  
+```
+
+```{r}
+
+#.................................
+# Fuzzy join
+#.................................
+snps.annot <- snps.red %>% 
+  dplyr::mutate(start = POS, 
+                end = POS,
+                allele = stringr::str_split_fixed(gt_GT_alleles, "/", n=2)[,1],
+                chrom = "PvP01_MIT_v1") %>% 
+  fuzzyjoin::genome_left_join(., geneid.gff.mtdna, by = c("chrom", "start", "end")) %>% 
+  dplyr::filter(!is.na(info)) %>% # subset to protein coding SNPs only
+  dplyr::select(-c("start.x", "end.x", "chrom.x", "chrom.y", "Key", "source", "feature", "score", "frame"))
+  
+
+```
+```{r}
+#.................................
+# Mutate
+#.................................
+
+snps.annot$mutseq <- pmap(snps.annot[,c("POS", "start.y", "refseq", "allele")], function(POS, start.y, refseq, allele){
+  relpos <- POS - start.y + 1 
+  mutseq <- refseq
+  mutseq[relpos] <- allele
+  return(mutseq)
+  
+})
+
+#.................................
+# Get Annotations
+#.................................
+
+snps.annot$AAsub <- pmap(snps.annot[,c("refseq", "mutseq", "strand")], function(refseq, mutseq, strand){
+  if(strand == "-"){
+    AAref <- Biostrings::translate(Biostrings::reverseComplement(refseq))
+    AAmut <- Biostrings::translate(Biostrings::reverseComplement(mutseq))  
+  } else if(strand == "+"){
+    AAref <- Biostrings::translate(refseq)
+    AAmut <- Biostrings::translate(mutseq)
+  }
+  
+  AAref <- as.character(as.vector(AAref))
+  AAmut <- as.character(as.vector(AAmut))
+  AApos <- which(AAref != AAmut)
+  
+  if(length(AApos) > 0){
+    ret <- paste0(AAref[AApos], AApos, AAmut[AApos])
+  } else {
+    ret <- "REF"
+  }
+  
+  return(ret)
+
+})
+
+snps.annot$AAsub <- unlist(snps.annot$AAsub)
+
+```
+
+### All Sample Variant Annotation
+```{r}
+
+#.................................
+# playground
+#.................................
+snps.annot %>% 
+  dplyr::select(c("acc", "POS", "country", "vividregion", "name", "AAsub")) %>% 
+  dplyr::rename(gene = name) %>% 
+  DT::datatable(., extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 10,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+
+```
+
+### Mutant Sample Variant Annotation
+```{r}
+
+snps.annot %>% 
+  dplyr::select(c("acc", "POS", "country", "vividregion", "name", "AAsub")) %>% 
+  dplyr::rename(gene = name) %>% 
+  dplyr::filter(AAsub != "REF") %>% 
+  DT::datatable(., extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 10,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+
+```
+
+### Mutant Summary
+```{r}
+
+snps.annot %>% 
+  dplyr::select(c("name", "AAsub")) %>% 
+  dplyr::rename(gene = name) %>% 
+  dplyr::filter(AAsub != "REF") %>% 
+  dplyr::filter(!duplicated(.)) %>% 
+  DT::datatable(., extensions='Buttons',
+               options = list(
+              searching = T,
+              pageLength = 10,
+              dom = 'Bfrtip', 
+              buttons = c('csv')))
+
+```
+
+
+
+```{r}
+
+
+cox3 <- snps.annot[1,]$refseq
+cox1 <- snps.annot[2,]$refseq
+cytb <- snps.annot[6,]$refseq
+
+paste(Biostrings::translate(Biostrings::reverseComplement(cox3[[1]])))
+paste(Biostrings::translate(cox1[[1]]))
+Biostrings::translate(cytb[[1]])
+                      
+```

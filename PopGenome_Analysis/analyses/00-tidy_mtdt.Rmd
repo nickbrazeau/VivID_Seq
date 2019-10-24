@@ -4,7 +4,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Tidy Metadata 
+## Tidy Metadata 
 
 ```{r}
 library(tidyverse)
@@ -78,7 +78,7 @@ mtdt <- dplyr::left_join(mtdt, centroids, by = "country")
 
 ```
 
-## Perform Geographic K-means for Regionality
+### Perform Geographic K-means for Regionality
 I broke the countries into various "political" regions... However, space doesn't follow these arbitrary borders... Will use K-means to partition data for statistics that need discrete classes (e.g. pairwise-$F_st$, Hudson's $S_nn$, etc.) 
 
 ```{r}

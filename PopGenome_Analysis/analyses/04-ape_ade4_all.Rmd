@@ -195,7 +195,8 @@ tidytree <- full_join(tidytree, bootval, by ="node")
 bstree_plotObj <- ggtree(tidytree, 
                          branch.length="none",
                          layout="circular", 
-                         aes(color = country)) + 
+                         aes(color = country, shape = country)) + 
+  geom_tippoint() +
   geom_point2(aes(subset=!isTip, 
                   fill=cut(bs, c(0, 900, 950, 1000))), 
               shape=21, size=1) +

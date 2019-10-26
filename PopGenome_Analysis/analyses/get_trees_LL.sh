@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --ntasks=1
-#SBATCH --time=1-00:00:00
+#SBATCH --time=11-00:00:00
 #SBATCH --mem=49512
 #SBATCH --mail-type=all
 #SBATCH --mail-user=nbrazeau@med.unc.edu

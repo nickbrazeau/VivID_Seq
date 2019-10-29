@@ -4,7 +4,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Genetic Statistics, All Samples Considered
+# Genetic Statistics, Only Unique Haplotypes
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
                       fig.align = 'center', fig.width = 8, fig.height = 8)
@@ -22,7 +22,7 @@ set.seed(48)
 ```
 
 ```{r}
-mtdna <- PopGenome::readData(path = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/fasta/",
+mtdna <- PopGenome::readData(path = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/noclonefasta/",
                              format = "fasta",
                              include.unknown = T,
                              progress_bar_switch=T,
@@ -30,7 +30,7 @@ mtdna <- PopGenome::readData(path = "~/Documents/GitHub/VivID_Seq/PopGenome_Anal
                              big.data=F)
 
 mtdt <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdt.RDS") %>% 
-  dplyr::filter(passed == "Y")
+  dplyr::filter(hapuid == "Y") 
 
 ```
 
@@ -38,7 +38,7 @@ mtdt <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_da
 #---------------------------------------------------- 
 # Define population structure & outgroup
 #---------------------------------------------------- 
-rgn <- split(mtdt$smpls, factor(mtdt$vividregion))
+rgn <- split(mtdt$smpls, factor(mtdt$k))
 mtdna.struct <- PopGenome::set.populations(mtdna,
                                            rgn)
 
@@ -100,6 +100,7 @@ knitr::kable( out )
 
 ```
 
+
 ```{r, results = 'asis'}
 
 mtdnasmpls <- lapply(mtdna.struct@populations, function(x){ return(length(x)) })
@@ -116,8 +117,9 @@ knitr::kable(counts)
 #---------------------------------------------------- 
 # Basic Between and Within Diversity 
 #---------------------------------------------------- 
-mtdna.struct <- PopGenome::diversity.stats(mtdna.struct, 
-                                           pi = T)
+# mtdna.struct <- PopGenome::diversity.stats(mtdna.struct,
+#                                            pi = T)
+# Can't do within diversity stats if DRC only has one population                                           
 
 mtdna.struct <- diversity.stats.between(mtdna.struct,
                                         haplotype.mode=T, 
@@ -128,9 +130,10 @@ mtdna.struct <- diversity.stats.between(mtdna.struct,
 #---------------------------------------------------- 
 # Diversity sliding windows
 #---------------------------------------------------- 
-mtdna.struct.slide <- PopGenome::diversity.stats(mtdna.struct.slide, 
-                                                 pi = T, 
-                                                 keep.site.info = F)
+# mtdna.struct.slide <- PopGenome::diversity.stats(mtdna.struct.slide,
+#                                                  pi = T,
+#                                                  keep.site.info = F)
+# Can't do within diversity stats if DRC only has one population           
 
 #---------------------------------------------------- 
 # Neutrality all sites
@@ -171,7 +174,7 @@ mtdna.struct.slide <- PopGenome::F_ST.stats(
 ## Genetic Statistics
 ### Derived Sites
 ```{r}
-mtdnaseq <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/fasta/mtdna_anc.fa")
+mtdnaseq <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/noclonefasta/unique_mtdna.fa")
 
 seqmat <- as.matrix(mtdnaseq)
 anc <- seqmat[rownames(seqmat) %in% "Anc", ]
@@ -205,6 +208,7 @@ smplder <- tibble::tibble(smpls = names(dersites),
 smplder %>% 
   dplyr::left_join(., mtdt, by = "smpls") %>% 
   dplyr::select(c("vividregion", "smpls", "DerivedSiteCount")) %>% 
+  dplyr::mutate_if(is.numeric, round, 2) %>% 
   DT::datatable(., extensions='Buttons',
                options = list(
               searching = T,
@@ -221,6 +225,7 @@ smplder %>%
   dplyr::left_join(., mtdt, by = "smpls") %>% 
   dplyr::group_by(vividregion) %>% 
   dplyr::summarise(meanDerivedSite = mean(DerivedSiteCount)) %>% 
+  dplyr::mutate_if(is.numeric, round, 2) %>% 
   DT::datatable(., extensions='Buttons',
                 options = list(
                   searching = T,
@@ -233,28 +238,31 @@ smplder %>%
 ### Diversity 
 
 #### Within-Population Diversity
-```{r}
+**Can't be completed as DRC only has one unique haplotype**. 
 
-ret <- PopGenome::get.diversity(mtdna.struct, between = F)
-popn <- gsub(" ", "", rownames(ret))
-ret <- lapply(ret, as.data.frame) %>% 
-  dplyr::bind_rows() %>% 
-  dplyr::mutate(popn = popn) %>% 
-  dplyr::inner_join(liftover.mtdna_struct, ., by = "popn") %>% 
-  dplyr::select(-c("popn"))
-```
+<!-- ```{r} -->
 
-```{r, results='asis'}
+<!-- ret <- PopGenome::get.diversity(mtdna.struct, between = F) -->
+<!-- popn <- gsub(" ", "", rownames(ret)) -->
+<!-- ret <- lapply(ret, as.data.frame) %>%  -->
+<!--   dplyr::bind_rows() %>%  -->
+<!--   dplyr::mutate(popn = popn) %>%  -->
+<!--   dplyr::inner_join(liftover.mtdna_struct, ., by = "popn") %>%  -->
+<!--   dplyr::select(-c("popn")) -->
+<!-- ``` -->
 
-DT::datatable(ret, extensions='Buttons',
-               options = list(
-              searching = T,
-              pageLength = 10,
-              dom = 'Bfrtip', 
-              buttons = c('csv')))
+<!-- ```{r, results='asis'} -->
+<!-- ret %>%  -->
+<!--   dplyr::mutate_if(is.numeric, round, 2) %>%  -->
+<!--   DT::datatable(., extensions='Buttons', -->
+<!--                options = list( -->
+<!--               searching = T, -->
+<!--               pageLength = 10, -->
+<!--               dom = 'Bfrtip',  -->
+<!--               buttons = c('csv'))) -->
 
 
-```
+<!-- ``` -->
 
 
 #### Between-Population Diversity
@@ -274,7 +282,9 @@ ret <- lapply(ret, as.data.frame) %>%
 ```
 
 ```{r, results='asis'}
-DT::datatable(ret, extensions='Buttons',
+ret %>% 
+  dplyr::mutate_if(is.numeric, round, 2) %>% 
+  DT::datatable(., extensions='Buttons',
                options = list(
               searching = T,
               pageLength = 10,
@@ -283,7 +293,6 @@ DT::datatable(ret, extensions='Buttons',
 
 
 ```
-
 
 
 ### Neutrality 
@@ -304,7 +313,9 @@ ret <- lapply(ret, as.data.frame) %>%
 ```
 
 ```{r, results='asis'}
-DT::datatable(ret, extensions='Buttons',
+ret %>% 
+  dplyr::mutate_if(is.numeric, round, 2) %>% 
+  DT::datatable(., extensions='Buttons',
                options = list(
               searching = T,
               pageLength = 10,
@@ -325,7 +336,10 @@ DT::datatable(ret, extensions='Buttons',
 ret <- PopGenome::get.F_ST(mtdna.struct, pairwise = F)
 rownames(ret) <- NULL
 
-DT::datatable(ret, extensions='Buttons',
+ret %>% 
+  tibble::as_tibble(.) %>% 
+  dplyr::mutate_if(is.numeric, round, 2) %>% 
+  DT::datatable(., extensions='Buttons',
                options = list(
               searching = T,
               pageLength = 10,
@@ -353,7 +367,9 @@ ret <- lapply(ret, as.data.frame) %>%
 
 ```{r, results='asis'}
 
-DT::datatable(ret, extensions='Buttons',
+ret %>% 
+  dplyr::mutate_if(is.numeric, round, 2) %>% 
+  DT::datatable(., extensions='Buttons',
                options = list(
               searching = T,
               pageLength = 10,
@@ -434,7 +450,9 @@ pop.list <- pop.list %>%
 pop.dist <- pop.list %>% 
   tidyr::spread(., key = "pop2names", value = "snn") 
 
-DT::datatable(pop.dist, extensions='Buttons',
+pop.dist %>% 
+  dplyr::mutate_if(is.numeric, round, 2) %>% 
+  DT::datatable(., extensions='Buttons',
                options = list(
               searching = T,
               pageLength = 10,
@@ -494,7 +512,9 @@ out <- out %>%
 
 ```{r, results='asis'}
 
-DT::datatable(out, extensions='Buttons',
+out %>% 
+  dplyr::mutate_if(is.numeric, round, 2) %>% 
+  DT::datatable(., extensions='Buttons',
                options = list(
               searching = T,
               pageLength = 10,
@@ -581,7 +601,9 @@ out <- out %>%
 
 ```{r, results='asis'}
 
-DT::datatable(out, extensions='Buttons',
+out %>% 
+  dplyr::mutate_if(is.numeric, round, 2) %>% 
+  DT::datatable(., extensions='Buttons',
                options = list(
               searching = T,
               pageLength = 10,

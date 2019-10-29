@@ -24,8 +24,7 @@ drc <- data.frame(iid = c("D9U3K", "O6Y4K", "Q8J6O"),
                   country = "CD",
                   vividregion = "AF")
 
-smpls <- rbind.data.frame(smpls, drc) %>%
-  dplyr::filter(vividregion != "Lab")
+smpls <- rbind.data.frame(smpls, drc)
 
 #........................................................
 # Read in Passed Sample Data
@@ -50,7 +49,8 @@ hapuid <- purrr::map(hapuid, "unihapcounts") %>%
 
 mtdt <- dplyr::left_join(smpls, psdsmpls, by = "acc") %>% 
   dplyr::left_join(., hapuid, by = "acc") %>% 
-  dplyr::rename(smpls = acc)
+  dplyr::rename(smpls = acc) %>% 
+  dplyr::filter(vividregion != "Lab")
 
 ```
 
@@ -79,18 +79,19 @@ mtdt <- dplyr::left_join(mtdt, centroids, by = "country")
 ```
 
 ### Perform Geographic K-means for Regionality
-I broke the countries into various "political" regions... However, space doesn't follow these arbitrary borders... Will use K-means to partition data for statistics that need discrete classes (e.g. pairwise-$F_st$, Hudson's $S_nn$, etc.) 
+I broke the countries into various "political" regions (`vivid_regions`)... However, space doesn't follow these arbitrary borders... Will use K-means to partition data for statistics that need discrete classes (e.g. pairwise-$F_st$, Hudson's $S_nn$, etc.) for those samples that passed QC thresholds.
 
 ```{r}
 coords <- mtdt %>% 
-  dplyr::filter(vividregion != "NHA") %>% # exclude NHA which will get their own cluster
+  dplyr::filter(smpls %in% psdsmpls$acc) %>% # passed samples only
+  dplyr::filter(vividregion != "NHA" & country != "CD") %>% # exclude NHA & DRC which will get their own cluster
   dplyr::select(c("country", "x", "y")) %>% 
   dplyr::filter(!duplicated(.)) 
 
 #.............
 # K-means Clustering of Globe
 #.............
-keda <- data.frame(k = seq(1, 18, by = 1))
+keda <- data.frame(k = seq(1, 16, by = 1))
 keda$kmeans <- map(keda$k, function(k){return(kmeans(x = coords[,2:3], centers = k))})
 keda$wss <- map(keda$kmeans, "withinss")
 keda$totalwss <- map(keda$wss, function(x){return(sum(x))})
@@ -117,18 +118,19 @@ plot(kesteda.plotObj)
 
 
 ```
-**Four K groups looks reasonable to me**. Will also make Non-human apes it's own group, which was not considered above.
+**Four K groups looks reasonable to me**. Will also make Non-human apes and DRC it's own group, which was not considered above.
 
 ```{r}
 
-# K means of 3 appears to be the inflection point
 k <- kmeans(coords[,2:3], 4)
 globepart <- cbind.data.frame(coords, k = k$cluster) %>% 
   dplyr::select(c("country", "k"))
 
 mtdt <- dplyr::left_join(mtdt, globepart, by = "country") %>%
+  dplyr::filter(smpls %in% psdsmpls$acc) %>% # passed samples only
   dplyr::mutate(k = ifelse(is.na(k) & vividregion == "NHA", 5, k),
-                k = factor(k, levels = c(1:5), labels = c("Americas", "Oceania", "Africa", "Asia", "NHA")))
+                k = ifelse(country == "CD", 6, k),
+                k = factor(k, levels = c(1:6), labels = c("Americas", "Africa", "Asia", "Oceania", "NHA", "DRC")))
 
 
 #---------------------------------------------------- 
@@ -155,7 +157,10 @@ world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
 ggplot() + 
   geom_sf(data = world, color = "#f0f0f0") +
   geom_point(data = mtdt, aes(x = x, y = y, color = factor(k))) +
-  ggthemes::theme_map()
+  scale_colour_brewer("Region", palette = "Set1") +
+  ggthemes::theme_map() +
+  theme(legend.position = "bottom",
+        legend.title = element_text(face = "bold"))
 
 ```
 
@@ -164,4 +169,6 @@ ggplot() +
 saveRDS(mtdt, file = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdt.RDS")
 
 ```
+
+
 

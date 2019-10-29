@@ -135,7 +135,7 @@ snps.annot$AAsub <- unlist(snps.annot$AAsub)
 ```
 
 ### All Sample Variant Annotation
-```{r}
+```{r, results='asis'}
 
 #.................................
 # playground
@@ -153,7 +153,7 @@ snps.annot %>%
 ```
 
 ### Mutant Sample Variant Annotation
-```{r}
+```{r, results='asis'}
 
 snps.annot %>% 
   dplyr::select(c("acc", "POS", "country", "vividregion", "name", "AAsub")) %>% 
@@ -169,7 +169,7 @@ snps.annot %>%
 ```
 
 ### Mutant Summary
-```{r}
+```{r, results='asis'}
 
 snps.annot %>% 
   dplyr::select(c("name", "AAsub")) %>% 

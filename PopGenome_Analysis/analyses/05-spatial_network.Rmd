@@ -5,6 +5,9 @@ editor_options:
 ---
 
 # Section 4: Spatial Haplotype Sharing
+
+Connections show haplotypes with one base-pair differences. The size of the circle shows the frequency of each unique haplotype within a country. 
+
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
                       fig.align = 'center', fig.width = 8, fig.height = 8)

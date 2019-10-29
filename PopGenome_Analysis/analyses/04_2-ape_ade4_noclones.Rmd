@@ -197,7 +197,7 @@ bstree_plotObj <- ggtree(tidytree,
                          branch.length="none",
                          layout="circular", 
                          aes(color = country)) + 
-  geom_tiplab(aes(label = label), fontface = "bold", size = 1.1, color = "#000000") +
+  geom_tiplab(aes(label = label), fontface = "bold", size = 1.4, color = "#000000") +
   geom_tippoint(aes(shape=country)) +
   geom_point2(aes(subset=!isTip, 
                   fill=cut(bs, c(0, 900, 950, 1000))), 
@@ -228,6 +228,26 @@ bstree_plotObj <- ggtree(tidytree,
                                "#72F201", # VN
                                "#000000" # internal
                     )) + 
+  scale_shape_manual(values = c(0, # BR
+                              8, # CD
+                              0, # CN
+                              1, # CO
+                              0, # ET
+                              2, # ID
+                              3, # IN
+                              4, # KH
+                              5, # LA
+                              6, # LK
+                              2, # MG
+                              7, # MM
+                              2, # MX
+                              9, # MY
+                              0, # NHA
+                              3, # PE
+                              10, # PG
+                              12, # TH 
+                              13 # VN
+                   )) + 
   theme_tree(legend.position=c(0.02, 0.5)) 
 
 ```

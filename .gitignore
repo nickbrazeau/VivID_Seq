@@ -36,8 +36,9 @@
 *.RDS
 *.rds
 *.rda
-*fasta
-*embl
+*.fasta
+*.embl
+*.xml
 
 ncbi_api_key_forsanger.txt
 

@@ -22,31 +22,32 @@ Sys.setenv(RSTUDIO_PANDOC="/usr/local/Cellar/pandoc/2.7.3/bin/")
 
 ```
 
-```{r, child = 'analyses/00-tidy_mtdt.Rmd'}
+<!-- ```{r, child = 'analyses/00-qc_view/qc_summary.Rmd'} -->
+<!-- ``` -->
+
+
+```{r, child = 'analyses/01-tidy_mtdt.Rmd'}
 ```
 
-```{r, child = 'analyses/00-qc_view/qc_summary.Rmd'}
+```{r, child = 'analyses/02-GTmat.Rmd'}
 ```
 
-```{r, child = 'analyses/01-GTmat.Rmd'}
+```{r, child = 'analyses/06-annotate_variants.Rmd'}
 ```
 
-```{r, child = 'analyses/07-annotate_variants.Rmd'}
+```{r, child = 'analyses/03_1-PopGenome_all.Rmd'}
 ```
 
-```{r, child = 'analyses/02-PopGenome_all.Rmd'}
+```{r, child = 'analyses/03_2-PopGenome_noclones.Rmd'}
 ```
 
-```{r, child = 'analyses/03-PopGenome_noclones.Rmd'}
+```{r, child = 'analyses/04_1-ape_ade4_all.Rmd'}
 ```
 
-```{r, child = 'analyses/04-ape_ade4_all.Rmd'}
+```{r, child = 'analyses/04_2-ape_ade4_noclones.Rmd'}
 ```
 
-```{r, child = 'analyses/05-ape_ade4_noclones.Rmd'}
-```
-
-```{r, child = 'analyses/06-spatial_network.Rmd'}
+```{r, child = 'analyses/05-spatial_network.Rmd'}
 ```
 
 

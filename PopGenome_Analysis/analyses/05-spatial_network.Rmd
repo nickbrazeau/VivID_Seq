@@ -105,81 +105,6 @@ cntrylines.combos <- cntrylines.combos %>%
 cntrylines.combos <- dplyr::left_join(cntrylines.combos, join1, by = "x") %>% 
   dplyr::left_join(., join2, by = "y")
 
-# make lines
-cntrylines.combos$geometry <- purrr::map2(cntrylines.combos$geometry.x, cntrylines.combos$geometry.y, 
-                                          function(x, y){
-                                            ret <- sf::st_cast(x = c(x,y), to = "LINESTRING")
-                                          }) 
-cntrylines.combos <- cntrylines.combos %>% 
-  dplyr::select(-c("geometry.x", "geometry.y"))
-
-cntrylines.sf <- sf::st_as_sf(cntrylines.combos, crs = 4326)
-
-```
-
-```{r}
-#---------------------------------------------------- 
-# Tidy Networks Up and Get Nodes
-# Thanks again https://www.r-spatial.org/r/2019/09/26/spatial-networks.html
-#---------------------------------------------------- 
-#.....................
-# Get Edges
-#.....................
-edges <- cntrylines.sf %>%
-  mutate(edgeID = c(1:n()))
-
-#.....................
-# Get Nodes
-#.....................
-nodes <- edges %>%
-  sf::st_coordinates() %>%
-  tibble::as_tibble() %>%
-  dplyr::rename(edgeID = L1) %>%
-  dplyr::group_by(edgeID) %>%
-  dplyr::slice(c(1, n())) %>%
-  dplyr::ungroup() %>%
-  dplyr::mutate(start_end = rep(c('start', 'end'), times = n()/2)) %>%
-  mutate(xy = paste(.$X, .$Y)) %>% 
-  mutate(nodeID = group_indices(., factor(xy, levels = unique(xy)))) %>%
-  select(-xy)
-
-# note at this point, add sample level information to nodes
-smpls.join <- smpls
-smpls.join$X <- sf::st_coordinates(smpls)[,1]
-smpls.join$Y <- sf::st_coordinates(smpls)[,2]
-nodes <- dplyr::left_join(x = nodes, y = smpls.join, by = c("X", "Y"))
-
-#...................................
-# Find Node Endpoints for Edges
-#..................................
-source_nodes <- nodes %>%
-  filter(start_end == 'start') %>%
-  pull(nodeID)
-
-target_nodes <- nodes %>%
-  filter(start_end == 'end') %>%
-  pull(nodeID)
-
-edges = edges %>%
-  mutate(from = source_nodes, to = target_nodes)
-
-#.....................
-# Remove Node Endpoints details
-#.....................
-nodes <- nodes %>%
-  distinct(nodeID, .keep_all = TRUE) %>%
-  select(-c(edgeID, start_end)) %>%
-  st_as_sf(coords = c('X', 'Y')) %>%
-  st_set_crs(st_crs(edges))
-
-
-#.....................
-# Make to TidyGraph Object
-#.....................
-mtdnanetwork <- tidygraph::tbl_graph(nodes = nodes, 
-                                     edges = as_tibble(edges), 
-                                     directed = FALSE)
-
 
 ```
 
@@ -209,7 +134,6 @@ world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>%
 # use ape so we ignore as missing data 
 mtdna.ape <- ape::as.DNAbin(mtdna)
 
-mtdna.dist.JC <- ape::dist.dna(mtdna.ape, model="JC69")
 mtdna.dist.n <- ape::dist.dna(mtdna.ape, model="N")
 
 
@@ -238,6 +162,7 @@ mtdnadistlong <- mtdnadistlong %>%
 
 ```
 
+### All Hamming's Distances
 ```{r}
 #---------------------------------------------------- 
 # Bind Distance and Space
@@ -245,20 +170,23 @@ mtdnadistlong <- mtdnadistlong %>%
 drcsmpls <- smpls$smpls[smpls$country == "CD"]
 nhasmpls <- smpls$smpls[smpls$vividregion == "NHA"]
 
-mtdnanetwork <- mtdnanetwork %>% 
-  tidygraph::activate(edges) %>% 
-  dplyr::left_join(., mtdnadistlong, by = c("x", "y")) 
+mtdnanetwork <- dplyr::left_join(cntrylines.combos, mtdnadistlong, by = c("x", "y")) 
 
-lines <- mtdnanetwork %>% 
-  tidygraph::activate(edges) %>% as_tibble() %>% st_as_sf() %>% 
+mtdnanetwork.diff <- mtdnanetwork %>% 
   dplyr::filter(x %in% drcsmpls | y %in% drcsmpls) %>% # only look at DRC
-  dplyr::filter(hammings ==1) # have to be within 1 bp 
+ # dplyr::filter(hammings ==1) %>%  # have to be within 1 bp  
+  dplyr::mutate(long1 = sf::st_coordinates(geometry.x)[,1],
+                lat1 =  sf::st_coordinates(geometry.x)[,2], 
+                long2 = sf::st_coordinates(geometry.y)[,1],
+                lat2 =  sf::st_coordinates(geometry.y)[,2])
 
-points <- mtdnanetwork %>% 
-  activate(nodes) %>% as_tibble() %>% st_as_sf() %>% 
+
+
+points <- smpls %>% 
   dplyr::mutate(country = ifelse(vividregion == "NHA", "NHA", country),
                 x = sf::st_coordinates(.)[,1],
                 y = sf::st_coordinates(.)[,2])
+  
 # seperate out drc and other for plotting
 points.nodrc <- points %>% 
   dplyr::filter(country != "CD")
@@ -269,41 +197,22 @@ points.drc <- points %>%
 # cool <- rainbow(50, start=rgb2hsv(col2rgb('cyan'))[1], end=rgb2hsv(col2rgb('blue'))[1])
 # warm <- rainbow(50, start=rgb2hsv(col2rgb('red'))[1], end=rgb2hsv(col2rgb('yellow'))[1])
 # cols <- c(rev(cool), rev(warm))
-# pal <- colorRampPalette(cols)(101)
+# pal <- colorRampPalette(cols)(6)
 
 mtDNAglobal <- ggplot() +
   geom_sf(data = world, color = "#ffffff", fill = "#000000", size = 0.05) +
-  geom_sf(data = lines, color = "#e31a1c", size = 0.8, alpha = 0.5, show.legend = F) +
+  geom_curve(data = mtdnanetwork.diff, alpha = 0.5, size = 1.1,
+             aes(x = long1, y = lat1, xend = long2, yend = lat2, color = factor(hammings))) +
   geom_point(data = points.nodrc, aes(x = x, y = y, 
-                                      size = hapuid_count, fill = factor(country)), shape = 21, stroke = 0, show.legend = F, alpha = 0.8) +
+                                      size = hapuid_count), shape = 21, stroke = 0, show.legend = F, alpha = 0.8, fill = "#d9d9d9") +
   geom_point(data = points.drc, aes(x = x, y = y), size = 3, shape = 17, color = "#f0f0f0",  show.legend = F) +
-#  scale_color_gradientn("Hamming's \n Distance", colours = pal) + 
+  scale_color_viridis_d("Hamming's Distance", option="plasma", begin = 1, end = 0) + 
   scale_size_continuous(range = c(1.4,4)) +
-  scale_fill_manual("Country",
-                    values = c("#33FDFF", # BR
-                               "#33F600", # CN
-                               "#15FFF7", # CO
-                               "#A515FF", # ET
-                               "#2FFF15", # ID
-                               "#A515FF", # IN
-                               "#86FF52", # KH
-                               "#3ECE00", # LA
-                               "#921CFF", # LK
-                               "#FF6D1C", # MG
-                               "#A2FE10", # MM
-                               "#45FFEB", # MX
-                               "#00F52B", # MY
-                               "#F500E4", # NHA
-                               "#00A0F5", # PE
-                               "#00F571", # PG
-                               "#9FFC4C", # TH 
-                               "#72F201" # VN
-                    )) +
   theme(plot.title = element_blank(),
         axis.title = element_blank(),
         axis.text = element_blank(),
         legend.position = "bottom",
-        legend.title = element_blank(),
+        legend.title = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 12),
         legend.text = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 10),
         plot.background = element_rect(fill = "transparent"),
         panel.grid = element_blank(),
@@ -312,7 +221,8 @@ mtDNAglobal <- ggplot() +
   coord_sf(xlim = c(bb['xmin'], bb['xmax']), 
            ylim = c(bb['ymin'], bb['ymax']), 
            datum = NA) +
-  ggspatial::annotation_north_arrow(location = "bl", which_north = "true", size = 0.8)
+  ggspatial::annotation_north_arrow(location = "bl", which_north = "true", size = 0.8) +
+  guides(color=guide_legend(nrow=1, byrow = T))
 
 ```
 
@@ -331,3 +241,61 @@ graphics.off()
 
 ```
 
+
+
+### One-Hammings Distance
+```{r}
+#---------------------------------------------------- 
+# Bind Distance and Space
+#---------------------------------------------------- 
+
+mtdnanetwork.diff <- mtdnanetwork %>% 
+  dplyr::filter(x %in% drcsmpls | y %in% drcsmpls) %>% # only look at DRC
+  dplyr::filter(hammings ==1) %>%  # have to be within 1 bp  
+  dplyr::mutate(long1 = sf::st_coordinates(geometry.x)[,1],
+                lat1 =  sf::st_coordinates(geometry.x)[,2], 
+                long2 = sf::st_coordinates(geometry.y)[,1],
+                lat2 =  sf::st_coordinates(geometry.y)[,2])
+
+
+
+
+mtDNAglobal <- ggplot() +
+  geom_sf(data = world, color = "#ffffff", fill = "#000000", size = 0.05) +
+  geom_curve(data = mtdnanetwork.diff, alpha = 0.5, size = 1.1,
+             aes(x = long1, y = lat1, xend = long2, yend = lat2), color = "#FF0000", show.legend = F) +
+  geom_point(data = points.nodrc, aes(x = x, y = y, 
+                                      size = hapuid_count), shape = 21, stroke = 0, show.legend = F, alpha = 0.8, fill = "#d9d9d9") +
+  geom_point(data = points.drc, aes(x = x, y = y), size = 3, shape = 17, color = "#f0f0f0",  show.legend = F) +
+  scale_size_continuous(range = c(1.4,4)) +
+  theme(plot.title = element_blank(),
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        legend.position = "bottom",
+        legend.title = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 12),
+        legend.text = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 10),
+        plot.background = element_rect(fill = "transparent"),
+        panel.grid = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_rect(fill = "#deebf7")) +
+  coord_sf(xlim = c(bb['xmin'], bb['xmax']), 
+           ylim = c(bb['ymin'], bb['ymax']), 
+           datum = NA) +
+  ggspatial::annotation_north_arrow(location = "bl", which_north = "true", size = 0.8) 
+
+```
+
+
+```{r, results='asis', fig.align='center', fig.width = 11, fig.height = 8}
+plot(mtDNAglobal)
+
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_wide_hammingone.jpg", height = 8, width = 11, units = "in", res = 500)
+plot(mtDNAglobal)
+graphics.off()
+
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_long_hammingone.jpg", height = 11, width = 8, units = "in", res = 500)
+plot(mtDNAglobal)
+graphics.off()
+
+
+```

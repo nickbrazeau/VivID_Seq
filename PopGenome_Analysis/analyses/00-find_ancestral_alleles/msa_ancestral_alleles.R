@@ -115,7 +115,7 @@ names(orig) <- "orig"
 mars <- plasm.mars[1]
 names(mars) <- "mars"
 test <- ancestralfa
-names(ancestralfa) <- "ancestraltest"
+names(ancestralfa) <- "ancestral"
 out <- c(orig, mars, test)
 writeXStringSet(out, filepath="~/Desktop/sanitycheck.fasta")
 

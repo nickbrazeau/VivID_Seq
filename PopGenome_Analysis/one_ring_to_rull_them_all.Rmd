@@ -44,9 +44,6 @@ Sys.setenv(RSTUDIO_PANDOC="/usr/local/Cellar/pandoc/2.7.3/bin/")
 ```{r, child = 'analyses/04_1-ape_ade4_all.Rmd'}
 ```
 
-```{r, child = 'analyses/04_2-ape_ade4_noclones.Rmd'}
-```
-
 ```{r, child = 'analyses/05-spatial_network.Rmd'}
 ```
 

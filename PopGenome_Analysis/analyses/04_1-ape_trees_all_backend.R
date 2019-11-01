@@ -1,3 +1,10 @@
+#----------------------------------------------------
+# Purpose of this script is to optimize and
+# bootstrap phylogenetic trees
+#----------------------------------------------------
+# Internally, phangorn is removing duplicate sequences
+# https://github.com/KlausVigo/phangorn/issues/16
+
 library(ape)
 library(phangorn)
 #----------------------------------------------------
@@ -10,22 +17,22 @@ mtdna <- Biostrings::readDNAStringSet(filepath = "data/fasta/mtdna_anc.fa")
 #.................................
 # read in data
 #.................................
-mtdna.unique.ape <- ape::as.DNAbin(mtdna)
-mtdna.dist.JC <- ape::dist.dna(mtdna.unique.ape, model="JC69")
+mtdna.ape <- ape::as.DNAbin(mtdna)
+mtdna.dist.JC <- ape::dist.dna(mtdna.ape, model="JC69")
 
 
 #.................................
 # Phangorn
 #.................................
-mtdna.unique.phangorn <- phangorn::as.phyDat(mtdna.unique.ape)
+mtdna.phangorn <- phangorn::as.phyDat(mtdna.ape)
 tree.init <- ape::nj(mtdna.dist.JC)
 
 #.................................
 # JC Model
 #.................................
-JCfit.init <- phangorn::pml(tree.init, mtdna.unique.phangorn)
+JCfit.init <- phangorn::pml(tree.init, mtdna.phangorn)
 fitJC <- phangorn::optim.pml(JCfit.init, model = "JC",
-                             optNni=TRUE, optBf=TRUE, optQ=TRUE)
+                             optNni=TRUE, optBf=TRUE, optQ=TRUE, optGamma=TRUE)
 
 
 #.................................
@@ -39,7 +46,7 @@ JCbs <- phangorn::bootstrap.pml(fitJC, bs=iters,
 #.................................
 # GTR Model
 #.................................
-fitGTR.init <- phangorn::pml(tree.init, mtdna.unique.phangorn, k=4)
+fitGTR.init <- phangorn::pml(tree.init, mtdna.phangorn, k=4)
 fitGTR <- phangorn::optim.pml(fitGTR.init, model="GTR",
                               optNni=TRUE, optBf=TRUE, optQ=TRUE, optGamma=TRUE)
 

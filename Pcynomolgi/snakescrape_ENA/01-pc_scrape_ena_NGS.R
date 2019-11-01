@@ -48,4 +48,4 @@ enadf <- enadf %>%
 
 
 readr::write_tsv(x=enadf,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/snakescrape_ENA/cynomolgi_scrape.tab.txt")
+                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/Pcynomolgi/snakescrape_ENA/cynomolgi_scrape.tab.txt")

@@ -45,7 +45,7 @@ rule all:
 
 rule pullsamples:
     params: acc = lambda wildcards: accdict[wildcards.sample],
-            outputdir = "/pine/scr/n/f/nfb/Projects/VivID_Seq/public_pe_seqs/"
+            outputdir = "/pine/scr/n/f/nfb/Projects/VivID_Seq/cynomolgi_pe/"
     output: log = os.path.join(SCRROOT, "{sample}" + ".log")
     shell:
         r"""

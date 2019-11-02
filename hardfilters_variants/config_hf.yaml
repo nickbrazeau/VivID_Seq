@@ -19,7 +19,7 @@ max_SOR_SNV: 3.0
 max_FS_indel: 200.0
 max_SOR_indel: 10.0
 min_MQRS: -12.5
-min_MQ: 40.0
+min_MQ: 35.0
 
 # resource requirements
 recal_memory: 24

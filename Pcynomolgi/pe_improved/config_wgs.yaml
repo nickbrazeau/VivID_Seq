@@ -10,6 +10,6 @@ readbuffer: 1000000
 threads: 6
 memory: 12
 
-runs: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/Pcynomolgi/cynomolgi_run_map.tab.txt
+runs: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/Pcynomolgi/pe_improved/cynomolgi_run_map.tab.txt
 aligned: aln # go to scratch
-fastq: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/Pcynomolgi/fastq
+fastq: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/Pcynomolgi/pe_improved/fastq

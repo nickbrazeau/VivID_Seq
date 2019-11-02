@@ -7,15 +7,38 @@ for analysis
 
 import os
 import sys
+from collections import OrderedDict
 
-## read configuration stuff
-GVCFlist = os.path.expandvars(config["gvcflist"])
+## load samples from file
+def load_samples(f):
+	s, b = [], []
+	with open(f, "r") as ff:
+		for line in ff:
+			if line.startswith("#"):
+				continue
+			bam_entry = line.strip().split().pop(0)
+			folder, bn = os.path.split(bam_entry)
+			iid = os.path.splitext(bn)[0]
+			s.append(iid)
+			b.append(bam_entry)
+	return s, dict(zip(s,b))
+
 # root directory for pipeline outputs
 OUTDIR = os.path.expandvars(config["outdir"])
 # temporary directory used by Java; probably should point to scratch space
 TMPDIR = os.path.expandvars(config["tmpdir"])
 # reference genome
 REF = os.path.expandvars(config["reference"])
+# list of *.bam files to process, which are assumed to be named like {sample}.bam
+SAMPLES = os.path.expandvars(config["samples"])
+## get list of samples and chunks to call
+samples, bam_list = load_samples(SAMPLES)
+
+
+## read configuration stuff
+gvcfs = OrderedDict()
+for s in samples.keys():
+	gvcfs[s] = expand(os.path.join(OUTDIR, "gvcfs/{sample}.g.vcf.gz"), sample = s)
 
 
 ## final targets
@@ -78,6 +101,10 @@ rule filter_vars:
 			--invalidate-previous-filters \
 			--genotype-filter-expression "!vc.hasAttribute('DP')" \
 			--genotype-filter-name "NoDP" \
+			--genotype-filter-expression "vc.hasAttribute('DP') && DP < {params.min_DP}" \
+			--genotype-filter-name "MinDP" \
+			--genotype-filter-expression "vc.hasAttribute('DP') && DP > {params.max_DP}" \
+			--genotype-filter-name "MaxDP" \
 			--filter-expression "(vc.hasAttribute('QD') && QD < {params.min_QD})" \
 			--filter-name "LowQD" \
 			--filter-expression "(vc.isSNP() && (vc.hasAttribute('ReadPosRankSum') && ReadPosRankSum < {params.min_RPRS_SNV})) || ((vc.isIndel() || vc.isMixed()) && (vc.hasAttribute('ReadPosRankSum') && ReadPosRankSum < {params.min_RPRS_indel})) " \
@@ -111,7 +138,7 @@ rule joint_genotype:
 ## DISCOVERY MODE: join GVCFs in prep for joint calling
 rule combine_gvcfs:
 	input:
-		gvcf_list = os.path.join(GVCFlist)
+		os.path.join(OUTDIR, "gvcfs/gvcfs.list")
 	output:
 		combined_gvcf = os.path.join(OUTDIR, "combined.g.vcf.gz")
 	params:
@@ -123,4 +150,37 @@ rule combine_gvcfs:
 			-R {params.ref} \
 			--variant {input.gvcf_list} \
 			-O {output.combined_gvcf}
+		"""
+
+## make lists of GVCF files by chunk
+rule make_gvcf_lists:
+	output:
+		os.path.join(OUTDIR, "gvcfs/gvcfs.list")
+	run:
+		outfile = os.path.join(OUTDIR, "gvcfs/gvcfs.list")
+		with open(outfile, "w") as list_file:
+			for ff in gvcfs.value():
+				print(ff, file = list_file)
+
+
+rule call_variants:
+	input:
+		bam = lambda w: bam_list[w.sample],
+		ref = REF,
+	output:
+		# output is organized by chunk, in anticipation of joing calling by chunk
+		os.path.join(OUTDIR, "gvcfs/{sample}.g.vcf.gz")
+	params:
+		memory = str(int(config["mem"])),
+		interval_file = config["region"]
+	shell:
+		r"""
+		gatk --java-options "-Xmx{params.memory}g" HaplotypeCaller \
+			-R {input.ref} \
+			-I {input.bam} \
+			-O {output} \
+			-L {params.interval_file} \
+			--genotyping-mode DISCOVERY \
+			--alleles {params.known} \
+			-ERC GVCF
 		"""

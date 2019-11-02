@@ -55,17 +55,6 @@ all_gvcfs$basenames <- gsub(".g.vcf.gz", "", basename(all_gvcfs$value))
 
 
 
-###############################################
-####         Write Lab strains             ####
-###############################################
-# note, I know all lab strains pass callable threshold
-lab_strains <- all_gvcfs$value[ all_gvcfs$basenames %in% smpls$acc[smpls$host == "Lab_strain"]]
-lab_strains <- tibble::enframe( lab_strains, name = NULL )
-
-readr::write_tsv(x = lab_strains,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/lab_strains.gvcfs.list",
-                 col_names = F)
-
 
 ###############################################
 ####      Write Filtered Samples           ####

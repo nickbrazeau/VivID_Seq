@@ -1,0 +1,22 @@
+# input files
+reference: /proj/ideel/resources/genomes/Pvivax/genomes/PvP01.fasta
+region: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/regions/mtdna.bed
+outdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/pcynomolgi_vars/
+tmpdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/tmpdir/
+samples: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/lists/all_bams.list
+# combine vcf inputs
+max_alleles: 3
+
+## hard-filter cutoffs
+min_RPRS_SNV: -8.0
+min_RPRS_indel: -20.0
+min_QD: 2.0
+max_FS_SNV: 60.0
+max_SOR_SNV: 3.0
+max_FS_indel: 200.0
+max_SOR_indel: 10.0
+min_MQRS: -12.5
+min_MQ: 35.0
+
+# resource requirements
+recal_memory: 24

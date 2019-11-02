@@ -43,7 +43,7 @@ mtdna.struct <- PopGenome::set.populations(mtdna,
                                            rgn)
 
 mtdna.struct <- set.outgroup(mtdna.struct,
-                             c("Anc"))
+                             c("Pcynomolgi"))
 
 #---------------------------------------------------- 
 # Sliding Window Objects

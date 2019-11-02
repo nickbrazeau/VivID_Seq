@@ -178,12 +178,12 @@ seqlist <- lapply(seqlist, mkmut)
 
 
 #........................................................
-# Read in and append ancestral fasta
+# Read in and append Pcynomolgi
 #........................................................
-anc <- seqinr::read.fasta("analyses/00-find_ancestral_alleles/ancestral.fa",
-                          forceDNAtolower = F)
+Pcynomolgi <- seqinr::read.fasta("PATH",
+                                 forceDNAtolower = F)
 finalfastas <- seqlist
-finalfastas[[length(finalfastas) + 1 ]] <- anc[[1]]
+finalfastas[[length(finalfastas) + 1 ]] <- Pcynomolgi[[1]]
 
 
 
@@ -205,7 +205,7 @@ saveRDS(outsmpls, file = "data/derived_data/final_smpl_list.RDS")
 # Write Out Final Fasta
 #........................................................
 seqnames <- c(names(finalfastas))
-seqnames[length(seqnames)] <- "Anc"
+seqnames[length(seqnames)] <- "Pcynomolgi"
 dir.create(path = "data/fasta/", recursive = T)
 seqinr::write.fasta(sequences = finalfastas,
                     names = seqnames, file.out = "data/fasta/mtdna_anc.fa")

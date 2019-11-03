@@ -37,12 +37,14 @@ samples, bam_list = load_samples(SAMPLES)
 ## read configuration stuff
 gvcfs = OrderedDict()
 for s in samples:
-	gvcfs[s] = os.path.join(OUTDIR, "gvcfs/{}.g.vcf.gz").format(s)
+	gvcfs[s] = os.path.join(OUTDIR, "gvcfs/{}.g.vcf.gz".format(s))
 
+final_gvcfs = [ os.path.join(OUTDIR, "gvcfs/{}.g.vcf.gz".format(s)) for s in samples ]
 
 ## final targets
 rule all:
 	input:
+		final_gvcfs,
 		os.path.join(OUTDIR, "passed.joint.vcf.gz")
 
 ## final tidy-up

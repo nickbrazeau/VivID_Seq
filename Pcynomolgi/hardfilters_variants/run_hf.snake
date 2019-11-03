@@ -176,6 +176,5 @@ rule call_variants:
 			-O {output} \
 			-L {params.interval_file} \
 			--genotyping-mode DISCOVERY \
-			--alleles {params.known} \
 			-ERC GVCF
 		"""

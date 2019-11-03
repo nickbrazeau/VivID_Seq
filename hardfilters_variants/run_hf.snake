@@ -58,8 +58,6 @@ rule filter_vars:
 	params:
 		ref = REF,
 		memory = str(int(config["recal_memory"])),
-		min_DP = config["min_DP"],
-		max_DP = config["max_DP"],
 		min_RPRS_SNV = config["min_RPRS_SNV"],
 		min_RPRS_indel = config["min_RPRS_indel"],
 		min_QD = config["min_QD"],

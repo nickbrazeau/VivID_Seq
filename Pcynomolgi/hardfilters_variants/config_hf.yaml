@@ -3,7 +3,7 @@ reference: /proj/ideel/resources/genomes/Pvivax/genomes/PvP01.fasta
 region: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/regions/mtdna.bed
 outdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/pcynomolgi_vars/
 tmpdir: /pine/scr/n/f/nfb/Projects/VivID_Seq/tmpdir/
-samples: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/pcynomolgi_vars/lists/cynomolgi.list
+samples: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/Pcynomolgi/lists/cynomolgi.list
 # combine vcf inputs
 max_alleles: 3
 

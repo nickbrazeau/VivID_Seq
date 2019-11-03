@@ -1,7 +1,7 @@
 #! /bin/bash
 
-ROOT=/proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/hardfilters_variants
-WD=/pine/scr/n/f/nfb/Projects/VivID_Seq/vcfs_hardfilt_variants/
+ROOT=/proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/Pcynomolgi/hardfilters_variants/
+WD=/pine/scr/n/f/nfb/Projects/VivID_Seq/Pcynomolgi/vcfs_hardfilt_variants/
 WAIT=30 # number of seconds to wait for files to appear, absorbing some file system latency
 
 snakemake \
@@ -12,4 +12,4 @@ snakemake \
 	--rerun-incomplete \
 	--keep-going \
 	--latency-wait $WAIT \
-	--dryrun -p
+#	--dryrun -p

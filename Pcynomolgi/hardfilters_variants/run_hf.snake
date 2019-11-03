@@ -34,11 +34,10 @@ SAMPLES = os.path.expandvars(config["samples"])
 ## get list of samples and chunks to call
 samples, bam_list = load_samples(SAMPLES)
 
-
 ## read configuration stuff
 gvcfs = OrderedDict()
-for s in samples.keys():
-	gvcfs[s] = expand(os.path.join(OUTDIR, "gvcfs/{sample}.g.vcf.gz"), sample = s)
+for s in samples:
+	gvcfs[s] = os.path.join(OUTDIR, "gvcfs/{}.g.vcf.gz").format(s)
 
 
 ## final targets
@@ -50,18 +49,18 @@ rule all:
 rule tidy_up:
 	input:
 		vcf = os.path.join(OUTDIR, "filtered.joint.vcf.gz"),
-		target = os.path.expandvars(config["target"]),
 	output:
 		os.path.join(OUTDIR, "passed.joint.vcf.gz")
 	params:
 		ref = REF,
-		memory = str(int(config["recal_memory"]))
+		memory = str(int(config["memory"])),
+		region = config["region"],
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g" SelectVariants \
 			-R {params.ref} \
 			-V {input.vcf} \
-			--intervals {input.target} \
+			--intervals {params.region} \
 			--set-filtered-gt-to-nocall \
 			--exclude-filtered \
 			--remove-unused-alternates \
@@ -75,14 +74,11 @@ rule tidy_up:
 rule filter_vars:
 	input:
 		vcf = os.path.join(OUTDIR, "combined.joint.vcf.gz"),
-		target = os.path.expandvars(config["target"]),
 	output:
 		os.path.join(OUTDIR, "filtered.joint.vcf.gz")
 	params:
 		ref = REF,
-		memory = str(int(config["recal_memory"])),
-		min_DP = config["min_DP"],
-		max_DP = config["max_DP"],
+		memory = str(int(config["memory"])),
 		min_RPRS_SNV = config["min_RPRS_SNV"],
 		min_RPRS_indel = config["min_RPRS_indel"],
 		min_QD = config["min_QD"],
@@ -91,20 +87,17 @@ rule filter_vars:
 		max_FS_indel = config["max_FS_indel"],
 		max_SOR_indel = config["max_SOR_indel"],
 		min_MQ = config["min_MQ"],
-		min_MQRS = config["min_MQRS"]
+		min_MQRS = config["min_MQRS"],
+		region = config["region"]
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g" VariantFiltration \
 			-R {params.ref} \
 			-V {input.vcf} \
-			--intervals {input.target} \
+			--intervals {params.region} \
 			--invalidate-previous-filters \
 			--genotype-filter-expression "!vc.hasAttribute('DP')" \
 			--genotype-filter-name "NoDP" \
-			--genotype-filter-expression "vc.hasAttribute('DP') && DP < {params.min_DP}" \
-			--genotype-filter-name "MinDP" \
-			--genotype-filter-expression "vc.hasAttribute('DP') && DP > {params.max_DP}" \
-			--genotype-filter-name "MaxDP" \
 			--filter-expression "(vc.hasAttribute('QD') && QD < {params.min_QD})" \
 			--filter-name "LowQD" \
 			--filter-expression "(vc.isSNP() && (vc.hasAttribute('ReadPosRankSum') && ReadPosRankSum < {params.min_RPRS_SNV})) || ((vc.isIndel() || vc.isMixed()) && (vc.hasAttribute('ReadPosRankSum') && ReadPosRankSum < {params.min_RPRS_indel})) " \
@@ -125,7 +118,7 @@ rule joint_genotype:
 	params:
 		maxalleles = config["max_alleles"],
 		ref = REF,
-		memory = str(int(config["recal_memory"]))
+		memory = str(int(config["memory"]))
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g" GenotypeGVCFs \
@@ -138,12 +131,12 @@ rule joint_genotype:
 ## DISCOVERY MODE: join GVCFs in prep for joint calling
 rule combine_gvcfs:
 	input:
-		os.path.join(OUTDIR, "gvcfs/gvcfs.list")
+		gvcf_list = os.path.join(OUTDIR, "gvcfs/gvcfs.list"),
 	output:
 		combined_gvcf = os.path.join(OUTDIR, "combined.g.vcf.gz")
 	params:
 		ref = REF,
-		memory = str(int(config["recal_memory"]))
+		memory = str(int(config["memory"]))
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g" CombineGVCFs \
@@ -159,8 +152,8 @@ rule make_gvcf_lists:
 	run:
 		outfile = os.path.join(OUTDIR, "gvcfs/gvcfs.list")
 		with open(outfile, "w") as list_file:
-			for ff in gvcfs.value():
-				print(ff, file = list_file)
+		    for key, value in gvcfs.items():
+		        print(value, file = list_file)
 
 
 rule call_variants:
@@ -171,7 +164,7 @@ rule call_variants:
 		# output is organized by chunk, in anticipation of joing calling by chunk
 		os.path.join(OUTDIR, "gvcfs/{sample}.g.vcf.gz")
 	params:
-		memory = str(int(config["mem"])),
+		memory = str(int(config["memory"])),
 		interval_file = config["region"]
 	shell:
 		r"""

@@ -19,4 +19,4 @@ min_MQRS: -12.5
 min_MQ: 35.0
 
 # resource requirements
-recal_memory: 24
+memory: 24

@@ -11,7 +11,6 @@ library(phangorn)
 # Read In
 #----------------------------------------------------
 mtdna <- Biostrings::readDNAStringSet(filepath = "data/fasta/mtdna_anc.fa")
-# mtdna <- mtdna[!names(mtdna) %in% "Anc"]
 
 
 #.................................

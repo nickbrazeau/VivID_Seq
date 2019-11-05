@@ -1,0 +1,102 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Erbo Spain, 1944 Isolate
+```{r}
+library(tidyverse)
+library(Biostrings)
+library(vcfR)
+source("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/R/vcf_utils.R")
+```
+
+```{r}
+#........................................................
+# Read in fastas
+#........................................................
+pvp01 <- seqinr::read.fasta("~/Documents/MountPoints/mountIDEEL/resources/genomes/Pvivax/genomes/PvP01.fasta",
+                            forceDNAtolower = F)
+pvp01 <- pvp01$PvP01_MIT_v1
+
+
+```
+```{r}
+#.................................
+# Read in data
+#.................................
+erbo <- vcfR::read.vcfR("~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/Erbo1944/Erbo1944.vcf")
+pos <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/final_positions.rds")
+
+#.................................
+# Read in Metadata
+#.................................
+mtdt <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdt.RDS")
+
+
+```
+
+```{r}
+#........................................................
+# SNPs only
+#........................................................
+erbo.snp <- vcfR::extract.indels(erbo, return.indels = F)
+erbo.snp
+
+#........................................................
+# Clean up het calls
+#........................................................
+erbo.snp.nohets <- vcfR_force_hets_to_homo(erbo.snp)
+erbo <- vcfR_filter_unique_sites(erbo)
+
+```
+
+
+```{r}
+
+mtdna <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/fasta/mtdna_anc.fa")
+
+# going to drop the ancestral haplo here because I will do an unrooted tree
+# since we are not estimating the molecular clock
+mtdna <- mtdna[!names(mtdna) %in% "Pcynomolgi"]
+
+seqmat <-  tibble::as_tibble( t(as.matrix(mtdna) ) )
+seqmat <- cbind.data.frame(POS = 1:nrow(seqmat), seqmat)
+
+segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( length(unique(x)) > 1 ) })
+
+
+seqmat.long <- seqmat %>% 
+  dplyr::filter(segsites) %>% 
+  tidyr::gather(., key = "smpls", value = "GT", 2:ncol(.)) %>% 
+  dplyr::mutate(GT = factor(GT)) %>% 
+  dplyr::left_join(., mtdt, by = "smpls") %>% 
+  dplyr::filter(passed == "Y") %>% 
+  dplyr::mutate(POS = factor(POS, levels = c(1:5989), ordered = T)) 
+
+gtplot <- seqmat.long %>% 
+  ggplot() + 
+  geom_tile(aes(x = smpls, y = POS, fill = GT)) + 
+  scale_fill_manual("Alleles", values = c("#4daf4a", "#377eb8", "#ffff33", "#e41a1c")) +
+  facet_wrap(~vividregion + country, scales = "free_x", nrow = 1, strip.position = "top") +
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank())
+
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/erbo_compare.jpg", height = 8, width = 11, units = "in", res = 500)
+plot(gtplot)
+graphics.off()
+
+```
+```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
+plot(gtplot)
+
+```
+
+
+
+
+## Spain 1944 Visualization
+
+
+

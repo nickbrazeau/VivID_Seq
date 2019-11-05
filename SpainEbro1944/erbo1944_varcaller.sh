@@ -8,4 +8,4 @@ ref=/proj/ideel/resources/genomes/Pvivax/genomes/PvP01.fasta
 mkdir -p $outdir
 
 bcftools mpileup $smpl -R $region  --fasta-ref $ref -Ou | \
-bcftools call -c > $outdir/Erbo1944.vcf
+bcftools call -c  --variants-only > $outdir/Erbo1944.vcf

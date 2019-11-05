@@ -160,8 +160,22 @@ vcf.snp.hom.long.nopriv$gt_GT_alleles_sbp <- sapply(vcf.snp.hom.long.nopriv$gt_G
 # write out final positions
 #........................................................
 dir.create("data/derived_data/")
-pos <- vcf.snp.hom.long.nopriv$POS
+
+# subset to seg sites
+
+pos <- unique( vcf.snp.hom.long.nopriv$POS )
+posgtcount <- vcf.snp.hom.long.nopriv %>%
+  dplyr::group_by(POS, gt_GT_alleles) %>%
+  dplyr::summarise(n = n()) %>%
+  dplyr::select(-c(n))
+
+segsite <- table(posgtcount$POS)
+segsite <- names(segsite)[ segsite > 1 ]
+
+pos <- pos[pos %in% segsite]
+
 saveRDS(object = pos, file = "data/derived_data/final_positions.rds")
+
 #........................................................
 # Make new fastas
 #........................................................

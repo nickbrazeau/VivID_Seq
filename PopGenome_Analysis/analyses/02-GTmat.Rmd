@@ -116,7 +116,7 @@ mtdna <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/P
 
 # going to drop the ancestral haplo here because I will do an unrooted tree
 # since we are not estimating the molecular clock
-mtdna <- mtdna[!names(mtdna) %in% "Anc"]
+mtdna <- mtdna[!names(mtdna) %in% "Pcynomolgi"]
 
 seqmat <-  tibble::as_tibble( t(as.matrix(mtdna) ) )
 seqmat <- cbind.data.frame(POS = 1:nrow(seqmat), seqmat)

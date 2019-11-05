@@ -46,4 +46,7 @@ options(digits = 2)
 ```{r, child = 'analyses/05-spatial_network.Rmd'}
 ```
 
+```{r, child = 'analyses/07-erbo_spain_eda.Rmd'}
+```
+
 

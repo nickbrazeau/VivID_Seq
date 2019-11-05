@@ -49,6 +49,6 @@ pcfasta[POS] <- ALTS
 # Write out
 #........................................................
 seqinr::write.fasta(sequences = pcfasta, names = "Pcynomolgi",
-                    file.out = "data/fasta/Pcynomolgi.fasta")
+                    file.out = "data/Pcynomolgi/Pcynomolgi.fasta")
 
 

@@ -18,12 +18,11 @@ editor_options:
 knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
                       fig.align = 'center')
 options(digits = 2)
-Sys.setenv(RSTUDIO_PANDOC="/usr/local/Cellar/pandoc/2.7.3/bin/")
 
 ```
 
-<!-- ```{r, child = 'analyses/00-qc_view/qc_summary.Rmd'} -->
-<!-- ``` -->
+```{r, child = 'analyses/00-qc_view/qc_summary.Rmd'}
+```
 
 
 ```{r, child = 'analyses/01-tidy_mtdt.Rmd'}
@@ -41,7 +40,7 @@ Sys.setenv(RSTUDIO_PANDOC="/usr/local/Cellar/pandoc/2.7.3/bin/")
 ```{r, child = 'analyses/03_2-PopGenome_noclones.Rmd'}
 ```
 
-```{r, child = 'analyses/04_1-ape_ade4_all.Rmd'}
+```{r, child = 'analyses/04-ape_ade4_all.Rmd'}
 ```
 
 ```{r, child = 'analyses/05-spatial_network.Rmd'}

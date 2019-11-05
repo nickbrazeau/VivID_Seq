@@ -17,15 +17,15 @@ fnlsmpls <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derive
 
 fnlsmpls <- data.frame(smpls = fnlsmpls, stringsAsFactors = F)
 fnlsmpls <- dplyr::left_join(fnlsmpls, smpls, by = "smpls")
-fnlsmpls$country[is.na(fnlsmpls$country)] <- "CD"
-fnlsmpls$vividregion[is.na(fnlsmpls$vividregion)] <- "AF"
+fnlsmpls$country[is.na(fnlsmpls$country) & fnlsmpls$smpls %in%  c("D9U3K", "O6Y4K", "Q8J6O")] <- "CD"
+fnlsmpls$vividregion[is.na(fnlsmpls$vividregion) & fnlsmpls$smpls %in%  c("D9U3K", "O6Y4K", "Q8J6O")] <- "AF"
 
 #----------------------------------------------------
 # Split List by Country so we can
 # remove Clones by country
 #----------------------------------------------------
 fnlsmpls.split <- split(fnlsmpls$smpls, fnlsmpls$country)
-fnlsmpls.split <- append(fnlsmpls.split, list(anc = "Anc"))
+fnlsmpls.split <- append(fnlsmpls.split, list(anc = "Pcynomolgi"))
 mtdna.list <- lapply(fnlsmpls.split, function(x) return( mtdna[ names(mtdna) %in% x ] ))
 
 #----------------------------------------------------

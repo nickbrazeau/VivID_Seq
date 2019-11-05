@@ -180,7 +180,7 @@ seqlist <- lapply(seqlist, mkmut)
 #........................................................
 # Read in and append Pcynomolgi
 #........................................................
-Pcynomolgi <- seqinr::read.fasta("data/fasta/Pcynomolgi.fasta",
+Pcynomolgi <- seqinr::read.fasta("data/Pcynomolgi/Pcynomolgi.fasta",
                                  forceDNAtolower = F)
 finalfastas <- seqlist
 finalfastas[[length(finalfastas) + 1 ]] <- Pcynomolgi[[1]]

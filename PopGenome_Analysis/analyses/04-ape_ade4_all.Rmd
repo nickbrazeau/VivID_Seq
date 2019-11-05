@@ -34,6 +34,8 @@ mtdna <- mtdna[!names(mtdna) %in% "Anc"]
 mtdt <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdt.RDS") %>% 
   dplyr::filter(passed == "Y")
 
+mtdt 
+
 ```
 
 
@@ -156,10 +158,12 @@ knitr::kable(out)
 GTR model is a much better fit than JC (no surprise).
 
 
+
 ## Bootstrapping MLE-GTR Tree
 Going to bootstrapped our MLE tree under the GTR model for 1e4 iterations. 
 ```{r}
 bs <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/all_smpl_tree_results/GTR_bootstraptrees.RDS")
+
 clad <- prop.clades(fitGTR$tree, bs, rooted = F)
 bootval <- data.frame(node = sort(unique(fitGTR$tree$edge[,1])),
                       bs = clad)
@@ -171,6 +175,7 @@ bootval <- data.frame(node = sort(unique(fitGTR$tree$edge[,1])),
 ## Pretty Tree
 ```{r}
 tree <- fitGTR$tree
+tree <- ape::root(tree, "Pcynomolgi")
 tidytree <-  treeio::as.treedata(tree)
 
 #----------------------------------------------------
@@ -181,15 +186,17 @@ treemtdt <- mtdt %>%
   dplyr::select(c("label", "country", "vividregion", "k")) %>% 
   dplyr::mutate(country = ifelse(vividregion == "NHA", "NHA", country))
 
+treemtdt <- rbind.data.frame(treemtdt, data.frame(label = "Pcynomolgi", country = "Pcynomolgi",
+                                                  vividregion = "Pcynomolgi", k = "Pcynomolgi"))
+
+
 tidytree <- full_join(tidytree, treemtdt, by = 'label')
 tidytree@extraInfo$country[is.na(tidytree@extraInfo$vividregion)] <- "zinternal"
 tidytree@extraInfo$vividregion[is.na(tidytree@extraInfo$vividregion)] <- "zinternal"
 
 # add bootstrap
-bootval <- data.frame(node = sort(unique(tree$edge[,1])),
-                    bs = clad)
-
 tidytree <- full_join(tidytree, bootval, by ="node")
+
 
 
 bstree_plotObj <- ggtree(tidytree, 
@@ -220,6 +227,7 @@ bstree_plotObj <- ggtree(tidytree,
                                "#45FFEB", # MX
                                "#00F52B", # MY
                                "#F500E4", # NHA
+                               "#000000", # pcynomolgi
                                "#00A0F5", # PE
                                "#00F571", # PG
                                "#9FFC4C", # TH 
@@ -241,6 +249,7 @@ bstree_plotObj <- ggtree(tidytree,
                               2, # MX
                               9, # MY
                               0, # NHA
+                              0, # Pcynolmgi
                               3, # PE
                               10, # PG
                               12, # TH 
@@ -253,9 +262,152 @@ bstree_plotObj <- ggtree(tidytree,
 ```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
 plot(bstree_plotObj)
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_phylogenetic_tree.jpg", height = 8, width = 11, units = "in", res = 500)
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_phylogenetic_tree_circular.jpg", height = 8, width = 15, units = "in", res = 500)
 plot(bstree_plotObj)
 graphics.off()
 
 ```
 
+
+```{r}
+
+bstree_plotObj <- ggtree(tidytree, 
+                         aes(color = country)) + 
+  geom_treescale() +
+  geom_tippoint(aes(color =  country, shape = country), show.legend = F, size = 0.8) +
+  geom_point2(aes(subset=!isTip, 
+                  fill=cut(bs, c(0, 900, 950, 1000))), 
+              shape=21, size=1) +
+  scale_fill_manual(values=c("#d9d9d9", "#737373", "#000000"), guide='legend', 
+                    name='Bootstrap Percentage(BP)', 
+                    breaks=c('(950,1e+03]', '(900,950]', '(0,900]'), 
+                    labels=expression(BP>=95, 90 <= BP * " < 95", BP < 90)) + 
+  scale_color_manual("Country",
+                    values = c("#33FDFF", # BR
+                               "#e41a1c", # CD
+                               "#33F600", # CN
+                               "#15FFF7", # CO
+                               "#A515FF", # ET
+                               "#2FFF15", # ID
+                               "#A515FF", # IN
+                               "#86FF52", # KH
+                               "#3ECE00", # LA
+                               "#921CFF", # LK
+                               "#FF6D1C", # MG
+                               "#A2FE10", # MM
+                               "#45FFEB", # MX
+                               "#00F52B", # MY
+                               "#F500E4", # NHA
+                               "#000000", # pcynomolgi
+                               "#00A0F5", # PE
+                               "#00F571", # PG
+                               "#9FFC4C", # TH 
+                               "#72F201", # VN
+                               "#000000" # internal
+                    )) + 
+  scale_shape_manual(values = c(0, # BR
+                              8, # CD
+                              0, # CN
+                              1, # CO
+                              0, # ET
+                              2, # ID
+                              3, # IN
+                              4, # KH
+                              5, # LA
+                              6, # LK
+                              2, # MG
+                              7, # MM
+                              2, # MX
+                              9, # MY
+                              0, # NHA
+                              0, # Pcynolmgi
+                              3, # PE
+                              10, # PG
+                              12, # TH 
+                              13 # VN
+                   )) + 
+  theme_tree() 
+
+```
+
+```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
+plot(bstree_plotObj)
+
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_phylogenetic_tree_bl.jpg", height = 8, width = 11, units = "in", res = 500)
+plot(bstree_plotObj)
+graphics.off()
+
+```
+
+
+
+```{r}
+
+bstree_plotObj <- ggtree(tidytree, 
+                         branch.length = "none",
+                         aes(color = country)) + 
+  geom_treescale() +
+  geom_tippoint(aes(color =  country, shape = country), show.legend = F, size = 0.8) +
+  geom_point2(aes(subset=!isTip, 
+                  fill=cut(bs, c(0, 900, 950, 1000))), 
+              shape=21, size=1) +
+  scale_fill_manual(values=c("#d9d9d9", "#737373", "#000000"), guide='legend', 
+                    name='Bootstrap Percentage(BP)', 
+                    breaks=c('(950,1e+03]', '(900,950]', '(0,900]'), 
+                    labels=expression(BP>=95, 90 <= BP * " < 95", BP < 90)) + 
+  scale_color_manual("Country",
+                    values = c("#33FDFF", # BR
+                               "#e41a1c", # CD
+                               "#33F600", # CN
+                               "#15FFF7", # CO
+                               "#A515FF", # ET
+                               "#2FFF15", # ID
+                               "#A515FF", # IN
+                               "#86FF52", # KH
+                               "#3ECE00", # LA
+                               "#921CFF", # LK
+                               "#FF6D1C", # MG
+                               "#A2FE10", # MM
+                               "#45FFEB", # MX
+                               "#00F52B", # MY
+                               "#F500E4", # NHA
+                               "#000000", # pcynomolgi
+                               "#00A0F5", # PE
+                               "#00F571", # PG
+                               "#9FFC4C", # TH 
+                               "#72F201", # VN
+                               "#000000" # internal
+                    )) + 
+  scale_shape_manual(values = c(0, # BR
+                              8, # CD
+                              0, # CN
+                              1, # CO
+                              0, # ET
+                              2, # ID
+                              3, # IN
+                              4, # KH
+                              5, # LA
+                              6, # LK
+                              2, # MG
+                              7, # MM
+                              2, # MX
+                              9, # MY
+                              0, # NHA
+                              0, # Pcynolmgi
+                              3, # PE
+                              10, # PG
+                              12, # TH 
+                              13 # VN
+                   )) + 
+  theme_tree() 
+
+```
+
+```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
+plot(bstree_plotObj)
+
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_phylogenetic_tree_no-bl.jpg", height = 8, width = 11, units = "in", res = 500)
+plot(bstree_plotObj)
+graphics.off()
+
+```

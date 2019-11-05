@@ -174,8 +174,8 @@ mtdna.struct.slide <- PopGenome::F_ST.stats(
 mtdnaseq <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/fasta/mtdna_anc.fa")
 
 seqmat <- as.matrix(mtdnaseq)
-anc <- seqmat[rownames(seqmat) %in% "Anc", ]
-smpls.seq.list <- seqmat[!rownames(seqmat) %in% "Anc", ]
+anc <- seqmat[rownames(seqmat) %in% "Pcynomolgi", ]
+smpls.seq.list <- seqmat[!rownames(seqmat) %in% "Pcynomolgi", ]
 smplnames <- rownames(smpls.seq.list)
 smpls.seq.list <- split(smpls.seq.list, 1:nrow(smpls.seq.list))
 names(smpls.seq.list) <- smplnames
@@ -461,9 +461,9 @@ pop.dist %>%
 
 ```
 
-```{r, results='asis'}
+```{r}
 
-pop.list %>% 
+HudsonsnnPloObj <- pop.list %>% 
   ggplot() + 
   geom_tile(aes(x=pop1names, y=pop2names, fill = snn)) + 
   ggtitle("Pairwise Hudson's Snn") +
@@ -481,8 +481,16 @@ pop.list %>%
     )
 
 
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_hudsonsnn.jpg", height = 8, width = 15, units = "in", res = 500)
+plot(HudsonsnnPloObj)
+graphics.off()
+
+
 ```
 
+```{r, results='asis'}
+HudsonsnnPloObj
+```
 
 
 ## Sliding Windows

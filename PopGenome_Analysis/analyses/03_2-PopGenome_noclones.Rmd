@@ -42,8 +42,8 @@ rgn <- split(mtdt$smpls, factor(mtdt$k))
 mtdna.struct <- PopGenome::set.populations(mtdna,
                                            rgn)
 
-mtdna.struct <- set.outgroup(mtdna.struct,
-                             c("Pcynomolgi"))
+mtdna.struct <- PopGenome::set.outgroup(mtdna.struct,
+                                        c("Pcynomolgi"))
 
 #---------------------------------------------------- 
 # Sliding Window Objects
@@ -121,9 +121,9 @@ knitr::kable(counts)
 #                                            pi = T)
 # Can't do within diversity stats if DRC only has one population                                           
 
-mtdna.struct <- diversity.stats.between(mtdna.struct,
-                                        haplotype.mode=T, 
-                                        nucleotide.mode=T)
+mtdna.struct <- PopGenome::diversity.stats.between(mtdna.struct,
+                                                   haplotype.mode=T, 
+                                                   nucleotide.mode=T)
                                         
 
 
@@ -177,8 +177,8 @@ mtdna.struct.slide <- PopGenome::F_ST.stats(
 mtdnaseq <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/noclonefasta/unique_mtdna.fa")
 
 seqmat <- as.matrix(mtdnaseq)
-anc <- seqmat[rownames(seqmat) %in% "Anc", ]
-smpls.seq.list <- seqmat[!rownames(seqmat) %in% "Anc", ]
+anc <- seqmat[rownames(seqmat) %in% "Pcynomolgi", ]
+smpls.seq.list <- seqmat[!rownames(seqmat) %in% "Pcynomolgi", ]
 smplnames <- rownames(smpls.seq.list)
 smpls.seq.list <- split(smpls.seq.list, 1:nrow(smpls.seq.list))
 names(smpls.seq.list) <- smplnames

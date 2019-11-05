@@ -4,7 +4,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Section 4: Spatial Haplotype Sharing
+## Comparison of Haplotype Sharing for Other Sites
 
 Connections show haplotypes with one base-pair differences. The size of the circle shows the frequency of each unique haplotype within a country. 
 
@@ -300,8 +300,6 @@ graphics.off()
 
 ```
 
-
-
 #### Brazil Comparison
 ```{r}
 #---------------------------------------------------- 
@@ -329,9 +327,9 @@ mtDNAglobal <- ggplot() +
   geom_sf(data = world, color = "#ffffff", fill = "#000000", size = 0.05) +
   geom_curve(data = mtdnanetwork.diff, alpha = 0.5, size = 1.1,
              aes(x = long1, y = lat1, xend = long2, yend = lat2, color = factor(hammings))) +
-  geom_point(data = points.nobr, aes(x = x, y = y, 
+  geom_point(data = points.nodrc, aes(x = x, y = y, 
                                       size = hapuid_count), shape = 21, stroke = 0, show.legend = F, alpha = 0.8, fill = "#d9d9d9") +
-  geom_point(data = points.br, aes(x = x, y = y), size = 3, shape = 17, color = "#f0f0f0",  show.legend = F) +
+  geom_point(data = points.drc, aes(x = x, y = y), size = 3, shape = 17, color = "#f0f0f0",  show.legend = F) +
   scale_color_viridis_d("Hamming's Distance", option="plasma", begin = 1, end = 0) + 
   scale_size_continuous(range = c(1.4,4)) +
   theme(plot.title = element_blank(),
@@ -360,68 +358,13 @@ jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_netw
 plot(mtDNAglobal)
 graphics.off()
 
-
-```
-
-#### Malaysia Comparison
-```{r}
-#---------------------------------------------------- 
-# Run Malaysia Comparison
-#---------------------------------------------------- 
-MYsmpls <- smpls$smpls[smpls$country == "MY"]
-
-mtdnanetwork.diff <- mtdnanetwork %>% 
-  dplyr::filter(x %in% MYsmpls | y %in% MYsmpls) %>% 
-  # dplyr::filter(hammings ==1) %>%  # have to be within 1 bp  
-  dplyr::mutate(long1 = sf::st_coordinates(geometry.x)[,1],
-                lat1 =  sf::st_coordinates(geometry.x)[,2], 
-                long2 = sf::st_coordinates(geometry.y)[,1],
-                lat2 =  sf::st_coordinates(geometry.y)[,2])
-
-
-# seperate out drc and other for plotting
-points.nomy <- points %>% 
-  dplyr::filter(country != "MY")
-points.my <- points %>% 
-  dplyr::filter(country == "MY")
-
-
-mtDNAglobal <- ggplot() +
-  geom_sf(data = world, color = "#ffffff", fill = "#000000", size = 0.05) +
-  geom_curve(data = mtdnanetwork.diff, alpha = 0.5, size = 1.1,
-             aes(x = long1, y = lat1, xend = long2, yend = lat2, color = factor(hammings))) +
-  geom_point(data = points.nomy, aes(x = x, y = y, 
-                                      size = hapuid_count), shape = 21, stroke = 0, show.legend = F, alpha = 0.8, fill = "#d9d9d9") +
-  geom_point(data = points.my, aes(x = x, y = y), size = 3, shape = 17, color = "#f0f0f0",  show.legend = F) +
-  scale_color_viridis_d("Hamming's Distance", option="plasma", begin = 1, end = 0) + 
-  scale_size_continuous(range = c(1.4,4)) +
-  theme(plot.title = element_blank(),
-        axis.title = element_blank(),
-        axis.text = element_blank(),
-        legend.position = "bottom",
-        legend.title = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 12),
-        legend.text = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 10),
-        plot.background = element_rect(fill = "transparent"),
-        panel.grid = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_rect(fill = "#deebf7")) +
-  coord_sf(xlim = c(bb['xmin'], bb['xmax']), 
-           ylim = c(bb['ymin'], bb['ymax']), 
-           datum = NA) +
-  ggspatial::annotation_north_arrow(location = "bl", which_north = "true", size = 0.8) +
-  guides(color=guide_legend(nrow=1, byrow = T))
-
-```
-
-
-```{r, results='asis', fig.align='center', fig.width = 11, fig.height = 8}
-plot(mtDNAglobal)
-
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_wide_MALAYSIA.jpg", height = 8, width = 11, units = "in", res = 500)
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_long_BRAZIL.jpg", height = 11, width = 8, units = "in", res = 500)
 plot(mtDNAglobal)
 graphics.off()
 
 
 ```
+
+
 
 

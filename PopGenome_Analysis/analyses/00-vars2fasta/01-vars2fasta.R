@@ -156,7 +156,12 @@ mksngbp <- function(x){
 vcf.snp.hom.long.nopriv$gt_GT_alleles_sbp <- sapply(vcf.snp.hom.long.nopriv$gt_GT_alleles,
                                                     mksngbp)
 
-
+#........................................................
+# write out final positions
+#........................................................
+dir.create("data/derived_data/")
+pos <- vcf.snp.hom.long.nopriv$POS
+saveRDS(object = pos, file = "data/derived_data/final_positions.rds")
 #........................................................
 # Make new fastas
 #........................................................

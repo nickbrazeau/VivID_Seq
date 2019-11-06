@@ -4,7 +4,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Erbo Spain, 1944 Isolate
+# Ebro Spain, 1944 Isolate
 ```{r}
 library(tidyverse)
 library(Biostrings)
@@ -25,7 +25,7 @@ pvp01 <- pvp01[ names(pvp01) == "PvP01_MIT_v1" ]
 #.................................
 # Read in data
 #.................................
-ebro <- vcfR::read.vcfR("~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/Erbo1944/Erbo1944.vcf")
+ebro <- vcfR::read.vcfR("~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/Ebro1944/Ebro1944.vcf")
 pos <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/final_positions.rds")
 
 #.................................
@@ -44,25 +44,25 @@ mtdt <- rbind.data.frame(mtdt, ebro)
 #........................................................
 # SNPs only
 #........................................................
-erbo.snp <- vcfR::extract.indels(erbo, return.indels = F)
-erbo.snp
+ebro.snp <- vcfR::extract.indels(ebro, return.indels = F)
+ebro.snp
 
 #........................................................
 # Get POS
 #........................................................
-erboliftover <- data.frame(POS = vcfR::getPOS(erbo.snp),
-                           GT = vcfR::extract.gt(erbo.snp),
-                           REF = vcfR::getREF(erbo.snp),
-                           ALT = vcfR::getALT(erbo.snp))
-erboliftover <- erboliftover %>% 
+ebroliftover <- data.frame(POS = vcfR::getPOS(ebro.snp),
+                           GT = vcfR::extract.gt(ebro.snp),
+                           REF = vcfR::getREF(ebro.snp),
+                           ALT = vcfR::getALT(ebro.snp))
+ebroliftover <- ebroliftover %>% 
   dplyr::filter(POS %in% pos)
 
 #........................................................
 # Do liftover
 #........................................................
-erbo <- pvp01
-for(i in 1:length(erboliftover$POS)){
-  erbo[[1]][erboliftover$POS[i]] <- as.character( erboliftover$ALT[i] ) # all 1/1
+ebro <- pvp01
+for(i in 1:length(ebroliftover$POS)){
+  ebro[[1]][ebroliftover$POS[i]] <- as.character( ebroliftover$ALT[i] ) # all 1/1
 }
 ```
 
@@ -75,8 +75,8 @@ mtdna <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/P
 # since we are not estimating the molecular clock
 mtdna <- mtdna[!names(mtdna) %in% "Pcynomolgi"]
 
-# going to add erbo
-mtdna[length(mtdna) + 1] <- erbo
+# going to add ebro
+mtdna[length(mtdna) + 1] <- ebro
 names(mtdna)[length(mtdna)] <- "Ebro-1944"
 
 seqmat <-  tibble::as_tibble( t(as.matrix(mtdna) ) )

@@ -8,8 +8,6 @@ editor_options:
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
                       fig.align = 'center', fig.width = 8, fig.height = 8)
-Sys.setenv(RSTUDIO_PANDOC="/usr/local/Cellar/pandoc/2.7.3/bin/")
-
 ```
 ```{r}
 library(tidyverse)
@@ -18,7 +16,15 @@ library(tidyverse)
 ###############################################
 ####             Read in mtdt              ####
 ###############################################
-smpls <- readxl::read_excel("~/Documents/GitHub/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx")
+smpls <- readxl::read_excel("~/Documents/GitHub/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx") %>%
+  dplyr::select(c("iid", "acc", "country", "vividregion"))
+
+drc <- data.frame(iid = c("D9U3K", "O6Y4K", "Q8J6O"),
+                  acc = c("D9U3K", "O6Y4K", "Q8J6O"),
+                  country = "CD",
+                  vividregion = "AF")
+
+smpls <- rbind.data.frame(smpls, drc)
 ```
 
 ## Callable Loci

@@ -172,7 +172,7 @@ snps.annot %>%
 ```{r, results='asis'}
 
 snps.annot %>% 
-  dplyr::select(c("name", "AAsub")) %>% 
+  dplyr::select(c("name", "POS", "AAsub")) %>% 
   dplyr::rename(gene = name) %>% 
   dplyr::filter(AAsub != "REF") %>% 
   dplyr::filter(!duplicated(.)) %>% 

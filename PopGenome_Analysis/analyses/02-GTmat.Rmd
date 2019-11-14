@@ -94,7 +94,7 @@ gtplot <- vcf.snp.ss.long_gt %>%
 
 
 dir.create("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/")
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/raw_all_samples_gtplot.jpg", height = 8, width = 11, units = "in", res = 500)
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/raw_all_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 
@@ -140,7 +140,7 @@ gtplot <- seqmat.long %>%
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank())
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_all_samples_gtplot.jpg", height = 8, width = 11, units = "in", res = 500)
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_all_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 
@@ -174,11 +174,11 @@ gtplot <- seqmat.long %>%
   ggplot() + 
   geom_tile(aes(x = smpls, y = POS, fill = GT)) + 
   scale_fill_manual("Alleles", values = c("#4daf4a", "#377eb8", "#ffff33", "#e41a1c")) +
-  facet_wrap(~vividregion + country, scales = "free_x", nrow = 1, strip.position = "top") +
+  facet_wrap(~k + country, scales = "free_x", nrow = 1, strip.position = "top") +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank())
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_noape_samples_gtplot.jpg", height = 8, width = 11, units = "in", res = 500)
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_noape_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 
@@ -211,11 +211,11 @@ gtplot <- seqmat.long %>%
   ggplot() + 
   geom_tile(aes(x = smpls, y = POS, fill = GT)) + 
   scale_fill_manual("Alleles", values = c("#4daf4a", "#377eb8", "#ffff33", "#e41a1c")) +
-  facet_wrap(~vividregion+country, scales = "free_x", nrow = 1, strip.position = "top") +
+  facet_wrap(~k+country, scales = "free_x", nrow = 1, strip.position = "top") +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank())
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_noclones_samples_gtplot.jpg", height = 8, width = 11, units = "in", res = 500)
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_noclones_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 
@@ -252,11 +252,11 @@ gtplot <- seqmat.long %>%
   ggplot() + 
   geom_tile(aes(x = smpls, y = POS, fill = GT)) + 
   scale_fill_manual("Alleles", values = c("#4daf4a", "#377eb8", "#ffff33", "#e41a1c")) +
-  facet_wrap(~vividregion+country, scales = "free_x", nrow = 1, strip.position = "top") +
+  facet_wrap(~k+country, scales = "free_x", nrow = 1, strip.position = "top") +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank())
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_noclones_nonha_samples_gtplot.jpg", height = 8, width = 11, units = "in", res = 500)
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_noclones_nonha_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 

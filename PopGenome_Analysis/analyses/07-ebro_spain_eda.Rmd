@@ -34,9 +34,9 @@ pos <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_dat
 mtdt <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdt.RDS")
 
 
-ebro <- data.frame(iid = "Ebro-1944", smpls = "Ebro-1944", country = "ES", vividregion = "Ebro-1944", passed = "Y", hapuid = NA, x = NA, y = NA, k = NA)
+ebromtdt <- data.frame(iid = "Ebro-1944", smpls = "Ebro-1944", country = "ES", vividregion = "Ebro", passed = "Y", hapuid = NA, x = NA, y = NA, k = NA)
 
-mtdt <- rbind.data.frame(mtdt, ebro)
+mtdt <- rbind.data.frame(mtdt, ebromtdt)
 
 ```
 
@@ -97,11 +97,11 @@ gtplot <- seqmat.long %>%
   ggplot() + 
   geom_tile(aes(x = smpls, y = POS, fill = GT)) + 
   scale_fill_manual("Alleles", values = c("#4daf4a", "#377eb8", "#ffff33", "#e41a1c")) +
-  facet_wrap(~vividregion + country, scales = "free_x", nrow = 1, strip.position = "top") +
+  facet_wrap(~k + country, scales = "free_x", nrow = 1, strip.position = "top") +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank())
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/ebro_compare.jpg", height = 8, width = 11, units = "in", res = 500)
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/ebro_compare.jpg", height = 8, width = 14, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 

@@ -325,7 +325,7 @@ points.br <- points %>%
   dplyr::filter(country == "BR")
 
 
-mtDNAglobal <- ggplot() +
+BRmtDNAglobal <- ggplot() +
   geom_sf(data = world, color = "#ffffff", fill = "#000000", size = 0.05) +
   geom_curve(data = mtdnanetwork.diff, alpha = 0.5, size = 1.1,
              aes(x = long1, y = lat1, xend = long2, yend = lat2, color = factor(hammings))) +
@@ -354,10 +354,10 @@ mtDNAglobal <- ggplot() +
 
 
 ```{r, results='asis', fig.align='center', fig.width = 11, fig.height = 8}
-plot(mtDNAglobal)
+plot(BRmtDNAglobal)
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_wide_BRAZIL.jpg", height = 8, width = 11, units = "in", res = 500)
-plot(mtDNAglobal)
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_wide_BRAZIL.jpg", height = 11, width = 8, units = "in", res = 500)
+plot(BRmtDNAglobal)
 graphics.off()
 
 
@@ -386,7 +386,7 @@ points.my <- points %>%
   dplyr::filter(country == "MY")
 
 
-mtDNAglobal <- ggplot() +
+MYmtDNAglobal <- ggplot() +
   geom_sf(data = world, color = "#ffffff", fill = "#000000", size = 0.05) +
   geom_curve(data = mtdnanetwork.diff, alpha = 0.5, size = 1.1,
              aes(x = long1, y = lat1, xend = long2, yend = lat2, color = factor(hammings))) +
@@ -415,13 +415,22 @@ mtDNAglobal <- ggplot() +
 
 
 ```{r, results='asis', fig.align='center', fig.width = 11, fig.height = 8}
-plot(mtDNAglobal)
+plot(MYmtDNAglobal)
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_wide_MALAYSIA.jpg", height = 8, width = 11, units = "in", res = 500)
-plot(mtDNAglobal)
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_wide_MALAYSIA.jpg", height = 11, width = 8, units = "in", res = 500)
+plot(MYmtDNAglobal)
 graphics.off()
 
 
 ```
 
+```{r}
+
+BRmtDNAglobal <- BRmtDNAglobal + theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+MYmtDNAglobal <- MYmtDNAglobal + theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_wide_comparisoins.jpg", height = 11, width = 8, units = "in", res = 500)
+cowplot::plot_grid(BRmtDNAglobal, MYmtDNAglobal, align = "h", ncol = 1)
+graphics.off()
+```
 

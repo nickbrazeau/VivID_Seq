@@ -37,8 +37,10 @@ options(digits = 2)
 ```{r, child = 'analyses/03_1-PopGenome_all.Rmd'}
 ```
 
-```{r, child = 'analyses/03_2-PopGenome_noclones.Rmd'}
-```
+
+<!-- ```{r, child = 'analyses/03_2-PopGenome_noclones.Rmd'} -->
+<!-- ``` -->
+
 
 ```{r, child = 'analyses/04-ape_ade4_all.Rmd'}
 ```

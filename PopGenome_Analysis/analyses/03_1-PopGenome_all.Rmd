@@ -183,11 +183,7 @@ names(smpls.seq.list) <- smplnames
 find.derived <- function(anc, smpl){
   der <- rep(NA, length(anc))
   for(i in 1:length(anc)){
-    if(anc[i] == "N" | smpl[i] == "N"){
-      next
-    } else{
       der[i] <- anc[i] != smpl[i]
-    }
   }
   return(sum(der, na.rm = T))
 }
@@ -470,12 +466,13 @@ HudsonsnnPloObj <- pop.list %>%
   scale_fill_viridis_c("Snn") + 
   theme_minimal() + 
   theme(
-    plot.title = element_text(vjust = 0.5, hjust = 0.5, size = 11, face = "bold"), 
+    plot.title = element_text(vjust = 0.5, hjust = 0.5, size = 18, face = "bold"), 
     axis.title = element_blank(),
-    axis.text.y = element_text(size = 8),
-    axis.text.x = element_text(angle = 90, size = 8, hjust = 1),
+    axis.text.y = element_text(size = 15, face = "bold"),
+    axis.text.x = element_text(angle = 90, size = 15, face = "bold", hjust = 1),
     legend.position = "right",
-    legend.text = element_text(hjust = 0.5, vjust = 0.5, size = 8),
+    legend.title = element_text(hjust = 0.5, vjust = 0.5, size = 17, face = "bold"),
+    legend.text = element_text(hjust = 0.5, vjust = 0.5, size = 15, face = "bold"),
     plot.background = element_blank(),
     panel.grid = element_blank()
     )

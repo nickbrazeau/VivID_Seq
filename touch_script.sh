@@ -1,8 +1,8 @@
 touch /pine/scr/n/f/nfb/Projects/VivID_Seq/cynomolgi_pe/*
 touch /pine/scr/n/f/nfb/Projects/VivID_Seq/cynomolgi_pe/aln/*
 touch /pine/scr/n/f/nfb/Projects/VivID_Seq/Ebro1944/*
-touch /pine/scr/n/f/nfb/Projects/VivID_Seq/Pcynomolgi/pcynomolgi_vars/*
-touch /pine/scr/n/f/nfb/Projects/VivID_Seq/Pcynomolgi/pcynomolgi_vars/gvcfs/*
+touch /pine/scr/n/f/nfb/Projects/VivID_Seq/pcynomolgi_vars/*
+touch /pine/scr/n/f/nfb/Projects/VivID_Seq/pcynomolgi_vars/gvcfs/*
 touch /pine/scr/n/f/nfb/Projects/VivID_Seq/public_pe_seqs/*
 touch /pine/scr/n/f/nfb/Projects/VivID_Seq/public_se_seqs/*
 touch /pine/scr/n/f/nfb/Projects/VivID_Seq/public_se_seqs/*

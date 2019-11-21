@@ -4,7 +4,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-# Annotate Variants (NHA Samples Excluded)
+# Annotate Variants 
 ```{r}
 library(tidyverse)
 library(Biostrings)
@@ -17,8 +17,6 @@ library(Biostrings)
 
 snps <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/final_vcf_snps.RDS")
 
-snps <- snps %>% 
-  dplyr::filter(vividregion != "NHA")
 
 snps.count <- snps %>% 
   dplyr::group_by(POS) %>% 
@@ -90,6 +88,7 @@ snps.annot <- snps.red %>%
   
 
 ```
+
 ```{r}
 #.................................
 # Mutate

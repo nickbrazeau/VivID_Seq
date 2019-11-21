@@ -31,8 +31,10 @@ options(digits = 2)
 ```{r, child = 'analyses/02-GTmat.Rmd'}
 ```
 
-```{r, child = 'analyses/06-annotate_variants.Rmd'}
-```
+
+<!-- ```{r, child = 'analyses/06-annotate_variants.Rmd'} -->
+<!-- ``` -->
+
 
 ```{r, child = 'analyses/03_1-PopGenome_all.Rmd'}
 ```

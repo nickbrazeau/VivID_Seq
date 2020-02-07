@@ -44,6 +44,7 @@ ncbi_api_key_forsanger.txt
 
 data/
 sandbox/
+ignore/
 
 *.jpg
 *.svg

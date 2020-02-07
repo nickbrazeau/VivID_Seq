@@ -159,7 +159,7 @@ GTR model is a much better fit than JC (no surprise).
 
 
 ## Bootstrapping MLE-GTR Tree
-Going to bootstrapped our MLE tree under the GTR model for 1e4 iterations. 
+Going to bootstrapped our MLE tree under the GTR model for 1e3 iterations. 
 ```{r}
 bs <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/all_smpl_tree_results/GTR_bootstraptrees.RDS")
 
@@ -168,7 +168,6 @@ bootval <- data.frame(node = sort(unique(fitGTR$tree$edge[,1])),
                       bs = clad)
 
 ```
-
 
 
 ## Pretty Tree
@@ -196,7 +195,8 @@ tidytree@extraInfo$vividregion[is.na(tidytree@extraInfo$vividregion)] <- "zinter
 # add bootstrap
 tidytree <- full_join(tidytree, bootval, by ="node")
 
-
+# remove "base of tree "-- don't care that it got it right every time -- nothing to get "right"
+tidytree@extraInfo$bs[tidytree@extraInfo$bs == 1e3] <- NA
 
 bstree_plotObj <- ggtree(tidytree, 
                          branch.length="none",
@@ -214,82 +214,9 @@ bstree_plotObj <- ggtree(tidytree,
                                       50 <= BP * " < 60", 
                                       40 <= BP * " < 50",
                                       BP < 40)) + 
-  scale_color_manual("Country",
-                    values = c("#33FDFF", # BR
-                               "#e41a1c", # CD
-                               "#33F600", # CN
-                               "#15FFF7", # CO
-                               "#ffa500", # ET
-                               "#2FFF15", # ID
-                               "#A515FF", # IN
-                               "#86FF52", # KH
-                               "#3ECE00", # LA
-                               "#921CFF", # LK
-                               "#FF6D1C", # MG
-                               "#A2FE10", # MM
-                               "#45FFEB", # MX
-                               "#00F52B", # MY
-                               "#F500E4", # NHA
-                               "#000000", # pcynomolgi
-                               "#00A0F5", # PE
-                               "#00F571", # PG
-                               "#9FFC4C", # TH 
-                               "#72F201", # VN
-                               "#000000" # internal
-                    )) + 
-  scale_shape_manual(values = c(0, # BR
-                              8, # CD
-                              0, # CN
-                              1, # CO
-                              0, # ET
-                              2, # ID
-                              3, # IN
-                              4, # KH
-                              5, # LA
-                              6, # LK
-                              2, # MG
-                              7, # MM
-                              2, # MX
-                              9, # MY
-                              0, # NHA
-                              0, # Pcynolmgi
-                              3, # PE
-                              10, # PG
-                              12, # TH 
-                              13 # VN
-                   )) + 
-  theme_tree(legend.position=c(0, 0.5)) 
-
-```
-
-```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
-plot(bstree_plotObj)
-
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_phylogenetic_tree_circular.jpg", height = 8, width = 15, units = "in", res = 500)
-plot(bstree_plotObj)
-graphics.off()
-
-```
-
-
-```{r, collapsetree}
-
-bstreecollapse <- ggtree(tidytree, 
-                         branch.length="none",
-                         aes(color = country)) + 
-  geom_tippoint(aes(color =  country, shape = country), show.legend = F, size = 0.8) +
-  geom_point2(aes(subset=!isTip, 
-                  fill=cut(bs, c(0, 400, 500, 600, 700, Inf))), 
-              shape=21, size=4) +
-  scale_fill_manual(values=c("#f0f0f0", "#d9d9d9", "#969696", "#737373", "#252525"), guide='legend', 
-                    name='Bootstrap Percentage(BP)', 
-                    breaks=c('(700,1e+03]', '(600,700]', '(500,600]', '(400,500]', '(0,400]'), 
-                    labels=expression(BP>=70, 
-                                      60 <= BP * " < 70", 
-                                      50 <= BP * " < 60", 
-                                      40 <= BP * " < 50",
-                                      BP < 40)) + 
-  scale_color_manual("Country",
+  scale_color_manual(name = "Country",
+                     labels = c("BR","CD","CN","CO","ET","ID","IN","KH","LA","LK","MG","MM","MX",
+                                "MY","NHA","pcynomolgi","PE","PG","TH","VN","internal"),
                      values = c("#33FDFF", # BR
                                 "#e41a1c", # CD
                                 "#33F600", # CN
@@ -312,7 +239,171 @@ bstreecollapse <- ggtree(tidytree,
                                 "#72F201", # VN
                                 "#000000" # internal
                      )) + 
-  scale_shape_manual(values = c(0, # BR
+  scale_shape_manual(name = "Country",
+                     labels = c("BR","CD","CN","CO","ET","ID","IN","KH","LA","LK","MG","MM","MX",
+                                "MY","NHA","pcynomolgi","PE","PG","TH","VN","internal"),
+                     values = c(0, # BR
+                                8, # CD
+                                0, # CN
+                                1, # CO
+                                0, # ET
+                                2, # ID
+                                3, # IN
+                                4, # KH
+                                5, # LA
+                                6, # LK
+                                2, # MG
+                                7, # MM
+                                2, # MX
+                                9, # MY
+                                0, # NHA
+                                0, # Pcynolmgi
+                                3, # PE
+                                10, # PG
+                                12, # TH 
+                                13 # VN
+                     )) + 
+  theme_tree(legend.position=c(0, 0.5)) 
+
+```
+
+```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
+plot(bstree_plotObj)
+
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_phylogenetic_tree_circular.jpg", height = 8, width = 15, units = "in", res = 500)
+plot(bstree_plotObj)
+graphics.off()
+
+```
+
+```{r}
+
+
+rightlegend <- ggtree(tidytree, 
+                         branch.length="none",
+                         layout="circular") + 
+  geom_tippoint(aes(color =  country, shape = country), size = 0.8) +
+  geom_point2(aes(subset=!isTip, 
+                  fill=cut(bs, c(0, 400, 500, 600, 700, Inf))), 
+              shape=21, size=1) +
+  scale_fill_manual(values=c("#f0f0f0", "#d9d9d9", "#969696", "#737373", "#252525"), guide='legend', 
+                    name='Bootstrap Percentage(BP)', 
+                    breaks=c('(700,1e+03]', '(600,700]', '(500,600]', '(400,500]', '(0,400]'), 
+                    labels=expression(BP>=70, 
+                                      60 <= BP * " < 70", 
+                                      50 <= BP * " < 60", 
+                                      40 <= BP * " < 50",
+                                      BP < 40)) + 
+  scale_color_manual(name = "Country",
+                     labels = c("BR","CD","CN","CO","ET","ID","IN","KH","LA","LK","MG","MM","MX",
+                                "MY","NHA","pcynomolgi","PE","PG","TH","VN","internal"),
+                     values = c("#33FDFF", # BR
+                                "#e41a1c", # CD
+                                "#33F600", # CN
+                                "#15FFF7", # CO
+                                "#ffa500", # ET
+                                "#2FFF15", # ID
+                                "#A515FF", # IN
+                                "#86FF52", # KH
+                                "#3ECE00", # LA
+                                "#921CFF", # LK
+                                "#FF6D1C", # MG
+                                "#A2FE10", # MM
+                                "#45FFEB", # MX
+                                "#00F52B", # MY
+                                "#F500E4", # NHA
+                                "#000000", # pcynomolgi
+                                "#00A0F5", # PE
+                                "#00F571", # PG
+                                "#9FFC4C", # TH 
+                                "#72F201", # VN
+                                "#000000" # internal
+                     )) + 
+  scale_shape_manual(name = "Country",
+                     labels = c("BR","CD","CN","CO","ET","ID","IN","KH","LA","LK","MG","MM","MX",
+                                "MY","NHA","pcynomolgi","PE","PG","TH","VN","internal"),
+                     values = c(0, # BR
+                                8, # CD
+                                0, # CN
+                                1, # CO
+                                0, # ET
+                                2, # ID
+                                3, # IN
+                                4, # KH
+                                5, # LA
+                                6, # LK
+                                2, # MG
+                                7, # MM
+                                2, # MX
+                                9, # MY
+                                0, # NHA
+                                0, # Pcynolmgi
+                                3, # PE
+                                10, # PG
+                                12, # TH 
+                                13 # VN
+                     )) + 
+  theme_tree(legend.position=c(0, 0.5)) + 
+  theme(legend.title = element_text(family = "Helvetica", size = 18, face = "bold"),
+        legend.text = element_text(family = "Helvetica", size = 14, face = "bold"))
+
+svglite::svglite("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_phylogenetic_tree_rightlegend.svg", height = 8, width = 15)
+plot(rightlegend)
+graphics.off()
+
+
+```
+
+
+
+
+
+```{r}
+
+bstreecollapse <- ggtree(tidytree, 
+                         branch.length="none",
+                         aes(color = country)) + 
+  geom_tippoint(aes(color =  country, shape = country), show.legend = F, size = 0.8) +
+  geom_point2(aes(subset=!isTip, 
+                  fill=cut(bs, c(0, 400, 500, 600, 700, Inf))), 
+              shape=21, size=4) +
+  scale_fill_manual(values=c("#f0f0f0", "#d9d9d9", "#969696", "#737373", "#252525"), guide='legend', 
+                    name='Bootstrap Percentage(BP)', 
+                    breaks=c('(700,1e+03]', '(600,700]', '(500,600]', '(400,500]', '(0,400]'), 
+                    labels=expression(BP>=70, 
+                                      60 <= BP * " < 70", 
+                                       50 <= BP * " < 60", 
+                                      40 <= BP * " < 50",
+                                      BP < 40)) + 
+  scale_color_manual(name = "Country",
+                     labels = c("BR","CD","CN","CO","ET","ID","IN","KH","LA","LK","MG","MM","MX",
+                                "MY","NHA","pcynomolgi","PE","PG","TH","VN","internal"),
+                     values = c("#33FDFF", # BR
+                                "#e41a1c", # CD
+                                "#33F600", # CN
+                                "#15FFF7", # CO
+                                "#ffa500", # ET
+                                "#2FFF15", # ID
+                                "#A515FF", # IN
+                                "#86FF52", # KH
+                                "#3ECE00", # LA
+                                "#921CFF", # LK
+                                "#FF6D1C", # MG
+                                "#A2FE10", # MM
+                                "#45FFEB", # MX
+                                "#00F52B", # MY
+                                "#F500E4", # NHA
+                                "#000000", # pcynomolgi
+                                "#00A0F5", # PE
+                                "#00F571", # PG
+                                "#9FFC4C", # TH 
+                                "#72F201", # VN
+                                "#000000" # internal
+                     )) + 
+  scale_shape_manual(name = "Country",
+                     labels = c("BR","CD","CN","CO","ET","ID","IN","KH","LA","LK","MG","MM","MX",
+                                "MY","NHA","pcynomolgi","PE","PG","TH","VN","internal"),
+                     values = c(0, # BR
                                 8, # CD
                                 0, # CN
                                 1, # CO
@@ -342,6 +433,149 @@ bstreecollapse <- ggtree::collapse(bstreecollapse, node=658)
 
 ```
 
+```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
+plot(bstreecollapse)
+```
+
+For reference. 
+```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
+
+tree_bsvals <- ggtree(tidytree, 
+                      branch.length="none",
+                      aes(color = country)) + 
+  geom_tippoint(aes(color =  country, shape = country), show.legend = F, size = 0.8) +
+  geom_nodelab(aes(subset=!isTip,
+                   x=branch, label=bs)) +
+  scale_color_manual(name = "Country",
+                     labels = c("BR","CD","CN","CO","ET","ID","IN","KH","LA","LK","MG","MM","MX",
+                                "MY","NHA","pcynomolgi","PE","PG","TH","VN","internal"),
+                     values = c("#33FDFF", # BR
+                                "#e41a1c", # CD
+                                "#33F600", # CN
+                                "#15FFF7", # CO
+                                "#ffa500", # ET
+                                "#2FFF15", # ID
+                                "#A515FF", # IN
+                                "#86FF52", # KH
+                                "#3ECE00", # LA
+                                "#921CFF", # LK
+                                "#FF6D1C", # MG
+                                "#A2FE10", # MM
+                                "#45FFEB", # MX
+                                "#00F52B", # MY
+                                "#F500E4", # NHA
+                                "#000000", # pcynomolgi
+                                "#00A0F5", # PE
+                                "#00F571", # PG
+                                "#9FFC4C", # TH 
+                                "#72F201", # VN
+                                "#000000" # internal
+                     )) + 
+  scale_shape_manual(name = "Country",
+                     labels = c("BR","CD","CN","CO","ET","ID","IN","KH","LA","LK","MG","MM","MX",
+                                "MY","NHA","pcynomolgi","PE","PG","TH","VN","internal"),
+                     values = c(0, # BR
+                                8, # CD
+                                0, # CN
+                                1, # CO
+                                0, # ET
+                                2, # ID
+                                3, # IN
+                                4, # KH
+                                5, # LA
+                                6, # LK
+                                2, # MG
+                                7, # MM
+                                2, # MX
+                                9, # MY
+                                0, # NHA
+                                0, # Pcynolmgi
+                                3, # PE
+                                10, # PG
+                                12, # TH 
+                                13 # VN
+                     )) + 
+  theme_tree(legend.position="none") 
+
+
+
+plot(tree_bsvals)
+```
+
+```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
+
+bstreecollapse_bsvals <- ggtree(tidytree, 
+                         branch.length="none",
+                         aes(color = country)) + 
+  geom_tippoint(aes(color =  country, shape = country), show.legend = F, size = 0.8) +
+  geom_nodelab(aes(subset=!isTip,
+                   x=branch, label=bs)) +
+  scale_color_manual(name = "Country",
+                     labels = c("BR","CD","CN","CO","ET","ID","IN","KH","LA","LK","MG","MM","MX",
+                                "MY","NHA","pcynomolgi","PE","PG","TH","VN","internal"),
+                     values = c("#33FDFF", # BR
+                                "#e41a1c", # CD
+                                "#33F600", # CN
+                                "#15FFF7", # CO
+                                "#ffa500", # ET
+                                "#2FFF15", # ID
+                                "#A515FF", # IN
+                                "#86FF52", # KH
+                                "#3ECE00", # LA
+                                "#921CFF", # LK
+                                "#FF6D1C", # MG
+                                "#A2FE10", # MM
+                                "#45FFEB", # MX
+                                "#00F52B", # MY
+                                "#F500E4", # NHA
+                                "#000000", # pcynomolgi
+                                "#00A0F5", # PE
+                                "#00F571", # PG
+                                "#9FFC4C", # TH 
+                                "#72F201", # VN
+                                "#000000" # internal
+                     )) + 
+  scale_shape_manual(name = "Country",
+                     labels = c("BR","CD","CN","CO","ET","ID","IN","KH","LA","LK","MG","MM","MX",
+                                "MY","NHA","pcynomolgi","PE","PG","TH","VN","internal"),
+                     values = c(0, # BR
+                                8, # CD
+                                0, # CN
+                                1, # CO
+                                0, # ET
+                                2, # ID
+                                3, # IN
+                                4, # KH
+                                5, # LA
+                                6, # LK
+                                2, # MG
+                                7, # MM
+                                2, # MX
+                                9, # MY
+                                0, # NHA
+                                0, # Pcynolmgi
+                                3, # PE
+                                10, # PG
+                                12, # TH 
+                                13 # VN
+                     )) + 
+  theme_tree(legend.position="none") 
+
+bstreecollapse_bsvals <- scaleClade(bstreecollapse_bsvals, node=672, scale=2) 
+bstreecollapse_bsvals <- ggtree::collapse(bstreecollapse_bsvals, node=651)
+bstreecollapse_bsvals <- ggtree::collapse(bstreecollapse_bsvals, node=643)
+bstreecollapse_bsvals <- ggtree::collapse(bstreecollapse_bsvals, node=658)
+
+plot(bstreecollapse_bsvals)
+
+jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_phylogenetic_tree_bs_values_zoom.jpg", height = 8, width = 25, units = "in", res = 500)
+plot(bstreecollapse_bsvals)
+graphics.off()
+
+```
+
+
+Final figure backbone.
 
 ```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
 

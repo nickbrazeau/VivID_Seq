@@ -53,6 +53,8 @@ mtdt <- dplyr::left_join(smpls, psdsmpls, by = "acc") %>%
   dplyr::filter(vividregion != "Lab")
 
 ```
+### Summary of Data
+Overall, there are `r nrow(hapuid)` unique haplotypes in the data. Among the original `r nrow(mtdt)` samples considered (note, 3 are DRC samples), `r sum(mtdt$passed == "Y", na.rm=T)` passed QC thresholds. 
 
 ```{r}
 #---------------------------------------------------- 

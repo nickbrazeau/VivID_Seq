@@ -47,7 +47,7 @@ rule tidy_up:
 
 
 
-## add entries to FILTER per GATK4 hard-filtering best practices; don't actually apply the filter
+## add entries to FILTER per GATK4 hard-filtering best practices
 # see https://informatics.fas.harvard.edu/whole-genome-resquencing-for-population-genomics-fastq-to-vcf.html#variantcalling
 rule filter_vars:
 	input:

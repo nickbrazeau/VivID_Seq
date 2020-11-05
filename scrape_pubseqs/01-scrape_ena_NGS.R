@@ -19,7 +19,8 @@ get_accessions <- function(x){
   ret <- as.data.frame( stringr::str_split_fixed(ret, "\t", n = 2) )[2:length(ret),]
   colnames(ret) <- c("acc", "runs")
   ret <- ret %>%
-    dplyr::mutate(R1 = stringr::str_split_fixed(runs, ";", n = 2)[,1],
+    dplyr::mutate(acc = x,
+                  R1 = stringr::str_split_fixed(runs, ";", n = 2)[,1],
                   R2 = stringr::str_split_fixed(runs, ";", n = 2)[,2]) %>%
     dplyr::select(-c("runs"))
   # sleep to not overwhelm server and out
@@ -30,14 +31,14 @@ get_accessions <- function(x){
 # read in metadata
 smpls <- readxl::read_excel("vivid_seq_public_NGS.xlsx") %>%
   dplyr::filter(acc != "from_authors")
-acc <- smpls$acc
+accessions <- smpls$acc
 # spin up local docker machine for firefox driver
 # https://docs.ropensci.org/RSelenium/articles/docker.html
 remDr <- RSelenium::remoteDriver(port = 4445L)
 remDr$open()
 
 # run through accessions
-enadf <- lapply(acc, get_accessions) %>%
+enadf <- lapply(accessions, get_accessions) %>%
   dplyr::bind_rows()
 
 RD$close()

@@ -4,7 +4,7 @@ library(tidyverse)
 #...........................................................................................
 # Organize PE for Alignment
 #............................................................................................
-pe <- readr::read_tsv("~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/scrape_pubseqs/ENA_master_acc_download_map_PE.tab.txt")
+pe <- readr::read_tsv("~/Documents/MountPoints/mountMeshnick/Projects/VivID_Seq/scrape_pubseqs/ENA_master_acc_download_map_PE.tab.txt")
 pe.long <- pe %>%
   dplyr::mutate(SRR1 = basename(R1),
                 SRR2 = basename(R2)) %>%
@@ -17,8 +17,8 @@ pe.paths <- tibble::tibble(path = list.files(path = "~/Documents/MountPoints/mou
                                               full.names = T)) %>%
   dplyr::mutate(fastq = basename(path))
 
-
 pe.long.paths <- dplyr::left_join(pe.long, pe.paths, by = "fastq")
+
 
 
 #...............................
@@ -28,12 +28,13 @@ symlink_architecture <- pe.long.paths %>%
   magrittr::set_colnames(c("smpl", "fastq", "from")) %>%
   dplyr::mutate(to = paste0(smpl, "/", fastq)) %>%
   dplyr::select(-c("fastq")) %>%
-  dplyr::mutate(from = gsub("/Users/nickbrazeau/Documents/MountPoints/mountedScratchLL/",
+  dplyr::mutate(from = gsub("/Users/nbrazeau/Documents/MountPoints/mountedScratchLL/",
                             "/pine/scr/n/f/nfb/",
                             from))
 
+
 readr::write_tsv(x = symlink_architecture,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/wgs_pe_improved_global/symlink_architecture.tab.txt",
+                 path = "~/Documents/MountPoints/mountMeshnick/Projects/VivID_Seq/wgs_pe_improved_global/symlink_architecture.tab.txt",
                  col_names = F)
 
 #...............................
@@ -46,10 +47,8 @@ globalvivid_run_map <- pe.long.paths %>%
   dplyr::mutate(x = ".")
 
 readr::write_tsv(x = globalvivid_run_map,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/wgs_pe_improved_global/globalvivid_run_map.tab.txt",
+                 path = "~/Documents/MountPoints/mountMeshnick/Projects/VivID_Seq/wgs_pe_improved_global/globalvivid_run_map.tab.txt",
                  col_names = F)
-
-
 
 
 
@@ -57,8 +56,7 @@ readr::write_tsv(x = globalvivid_run_map,
 #...........................................................................................
 # Organize SE for Alignment
 #............................................................................................
-se <- readr::read_tsv("~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/scrape_pubseqs/ENA_master_acc_download_map_SE.tab.txt")
-
+se <- readr::read_tsv("~/Documents/MountPoints/mountMeshnick/Projects/VivID_Seq/scrape_pubseqs/ENA_master_acc_download_map_SE.tab.txt")
 
 se.long <- se %>%
   dplyr::mutate(SRR1 = basename(R1)) %>%
@@ -73,7 +71,7 @@ se.paths <- tibble::tibble(path = list.files(path = "~/Documents/MountPoints/mou
 
 # Note, SYpte56 (SRS3371818 - has pacbio reads SRR7255036 and illumina reads SRR7255037)
 # Note, SYptt43 (SRS3371817 - has pacbio reads SRR7255038 and illumina reads SRR7255039)
-# have to drop the pacbio redas
+# have to drop the pacbio reads
 se.paths <- se.paths[ !grepl("SRR7255036|SRR7255038", se.paths$fastq), ]
 
 se.long.paths <- dplyr::left_join(se.long, se.paths, by = "fastq") %>%
@@ -84,7 +82,10 @@ se.long.paths <- dplyr::left_join(se.long, se.paths, by = "fastq") %>%
 
 se.long.paths <- se.long.paths[!se.long.paths$acc %in% pe.long.paths$acc, ]
 
-# This just leaves us with the one Ancient DNA sample from Spain
+#......................
+# manually add in Ebro from study authors
+#......................
+# TODO
 
 
 #...............................

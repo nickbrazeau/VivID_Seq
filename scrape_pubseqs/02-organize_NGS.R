@@ -85,8 +85,9 @@ se.long.paths <- se.long.paths[!se.long.paths$acc %in% pe.long.paths$acc, ]
 #......................
 # manually add in Ebro from study authors
 #......................
-# TODO
-
+se.long.paths <- tibble::tibble(acc = "Ebro1944",
+                                fastq = "Ebro1944.fastq.gz",
+                                path = "/pine/scr/n/f/nfb/Projects/VivID_Seq/public_se_seqs/Ebro1944.fastq.gz")
 
 #...............................
 # Make Symlink Architecture (overkill)

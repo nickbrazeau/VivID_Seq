@@ -95,13 +95,10 @@ se.long.paths <- tibble::tibble(acc = "Ebro1944",
 symlink_architecture <- se.long.paths %>%
   magrittr::set_colnames(c("smpl", "fastq", "from")) %>%
   dplyr::mutate(to = paste0(smpl, "/", fastq)) %>%
-  dplyr::select(-c("fastq")) %>%
-  dplyr::mutate(from = gsub("/Users/nickbrazeau/Documents/MountPoints/mountedScratchLL/",
-                            "/pine/scr/n/f/nfb/",
-                            from))
+  dplyr::select(-c("fastq"))
 
 readr::write_tsv(x = symlink_architecture,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/wgs_se_improved_global/symlink_architecture.tab.txt",
+                 path = "~/Documents/MountPoints/mountMeshnick/Projects/VivID_Seq/wgs_se_improved_global/symlink_architecture.tab.txt",
                  col_names = F)
 
 #...............................
@@ -114,7 +111,7 @@ globalvivid_run_map <- se.long.paths %>%
   dplyr::mutate(x = ".")
 
 readr::write_tsv(x = globalvivid_run_map,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/wgs_se_improved_global/globalvivid_run_map.tab.txt",
+                 path = "~/Documents/MountPoints/mountMeshnick/Projects/VivID_Seq/wgs_se_improved_global/globalvivid_run_map.tab.txt",
                  col_names = F)
 
 

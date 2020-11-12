@@ -4,7 +4,7 @@ library(tidyverse)
 #...........................................................................................
 # Organize PE for Alignment
 #............................................................................................
-pe <- readr::read_tsv("~/Documents/MountPoints/mountMeshnick/Projects/VivID_Seq/scrape_pubseqs/ENA_master_acc_download_map_PE.tab.txt")
+pe <- readr::read_tsv("ENA_master_acc_download_map_PE.tab.txt")
 pe.long <- pe %>%
   dplyr::mutate(SRR1 = basename(R1),
                 SRR2 = basename(R2)) %>%
@@ -34,7 +34,7 @@ symlink_architecture <- pe.long.paths %>%
 
 
 readr::write_tsv(x = symlink_architecture,
-                 path = "~/Documents/MountPoints/mountMeshnick/Projects/VivID_Seq/wgs_pe_improved_global/symlink_architecture.tab.txt",
+                 path = "../wgs_pe_improved_global/symlink_architecture.tab.txt",
                  col_names = F)
 
 #...............................
@@ -47,7 +47,7 @@ globalvivid_run_map <- pe.long.paths %>%
   dplyr::mutate(x = ".")
 
 readr::write_tsv(x = globalvivid_run_map,
-                 path = "~/Documents/MountPoints/mountMeshnick/Projects/VivID_Seq/wgs_pe_improved_global/globalvivid_run_map.tab.txt",
+                 path = "../wgs_pe_improved_global/globalvivid_run_map.tab.txt",
                  col_names = F)
 
 
@@ -56,7 +56,7 @@ readr::write_tsv(x = globalvivid_run_map,
 #...........................................................................................
 # Organize SE for Alignment
 #............................................................................................
-se <- readr::read_tsv("~/Documents/MountPoints/mountMeshnick/Projects/VivID_Seq/scrape_pubseqs/ENA_master_acc_download_map_SE.tab.txt")
+se <- readr::read_tsv("ENA_master_acc_download_map_SE.tab.txt")
 
 se.long <- se %>%
   dplyr::mutate(SRR1 = basename(R1)) %>%
@@ -98,7 +98,7 @@ symlink_architecture <- se.long.paths %>%
   dplyr::select(-c("fastq"))
 
 readr::write_tsv(x = symlink_architecture,
-                 path = "~/Documents/MountPoints/mountMeshnick/Projects/VivID_Seq/wgs_se_improved_global/symlink_architecture.tab.txt",
+                 path = "../wgs_se_improved_global/symlink_architecture.tab.txt",
                  col_names = F)
 
 #...............................
@@ -111,7 +111,7 @@ globalvivid_run_map <- se.long.paths %>%
   dplyr::mutate(x = ".")
 
 readr::write_tsv(x = globalvivid_run_map,
-                 path = "~/Documents/MountPoints/mountMeshnick/Projects/VivID_Seq/wgs_se_improved_global/globalvivid_run_map.tab.txt",
+                 path = "../wgs_se_improved_global/globalvivid_run_map.tab.txt",
                  col_names = F)
 
 

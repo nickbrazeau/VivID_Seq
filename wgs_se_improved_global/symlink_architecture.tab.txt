@@ -1,1 +1,1 @@
-SRS1607662	/pine/scr/n/f/nfb/Projects/VivID_Seq/public_se_seqs//SRR4019023.fastq.gz	SRS1607662/SRR4019023.fastq.gz
+Ebro1944	/pine/scr/n/f/nfb/Projects/VivID_Seq/public_se_seqs/Ebro1944.fastq.gz	Ebro1944/Ebro1944.fastq.gz

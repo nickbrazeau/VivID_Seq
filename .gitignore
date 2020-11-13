@@ -1,6 +1,5 @@
 # my files
-#**/*.tab.txt
-#**/*.txt
+zraw_Ebro1944/
 **/touch_files.sh
 
 
@@ -25,7 +24,7 @@
 ._*
 ~$*
 
-# R 
+# R
 .Rproj.user
 .Rproj.user/
 .Rhistory
@@ -39,8 +38,6 @@
 *.fasta
 *.embl
 *.xml
-
-ncbi_api_key_forsanger.txt
 
 data/
 sandbox/
@@ -65,6 +62,3 @@ ignore/
 *.html
 *.docx
 
-# MAC files
-.DS_Store
-~$*

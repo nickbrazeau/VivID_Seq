@@ -11,7 +11,7 @@ pebams <- list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/V
                      full.names = T, pattern = ".bam")
 pebams <- pebams[!grepl(".bai", pebams)]
 
-all_bams <- tibble::enframe( c(vividbams, sebams, pebams), name = NULL )
+all_bams <- tibble::enframe( c(vividbams, pebams), name = NULL )
 
 # fix local to remote
 all_bams$value <- gsub("/Users/nbrazeau/Documents/MountPoints/mountedScratchLL/",

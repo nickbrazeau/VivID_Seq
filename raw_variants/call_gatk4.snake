@@ -102,15 +102,7 @@ rule all:
 
 
 
-## make text file with list of per-chunk annotated, filtered VCFs
-rule make_vcf_list:
-	input: filtered_vcfs
-	output: vcf_list
-	run:
-		with open(vcf_list, "w") as lfile:
-			for vcf in filtered_vcfs:
-				print(vcf, file = lfile)
-
+## index the raw g vcfs
 
 rule concat_raw_vcfs:
 	input:

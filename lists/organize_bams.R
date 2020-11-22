@@ -2,9 +2,10 @@ vividbams <- list.files(path = "~/Documents/MountPoints/mountedScratchLL/Project
                         full.names = T, pattern = ".bam")
 vividbams <- vividbams[!grepl(".bai", vividbams)]
 
-sebams <- list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/wgs_se_improved_global/aln/merged",
-                        full.names = T, pattern = ".bam")
-sebams <- sebams[!grepl(".bai", sebams)]
+# symlinked ebro under pe for future ease
+# sebams <- list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/wgs_se_improved_global/aln/merged",
+#                         full.names = T, pattern = ".bam")
+# sebams <- sebams[!grepl(".bai", sebams)]
 
 pebams <- list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged",
                      full.names = T, pattern = ".bam")
@@ -19,7 +20,7 @@ all_bams$value <- gsub("/Users/nickbrazeau/Documents/MountPoints/mountedScratchL
 
 
 readr::write_tsv(x = all_bams,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/all_bams.list",
+                 path = "../lists/all_bams.list",
                  col_names = F)
 
 

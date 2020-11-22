@@ -2,7 +2,7 @@ library(tidyverse)
 ###############################################
 ####             Read in mtdt              ####
 ###############################################
-smpls <- readxl::read_excel("~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx")
+smpls <- readxl::read_excel("scrape_pubseqs/vivid_seq_public_NGS.xlsx")
 
 ###############################################
 ####              Read in QC               ####
@@ -67,6 +67,3 @@ passed_smpls <- tibble::enframe( passed_smpls, name = NULL )
 readr::write_tsv(x = passed_smpls,
                  path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/passed_smpls.gvcfs.list",
                  col_names = F)
-
-
-

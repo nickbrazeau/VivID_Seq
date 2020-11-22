@@ -14,7 +14,7 @@ pebams <- pebams[!grepl(".bai", pebams)]
 all_bams <- tibble::enframe( c(vividbams, sebams, pebams), name = NULL )
 
 # fix local to remote
-all_bams$value <- gsub("/Users/nickbrazeau/Documents/MountPoints/mountedScratchLL/",
+all_bams$value <- gsub("/Users/nbrazeau/Documents/MountPoints/mountedScratchLL/",
                        "/pine/scr/n/f/nfb/", all_bams$value)
 
 

@@ -81,8 +81,7 @@ targets = {
 	"flagstats": expand(os.path.join(OUTDIR, "{sample}.flagstats"), sample = samples),
 	"ValidateSamFile": expand(os.path.join(OUTDIR, "{sample}.isvalid"), sample = samples),
 	"callable_summary": expand(os.path.join(OUTDIR, "{sample}.callable_summary.txt"), sample = samples),
-	"callable_intervals": expand(os.path.join(OUTDIR, "{sample}.callable.bed"), sample = samples),
-	"coverage": expand(os.path.join(OUTDIR, "{sample}.regions.bed.gz"), sample = samples)
+	"callable_intervals": expand(os.path.join(OUTDIR, "{sample}.callable.bed"), sample = samples)
 }
 report_file = os.path.join(OUTDIR, "report.html")
 
@@ -108,7 +107,6 @@ rule create_report:
 		Rscript -e \
 			"rmarkdown::render('{input.RMD}', clean=TRUE, output_file='{output}', output_format='html_document');"
 		"""
-
 
 rule aggregate_callable:
 	input:

@@ -109,16 +109,6 @@ rule create_report:
 			"rmarkdown::render('{input.RMD}', clean=TRUE, output_file='{output}', output_format='html_document');"
 		"""
 
-rule windowed_coverage:
-	input:
-		bam = os.path.join(ALNROOT, "{sample}.bam"),
-		windows = os.path.expandvars(config["windows"])
-	output:
-		os.path.join(OUTDIR, "{sample}.regions.bed.gz")
-	shell:
-		r"""
-		mosdepth --by {input.windows} -n {OUTDIR}/{wildcards.sample} {input.bam}
-		"""
 
 rule aggregate_callable:
 	input:

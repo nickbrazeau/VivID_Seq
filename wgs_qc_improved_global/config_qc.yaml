@@ -4,6 +4,7 @@ runs: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_qc_improved_global
 # note, the sepeglobal was a temporary symlink fix that caused downstream issues. just need to run se seperately for QC
 aligned: /pine/scr/n/f/nfb/Projects/VivID_Seq/wgs_pe_improved_global/aln/merged
 regions: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/regions/mtdna.bed
+rmd: /proj/ideel/meshnick/users/NickB/Projects/VivID_Seq/wgs_qc_improved_global/wgs_qc_report.Rmd
 min_depth: 4
 max_depth: 1000000
 min_base_qual: 20

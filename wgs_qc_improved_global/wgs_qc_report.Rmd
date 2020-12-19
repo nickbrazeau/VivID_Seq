@@ -288,23 +288,3 @@ alnsm <- myldply(setNames(iids, iids),
 				 .id = "iid")
 DT::datatable(select(alnsm, -SAMPLE, -LIBRARY, -READ_GROUP))
 ```
-
-# Plots by sample
-```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
-for (iid in iids) {
-	
-	message(">>>>>>>>>>>>>>>>>>>>>>>>", iid)
-	cat("##", iid)
-	
-	cvg <- read_tsv(file.path(config$where, paste0(iid, ".regions.bed.gz")),
-					col_names = c("chr","start","end","name","depth"))
-	cvg$chr <- factor_chrom(cvg$chr)
-	
-	p1 <- plot_genome_coverage(cvg)
-	
-	print(p1)
-	
-	cat("\n")
-	
-}
-```

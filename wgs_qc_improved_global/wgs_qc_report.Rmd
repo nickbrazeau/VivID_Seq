@@ -266,14 +266,9 @@ if (any(!isvalid$is_valid)) {
 callable <- myldply(setNames(iids, iids),
 				  function(f) read_callable_summary(file.path(config$where, paste0(f, ".callable_summary.txt"))),
 				  .id = "iid")
-so <- subset(dphist, chr == "total") %>%
-	group_by(iid) %>%
-	get_depth_quantiles() %>%
-	arrange(med)
-so <- so$iid
 
 CUTOFF <- as.numeric(config$callable_cutoff)
-callable$iid <- factor(callable$iid, so)
+callable$iid <- factor(callable$iid)
 ggplot(callable) +
 	geom_bar(aes(x = iid, y = prop, fill = state), stat = "identity",
 			 position = position_fill(reverse = TRUE)) +

@@ -33,8 +33,7 @@ qc.results <- lapply(qcpaths, read_callable_loci) %>%
 
 qc.passed <- qc.results %>%
   dplyr::filter(nBases >= callable) %>%
-  dplyr::select(c("smpl")) %>%
-  unlist(.)
+  dplyr::pull("smpl")
 
 
 
@@ -42,7 +41,7 @@ qc.passed <- qc.results %>%
 ###############################################
 ####     Read in paths for gvcfs           ####
 ###############################################
-all_gvcfs <- tibble::enframe( list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/vcfs_gatk_joint_raw/chunks/all/",
+all_gvcfs <- tibble::enframe( list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/vcfs_gatk_joint_raw/chunks/all",
                                          pattern = ".g.vcf.gz$",
                                          full.names = T),
                               name = NULL )

@@ -48,7 +48,7 @@ all_gvcfs <- tibble::enframe( list.files(path = "~/Documents/MountPoints/mounted
                               name = NULL )
 
 # fix local to remote
-all_gvcfs$value <- gsub("/Users/nickbrazeau/Documents/MountPoints/mountedScratchLL/",
+all_gvcfs$value <- gsub("/Users/nbrazeau/Documents/MountPoints/mountedScratchLL/",
                        "/pine/scr/n/f/nfb/", all_gvcfs$value)
 
 all_gvcfs$basenames <- gsub(".g.vcf.gz", "", basename(all_gvcfs$value))
@@ -59,11 +59,9 @@ all_gvcfs$basenames <- gsub(".g.vcf.gz", "", basename(all_gvcfs$value))
 ###############################################
 ####      Write Filtered Samples           ####
 ###############################################
-passed_smpls <- all_gvcfs$value[ !all_gvcfs$basenames %in% smpls$acc[smpls$host == "Lab_strain"] &
-                                   all_gvcfs$basenames %in% qc.passed
-                                   ]
+passed_smpls <- all_gvcfs$value[ all_gvcfs$basenames %in% qc.passed ]
 passed_smpls <- tibble::enframe( passed_smpls, name = NULL )
 
 readr::write_tsv(x = passed_smpls,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/passed_smpls.gvcfs.list",
+                 path = "lists/passed_smpls.gvcfs.list",
                  col_names = F)

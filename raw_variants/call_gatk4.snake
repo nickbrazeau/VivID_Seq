@@ -204,7 +204,8 @@ rule call_variants:
 			-L {params.interval_file} \
 			--genotyping-mode {params.mode} \
 			--alleles {params.known} \
-			-ERC {params.ref_conf}
+			-ERC {params.ref_conf} \
+			-ploidy {params.ploidy}
 		"""
 
 ## split master target list into one file of intervals per chunk

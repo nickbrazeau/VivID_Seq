@@ -194,7 +194,8 @@ rule call_variants:
 		interval_file = lambda w: interval_files[w.region],
 		mode = "GENOTYPE_GIVEN_ALLELES" if config["mode"] == "known" else "DISCOVERY",
 		known = KNOWN_SITES if config["mode"] == "known" else "null",
-		ref_conf = "NONE" if config["mode"] == "known" else "GVCF"
+		ref_conf = "NONE" if config["mode"] == "known" else "GVCF",
+		ploidy = str(int(config["ploidy"])),
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g" HaplotypeCaller \

@@ -100,8 +100,6 @@ rule all:
 		final_target
 
 
-
-
 ## index the raw g vcfs
 
 rule concat_raw_vcfs:
@@ -194,8 +192,7 @@ rule call_variants:
 		interval_file = lambda w: interval_files[w.region],
 		mode = "GENOTYPE_GIVEN_ALLELES" if config["mode"] == "known" else "DISCOVERY",
 		known = KNOWN_SITES if config["mode"] == "known" else "null",
-		ref_conf = "NONE" if config["mode"] == "known" else "GVCF",
-		ploidy = str(int(config["ploidy"])),
+		ref_conf = "NONE" if config["mode"] == "known" else "GVCF"
 	shell:
 		r"""
 		gatk --java-options "-Xmx{params.memory}g" HaplotypeCaller \
@@ -205,8 +202,7 @@ rule call_variants:
 			-L {params.interval_file} \
 			--genotyping-mode {params.mode} \
 			--alleles {params.known} \
-			-ERC {params.ref_conf} \
-			-ploidy {params.ploidy}
+			-ERC {params.ref_conf}
 		"""
 
 ## split master target list into one file of intervals per chunk

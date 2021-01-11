@@ -20,12 +20,16 @@ fnlsmpls <- dplyr::left_join(fnlsmpls, smpls, by = "smpls")
 fnlsmpls$country[is.na(fnlsmpls$country) & fnlsmpls$smpls %in%  c("D9U3K", "O6Y4K", "Q8J6O")] <- "CD"
 fnlsmpls$vividregion[is.na(fnlsmpls$vividregion) & fnlsmpls$smpls %in%  c("D9U3K", "O6Y4K", "Q8J6O")] <- "AF"
 
+# pull out lab samples which we will consider separately
+labsmpls <- fnlsmpls[fnlsmpls$vividregion == "Lab",]
+fnlsmpls <- fnlsmpls[fnlsmpls$vividregion != "Lab",]
+
+
 #----------------------------------------------------
 # Split List by Country so we can
 # remove Clones by country
 #----------------------------------------------------
 fnlsmpls.split <- split(fnlsmpls$smpls, fnlsmpls$country)
-fnlsmpls.split <- append(fnlsmpls.split, list(anc = "Pcynomolgi"))
 mtdna.list <- lapply(fnlsmpls.split, function(x) return( mtdna[ names(mtdna) %in% x ] ))
 
 #----------------------------------------------------
@@ -65,6 +69,13 @@ mtdna.unique <- NULL
 for(i in 1:length(mtdna.uniquehap.list)){
   mtdna.unique <- append(mtdna.unique, mtdna.uniquehap.list[[i]])
 }
+
+#......................
+# add lab strains back in
+#......................
+labsmpls_mtdna <- mtdna[names(mtdna) %in% labsmpls$smpls]
+mtdna.unique <- append(mtdna.unique, labsmpls_mtdna)
+
 
 dir.create("data/noclonefasta/")
 Biostrings::writeXStringSet(x = mtdna.unique,

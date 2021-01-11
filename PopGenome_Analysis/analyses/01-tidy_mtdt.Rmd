@@ -3,12 +3,15 @@ output: html_document
 editor_options: 
   chunk_output_type: console
 ---
-
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
+                      fig.align = 'center')
+knitr::opts_knit$set(root.dir = here::here())
+```
 ## Tidy Metadata 
 
 ```{r}
 library(tidyverse)
-set.seed(48)
 ```
 
 ```{r}
@@ -16,7 +19,7 @@ set.seed(48)
 #........................................................
 # Read in NGS sample data
 #........................................................
-smpls <- readxl::read_excel("~/Documents/GitHub/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx") %>%
+smpls <- readxl::read_excel("../scrape_pubseqs/vivid_seq_public_NGS.xlsx") %>%
   dplyr::select(c("iid", "acc", "country", "vividregion"))
 
 drc <- data.frame(iid = c("D9U3K", "O6Y4K", "Q8J6O"),
@@ -29,14 +32,14 @@ smpls <- rbind.data.frame(smpls, drc)
 #........................................................
 # Read in Passed Sample Data
 #........................................................
-psdsmpls <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/final_smpl_list.RDS")
+psdsmpls <- readRDS("data/derived_data/final_smpl_list.RDS")
 psdsmpls <- tibble::tibble(acc = psdsmpls, passed = "Y")
 
 
 #........................................................
 # Read in Clonal Data
 #........................................................
-hapuid <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdna_uniquehap_list.RDS")
+hapuid <- readRDS("data/derived_data/mtdna_uniquehap_list.RDS")
 hapuid <- purrr::map(hapuid, "unihapcounts") %>% 
   dplyr::bind_rows() %>% 
   dplyr::select(c("smpls")) %>% 
@@ -46,11 +49,15 @@ hapuid <- purrr::map(hapuid, "unihapcounts") %>%
 #........................................................
 # Bring it together
 #........................................................
-
 mtdt <- dplyr::left_join(smpls, psdsmpls, by = "acc") %>% 
   dplyr::left_join(., hapuid, by = "acc") %>% 
-  dplyr::rename(smpls = acc) %>% 
-  dplyr::filter(vividregion != "Lab")
+  dplyr::rename(smpls = acc) 
+
+#......................
+# add back in hapuid indicator for lab strains
+#......................
+mtdt <- mtdt %>% 
+  dplyr::mutate(hapuid = ifelse(vividregion == "Lab", "Y", hapuid))
 
 ```
 ### Summary of Data
@@ -75,7 +82,6 @@ centroids$country <- countrycode::countrycode(sourcevar = centroids$country,
 #........................................................
 # Bring it together
 #........................................................
-
 mtdt <- dplyr::left_join(mtdt, centroids, by = "country") 
 
 ```
@@ -86,7 +92,8 @@ I broke the countries into various "political" regions (`vivid_regions`)... Howe
 ```{r}
 coords <- mtdt %>% 
   dplyr::filter(smpls %in% psdsmpls$acc) %>% # passed samples only
-  dplyr::filter(vividregion != "NHA" & country != "CD") %>% # exclude NHA & DRC which will get their own cluster
+  dplyr::filter(vividregion != "NHA" & country != "CD" 
+                & vividregion != "Lab"  & country != "ES") %>% # exclude NHA & DRC & Ebro which will get their own cluster
   dplyr::select(c("country", "x", "y")) %>% 
   dplyr::filter(!duplicated(.)) 
 
@@ -123,7 +130,7 @@ plot(kesteda.plotObj)
 **Four K groups looks reasonable to me**. Will also make Non-human apes and DRC it's own group, which was not considered above.
 
 ```{r}
-
+set.seed(48)
 k <- kmeans(coords[,2:3], 4)
 globepart <- cbind.data.frame(coords, k = k$cluster) %>% 
   dplyr::select(c("country", "k"))
@@ -132,24 +139,14 @@ mtdt <- dplyr::left_join(mtdt, globepart, by = "country") %>%
   dplyr::filter(smpls %in% psdsmpls$acc) %>% # passed samples only
   dplyr::mutate(k = ifelse(is.na(k) & vividregion == "NHA", 5, k),
                 k = ifelse(country == "CD", 6, k),
-                k = factor(k, levels = c(1:6), labels = c("Americas", "Africa", "Asia", "Oceania", "NHA", "DRC")))
+                k = ifelse(country == "ES", 7, k),
+                k = factor(k, levels = c(1:7), labels = c("Africa", "Oceania", "Asia", "Americas", "NHA", "DRC", "Ebro1944")))
 
 
 #---------------------------------------------------- 
 # Get World Background
 #---------------------------------------------------- 
-bb <- sf::st_bbox(
-  sf::st_sf(geom = sf::st_sfc(
-    sf::st_point(c(-108, -35)), # left lower
-    sf::st_point(c(150, -35)), # right lower
-    sf::st_point(c(-108, 50)), # left upper
-    sf::st_point(c(150, 50)), # right upper
-    crs = sf::st_crs("+proj=longlat +datum=WGS84 +no_defs"))
-  ))
-
-
-world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") %>% 
-  sf::st_crop(., y=bb) 
+world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf") 
 
 
 pvisolatpartitions <- ggplot() + 
@@ -167,14 +164,16 @@ plot(pvisolatpartitions)
 ```
 
 ```{r}
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/Pvglobal_partitions.jpg", width = 11, height = 8, units = "in", res = 500)
+dir.create("figures/", recursive = T)
+jpeg("figures/Pvglobal_partitions.jpg", width = 11, height = 8, units = "in", res = 500)
 cowplot::plot_grid(kesteda.plotObj, pvisolatpartitions, align = "v", rel_widths = c(1, 2))
 graphics.off()
 ```
 
 ```{r}
 # housekeeping
-saveRDS(mtdt, file = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdt.RDS")
+dir.create("data/derived_data/", recursive = T)
+saveRDS(mtdt, file = "data/derived_data/mtdt.RDS")
 
 ```
 

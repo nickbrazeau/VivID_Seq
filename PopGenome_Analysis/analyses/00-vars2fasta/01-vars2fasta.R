@@ -20,8 +20,7 @@ drc <- data.frame(iid = c("D9U3K", "O6Y4K", "Q8J6O"),
                   vividregion = "AF")
 
 smpls <- rbind.data.frame(smpls, drc) %>%
-  dplyr::mutate(country = ifelse(vividregion == "NHA", "NHA", country)) %>%
-  dplyr::filter(vividregion != "Lab")
+  dplyr::mutate(country = ifelse(vividregion == "NHA", "NHA", country))
 
 #........................................................
 # Read in fastas
@@ -35,7 +34,16 @@ pvp01 <- pvp01$PvP01_MIT_v1
 #........................................................
 vcf <- vcfR::read.vcfR(file = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/vcfs_hardfilt_variants/passed.joint.vcf.gz")
 vcf.snp <- vcfR::extract.indels(vcf, return.indels = F)
-vcf.snp
+vcf.snp <- vcf.snp[vcfR::is.biallelic(vcf.snp), ]
+
+#........................................................
+# Find samples that could not be resolved by joint
+# genotyping and had
+#........................................................
+smpl_missinglocivcf <- vcfRmanip::calc_loci_missingness_by_smpl(vcf.snp)
+smpl_missingpass <- smpl_missinglocivcf$sample[smpl_missinglocivcf$missprop < 0.05]
+vcf.snp <- vcfRmanip::select_samples(vcfRobject = vcf.snp,
+                                     smplvctr = smpl_missingpass)
 
 #........................................................
 # Find samples with a high level of heterozygosity
@@ -45,141 +53,76 @@ vcf.snp
 smplhet <- apply(vcfR::is.het(vcfR::extract.gt(vcf.snp)), 2, mean)
 smplhet <- tibble::tibble(smpls = names(smplhet),
                           hetprop = smplhet)
-smplhetpass <- smplhet$smpls[smplhet$hetprop < 0.2] # less than 20%
+smplhetpass <- smplhet$smpls[smplhet$hetprop < 0.15] # less than 15%
 
 vcf.snp <- vcfRmanip::select_samples(vcfRobject = vcf.snp,
                                      smplvctr = smplhetpass)
 
-#........................................................
-# Remove loci that have deleted allele alternative
-# which is encoded in vcf as a *
-#........................................................
-alts <- vcfR::getALT(vcf.snp)
-asterickfilt <- grepl(pattern = "\\*", x = alts)
-asterickfilt <- data.frame(seqname = vcfR::getCHROM(vcf.snp),
-                           start = vcfR::getPOS(vcf.snp),
-                           end = vcfR::getPOS(vcf.snp),
-                           geneid = 1:length(vcfR::getPOS(vcf.snp))) %>%
-  dplyr::filter(asterickfilt)
-
-vcf.snp <- vcfRmanip::vcffilter_ChromPos(vcfRobject = vcf.snp,
-                                         chromposbed = asterickfilt)
-
 
 #........................................................
-# Impute Missing Calls
+# Final Objects
 #........................................................
-# split by country for imputation
-psdsmpls <- tibble::tibble(acc = smplhetpass)
-psdsmpls <- dplyr::inner_join(psdsmpls, smpls) # take into account samples we just dropped
+dir.create("data/derived_data/")
+saveRDS(object = vcf.snp,
+        file = "data/derived_data/final_vcf_snps.RDS")
 
-# NOTE, for imputation purpose LA (Laos is going to be combined into Thailand)
-# NOTE, for imputation purpose LK (Sri Lanka is going to be combined into India)
-psdsmpls$country[psdsmpls$acc == "ERS347479"] <- "TH" # instance of LA
-psdsmpls$country[psdsmpls$acc == "ERS040109"] <- "IN" # instance of LK
+#............................................................
+# coerce to single call (i.e. monoclonal)
+#...........................................................
+vcf.snp.mncnl <- vcfR_force_hets_to_homo(vcfRobj = vcf.snp)
+# ~0 missing is correct based on extract gt funcion
+sum(is.na(extract.gt(vcf.snp)))/length(extract.gt(vcf.snp))
 
-smpls.split <- split(psdsmpls$acc, psdsmpls$country)
-mtdna.list <- lapply(smpls.split, function(x){
-  ret <- vcfRmanip::select_samples(vcfRobject = vcf.snp,
-                                   smplvctr = x)
-  return(ret) })
-
-
-mtdna.list.imp <- lapply(mtdna.list, vcfR_impute_gt)
-
-#...........................
-# Clean up imputation
-#...........................
-vcf.snp.imp <- cbindvcflist(mtdna.list.imp)
-
-#........................................................
-# Clean up het calls
-#........................................................
-vcf.snp.hom <- vcfR_force_hets_to_homo(vcf.snp.imp)
-vcf.snp.hom <- vcfR_filter_unique_sites(vcf.snp.hom)
-
-#........................................................
-# Remove Private Alleles within a country
-#........................................................
-vcf.snp.hom.long <- vcf.snp.hom %>%
+# now make long
+vcf.snp.mncnl.long <- vcf.snp.mncnl %>%
   vcfR::extract_gt_tidy(., format_fields = "GT") %>%
   dplyr::group_by(Indiv) %>%
-  dplyr::mutate(POS = vcfR::getPOS(vcf.snp.hom)) %>%
+  dplyr::mutate(POS = vcfR::getPOS(vcf.snp)) %>%
   dplyr::rename(acc = Indiv) %>%
   dplyr::left_join(., smpls, by = "acc") %>%
   dplyr::ungroup()
 
-countryn <- vcf.snp.hom.long %>%
-  dplyr::select(c("acc", "country")) %>%
-  dplyr::filter(!duplicated(.)) %>%
-  dplyr::group_by(country) %>%
-  dplyr::summarise(countryn = n())
 
-privateloci.withincntry <- vcf.snp.hom.long %>%
-  dplyr::left_join(., countryn, by = "country") %>%
-  dplyr::mutate(I = 1,
-                limit = 0.1 * (countryn)/(countryn - 1), # note correction for small sample size
-                limit2 = 1/countryn
-  ) %>%
-  dplyr::group_by(country, POS, gt_GT) %>%
-  dplyr::summarise(
-    locicount = sum(I)/mean(countryn), # countryn all same
-    limit = mean(limit), # limit all same
-    limit2 = mean(limit2) # limit all same
-  ) %>%
-  dplyr::mutate(rm = ifelse(locicount <= limit & !is.na(gt_GT) & limit != Inf, T, F), # note catch for single sample
-                rm = ifelse(locicount == limit2 & !is.na(gt_GT) & limit2 != 1, T, rm) # note catch for single sample
-  ) %>%
-  dplyr::select(c("country", "POS", "gt_GT", "rm"))
+saveRDS(object = vcf.snp.mncnl.long,
+        file = "data/derived_data/final_vcf_snps_long.RDS")
 
-
-vcf.snp.hom.long.nopriv <- vcf.snp.hom.long %>%
-  dplyr::left_join(., y = privateloci.withincntry, by = c("country", "POS", "gt_GT")) %>%
-  dplyr::filter(rm != T) %>%
-  dplyr::select(-c("rm"))
 
 
 #........................................................
-# Final Object
-#........................................................
-saveRDS(object = vcf.snp.hom.long.nopriv,
-        file = "data/derived_data/final_vcf_snps.RDS")
-
-#........................................................
-# Liftover to sequence call
+# Liftover to sequence call for fasta
 #........................................................
 mksngbp <- function(x){
-  x <- stringr::str_split_fixed(x, "/", n=2)[,1]
+  if (is.na(x)) {
+    x <- "-"
+  } else {
+    x <- stringr::str_split_fixed(x, "/", n=2)[,1]
+  }
   return(x)
 }
 
-vcf.snp.hom.long.nopriv$gt_GT_alleles_sbp <- sapply(vcf.snp.hom.long.nopriv$gt_GT_alleles,
-                                                    mksngbp)
+vcf.snp.mncnl.long$gt_GT_alleles_sbp <- sapply(vcf.snp.mncnl.long$gt_GT_alleles,
+                                               mksngbp)
 
 #........................................................
 # write out final positions
 #........................................................
-dir.create("data/derived_data/")
-
-# subset to seg sites
-
-pos <- unique( vcf.snp.hom.long.nopriv$POS )
-posgtcount <- vcf.snp.hom.long.nopriv %>%
+# subset to seg sites now that we have coerced to no hets
+pos <- unique( vcf.snp.mncnl.long$POS )
+posgtcount <- vcf.snp.mncnl.long %>%
   dplyr::group_by(POS, gt_GT_alleles) %>%
   dplyr::summarise(n = n()) %>%
-  dplyr::select(-c(n))
+  dplyr::filter(!is.na(gt_GT_alleles))
 
-segsite <- table(posgtcount$POS)
-segsite <- names(segsite)[ segsite > 1 ]
 
+# final seq sit poitions
+segsite <- unique(posgtcount$POS)
 pos <- pos[pos %in% segsite]
-
 saveRDS(object = pos, file = "data/derived_data/final_positions.rds")
 
 #........................................................
 # Make new fastas
 #........................................................
-seqlist <- vcf.snp.hom.long.nopriv %>%
+seqlist <- vcf.snp.mncnl.long %>%
   dplyr::select(c("acc", "POS", "gt_GT_alleles_sbp"))
 seqlist <- split(seqlist, factor(seqlist$acc))
 
@@ -192,17 +135,10 @@ mkmut <- function(x){
 
 }
 
-seqlist <- lapply(seqlist, mkmut)
+finalfastas <- lapply(seqlist, mkmut)
 
 
 
-#........................................................
-# Read in and append Pcynomolgi
-#........................................................
-Pcynomolgi <- seqinr::read.fasta("data/Pcynomolgi/Pcynomolgi.fasta",
-                                 forceDNAtolower = F)
-finalfastas <- seqlist
-finalfastas[[length(finalfastas) + 1 ]] <- Pcynomolgi[[1]]
 
 
 
@@ -219,15 +155,20 @@ outsmpls <- smplhetpass[! smplhetpass %in% c("ERS333076", "ERS352725") ]
 saveRDS(outsmpls, file = "data/derived_data/final_smpl_list.RDS")
 
 
-
 #........................................................
 # Write Out Final Fasta
 #........................................................
-seqnames <- c(names(finalfastas))
-seqnames[length(seqnames)] <- "Pcynomolgi"
 dir.create(path = "data/fasta/", recursive = T)
 seqinr::write.fasta(sequences = finalfastas,
-                    names = seqnames, file.out = "data/fasta/mtdna_anc.fa")
+                    names = names(finalfastas), file.out = "data/fasta/mtdna_anc.fa")
 
 
+#......................
+# ebro and drc
+#......................
+dir.create(path = "data/quick_look_fasta/", recursive = T)
+drc_nha_ebro <- finalfastas[names(finalfastas) %in% c("D9U3K", "Ebro1944", "O6Y4K", "Q8J6O",
+                                                      smpls$acc[smpls$vividregion == "NHA"])]
+seqinr::write.fasta(sequences = drc_nha_ebro,
+                    names = names(drc_nha_ebro), file.out = "data/quick_look_fasta/drc_nha_ebro.fa")
 

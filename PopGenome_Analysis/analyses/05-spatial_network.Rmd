@@ -29,13 +29,13 @@ library(ape)
 #---------------------------------------------------- 
 # Read In Clonal Correction Files
 #---------------------------------------------------- 
-hapcounts <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdna_uniquehap_list.RDS") %>% 
+hapcounts <- readRDS("data/derived_data/mtdna_uniquehap_list.RDS") %>% 
   purrr::map(., "unihapcounts") %>% 
   dplyr::bind_rows() %>% 
   dplyr::filter(smpls != "Anc")
 
-mtdna <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/noclonefasta/unique_mtdna.fa")
-mtdna <- mtdna[ names(mtdna) != "Pcynomolgi" ]
+mtdna <- Biostrings::readDNAStringSet(filepath = "data/noclonefasta/unique_mtdna.fa")
+mtdna <- mtdna[ names(mtdna) != "ERS001838" ]
 
 ```
 
@@ -44,7 +44,7 @@ mtdna <- mtdna[ names(mtdna) != "Pcynomolgi" ]
 #---------------------------------------------------- 
 # Read In MetaData
 #---------------------------------------------------- 
-smpls <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdt.RDS")
+smpls <- readRDS("data/derived_data/mtdt.RDS")
 
 smpls <- smpls %>% 
   dplyr::filter(smpls %in% names(mtdna))
@@ -169,11 +169,13 @@ mtdnadistlong <- mtdnadistlong %>%
 #---------------------------------------------------- 
 drcsmpls <- smpls$smpls[smpls$country == "CD"]
 nhasmpls <- smpls$smpls[smpls$vividregion == "NHA"]
-
+labsmpls <- smpls$smpls[smpls$vividregion == "Lab"]
 mtdnanetwork <- dplyr::left_join(cntrylines.combos, mtdnadistlong, by = c("x", "y")) 
 
 mtdnanetwork.diff <- mtdnanetwork %>% 
   dplyr::filter(x %in% drcsmpls | y %in% drcsmpls) %>% # only look at DRC
+  dplyr::filter(!(country.x == "CD" & country.y == "CD" )) %>% 
+  dplyr::filter(!(x %in% labsmpls | y %in% labsmpls)) %>% 
  # dplyr::filter(hammings ==1) %>%  # have to be within 1 bp  
   dplyr::mutate(long1 = sf::st_coordinates(geometry.x)[,1],
                 lat1 =  sf::st_coordinates(geometry.x)[,2], 
@@ -230,11 +232,11 @@ mtDNAglobal <- ggplot() +
 ```{r, results='asis', fig.align='center', fig.width = 11, fig.height = 8}
 plot(mtDNAglobal)
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_wide.jpg", height = 8, width = 11, units = "in", res = 500)
+jpeg("figures/mtdna_spatial_network_wide.jpg", height = 8, width = 11, units = "in", res = 500)
 plot(mtDNAglobal)
 graphics.off()
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_long.jpg", height = 11, width = 8, units = "in", res = 500)
+jpeg("figures/mtdna_spatial_network_long.jpg", height = 11, width = 8, units = "in", res = 500)
 plot(mtDNAglobal)
 graphics.off()
 
@@ -251,6 +253,8 @@ graphics.off()
 
 mtdnanetwork.diff <- mtdnanetwork %>% 
   dplyr::filter(x %in% drcsmpls | y %in% drcsmpls) %>% # only look at DRC
+  dplyr::filter(!(country.x == "CD" & country.y == "CD" )) %>% 
+  dplyr::filter(!(x %in% labsmpls | y %in% labsmpls)) %>% 
   dplyr::filter(hammings ==1) %>%  # have to be within 1 bp  
   dplyr::mutate(long1 = sf::st_coordinates(geometry.x)[,1],
                 lat1 =  sf::st_coordinates(geometry.x)[,2], 
@@ -289,11 +293,11 @@ mtDNAglobal <- ggplot() +
 ```{r, results='asis', fig.align='center', fig.width = 11, fig.height = 8}
 plot(mtDNAglobal)
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_wide_hammingone.jpg", height = 8, width = 11, units = "in", res = 500)
+jpeg("figures/mtdna_spatial_network_wide_hammingone.jpg", height = 8, width = 11, units = "in", res = 500)
 plot(mtDNAglobal)
 graphics.off()
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/mtdna_spatial_network_long_hammingone.jpg", height = 11, width = 8, units = "in", res = 500)
+jpeg("figures/mtdna_spatial_network_long_hammingone.jpg", height = 11, width = 8, units = "in", res = 500)
 plot(mtDNAglobal)
 graphics.off()
 

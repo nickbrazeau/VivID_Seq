@@ -8,6 +8,7 @@ editor_options:
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
                       fig.align = 'center', fig.width = 8, fig.height = 8)
+knitr::opts_knit$set(root.dir = here::here())
 ```
 
 ```{r}
@@ -22,14 +23,14 @@ set.seed(48)
 ```
 
 ```{r}
-mtdna <- PopGenome::readData(path = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/fasta/",
+mtdna <- PopGenome::readData(path = "data/fasta/",
                              format = "fasta",
                              include.unknown = T,
                              progress_bar_switch=T,
                              FAST=F,
                              big.data=F)
 
-mtdt <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdt.RDS") %>% 
+mtdt <- readRDS("data/derived_data/mtdt.RDS") %>% 
   dplyr::filter(passed == "Y")
 
 ```
@@ -43,7 +44,7 @@ mtdna.struct <- PopGenome::set.populations(mtdna,
                                            rgn)
 
 mtdna.struct <- set.outgroup(mtdna.struct,
-                             c("Pcynomolgi"))
+                             c("ERS001838")) #PcyM-strain
 
 #---------------------------------------------------- 
 # Sliding Window Objects
@@ -111,71 +112,15 @@ knitr::kable(counts)
 ```
 
 
-```{r}
-
-#---------------------------------------------------- 
-# Basic Between and Within Diversity 
-#---------------------------------------------------- 
-mtdna.struct <- PopGenome::diversity.stats(mtdna.struct, 
-                                           pi = T)
-
-mtdna.struct <- diversity.stats.between(mtdna.struct,
-                                        haplotype.mode=T, 
-                                        nucleotide.mode=T)
-                                        
-
-
-#---------------------------------------------------- 
-# Diversity sliding windows
-#---------------------------------------------------- 
-mtdna.struct.slide <- PopGenome::diversity.stats(mtdna.struct.slide, 
-                                                 pi = T, 
-                                                 keep.site.info = F)
-
-#---------------------------------------------------- 
-# Neutrality all sites
-#---------------------------------------------------- 
-mtdna.struct <- PopGenome::neutrality.stats(mtdna.struct)
-
-#---------------------------------------------------- 
-# Neutrality sliding windows
-#---------------------------------------------------- 
-mtdna.struct.slide <- PopGenome::neutrality.stats(mtdna.struct.slide)
-
-
-#---------------------------------------------------- 
-# F-Statistics Global
-#---------------------------------------------------- 
-mtdna.struct <- PopGenome::F_ST.stats(
-  mtdna.struct,
-  detail = T,
-  mode = "ALL",
-  only.haplotype.counts = F
-  
-)
-
-#---------------------------------------------------- 
-# F-Statistics sliding windows
-#---------------------------------------------------- 
-mtdna.struct.slide <- PopGenome::F_ST.stats(
-  mtdna.struct.slide,
-  detail = T,
-  mode = "ALL",
-  only.haplotype.counts = F
-)
-
-
-```
-
 
 ## Genetic Statistics
 ### Derived Sites
 ```{r}
-mtdnaseq <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/fasta/mtdna_anc.fa")
+mtdnaseq <- Biostrings::readDNAStringSet(filepath = "data/fasta/mtdna_anc.fa")
 
 seqmat <- as.matrix(mtdnaseq)
-anc <- seqmat[rownames(seqmat) %in% "Pcynomolgi", ]
-smpls.seq.list <- seqmat[!rownames(seqmat) %in% "Pcynomolgi", ]
+anc <- seqmat[rownames(seqmat) %in% "ERS001838", ] #PcyM strain
+smpls.seq.list <- seqmat[!rownames(seqmat) %in% "ERS001838", ]
 smplnames <- rownames(smpls.seq.list)
 smpls.seq.list <- split(smpls.seq.list, 1:nrow(smpls.seq.list))
 names(smpls.seq.list) <- smplnames
@@ -228,6 +173,14 @@ smplder %>%
 
 ```
 
+```{r}
+# must be calculated first before diversity and neutrality
+mtdna.struct <- PopGenome::F_ST.stats(mtdna.struct) 
+mtdna.struct <- PopGenome::diversity.stats.between(mtdna.struct) 
+mtdna.struct <- PopGenome::neutrality.stats(mtdna.struct) 
+
+```
+
 ### Diversity 
 
 #### Within-Population Diversity
@@ -260,16 +213,13 @@ ret %>%
 ```{r}
 
 ret <- PopGenome::get.diversity(mtdna.struct, between=T)
-statnames <- rownames(ret)
-pairs <- colnames(ret[[1]])
+pairs <- rownames(ret[[1]])
 ret <- lapply(ret, as.data.frame) %>% 
-  dplyr::bind_rows(.) %>% 
-  t(.) %>% 
-  tibble::as_tibble(.) %>% 
-  magrittr::set_colnames(statnames) %>% 
-  dplyr::mutate(pairs = pairs) %>% 
-  dplyr::inner_join(liftover.btwn, ., by = "pairs") %>% 
-  dplyr::select(-c("pairs"))
+  dplyr::bind_rows(., .id = "stat") %>% 
+  magrittr::set_colnames(c("stat", "div")) %>% 
+  dplyr::mutate(pairs = rep(pairs, 2),
+                stat = factor(stat, levels = c(1,2),
+                              labels = rownames(ret)))
 
 
 ```
@@ -487,178 +437,5 @@ graphics.off()
 
 ```{r, results='asis'}
 HudsonsnnPloObj
-```
-
-
-## Sliding Windows
-### Within-Population Sliding Windows of Diversity
-```{r}
-
-out <- tibble::tibble(popn = gsub(" ", "", rownames(PopGenome::get.diversity(mtdna.struct.slide, between=F))),
-                      diversity = PopGenome::get.diversity(mtdna.struct.slide, between=F)
-                      )
-
-out$diversity <- purrr::map(out$diversity, function(x){
-  ret <- as.data.frame(x)
-  ret$intervals <- rownames(x)
-  ret$intervals <- gsub(" :", "", ret$intervals)
-  return(ret)
-})
-
-
-out <- dplyr::left_join(liftover.mtdna_struct_slide, out, by = "popn") %>% 
-  dplyr::select(-c("popn"))
-
-out <- out %>% 
-  tidyr::unnest(cols = "diversity")
-
-
-```
-
-```{r, results='asis'}
-
-out %>% 
-  dplyr::mutate_if(is.numeric, round, 2) %>% 
-  DT::datatable(., extensions='Buttons',
-               options = list(
-              searching = T,
-              pageLength = 10,
-              dom = 'Bfrtip', 
-              buttons = c('csv')))
-```
-
-```{r}
-
-# housekeeping
-intrvllevels <- out %>% 
-  dplyr::select("intervals") %>% 
-  dplyr::filter(!duplicated(.))
-
-
-slidingHapDiversityPlot <- out %>% 
-  dplyr::select(c("intervals", "pop", "hap.diversity.within")) %>% 
-  dplyr::mutate(intervals_fct = factor(intervals, levels = unlist(intrvllevels), ordered = T)) %>% 
-  dplyr::group_by(pop) %>% 
-  ggplot(aes(x = intervals_fct, y = hap.diversity.within, 
-             group = factor(pop), color = factor(pop))) +
-  geom_line(size = 1.2) +
-  scale_color_manual("Region",
-                     values = c("#fdae6b", # AF
-                                "#a6bddb", #CAm
-                                "#e41a1c", # DRC
-                                "#c7e9c0", # EAs
-                                "#000000", # internal
-                                "#74c476", #ME
-                                "#4a1486", # NHA
-                                "#238b45", #SAm
-                                "#4292c6", # SAs
-                                "#084594" #SEA
-                                )) +
-  ylab("Within-Region Haplotype Diversity") +
-  theme_classic() +
-  theme(
-    axis.line = element_line(colour = 'black', size = 1.5),
-    axis.title.x = element_blank(),
-    axis.title.y = element_text(face = "bold", size = 12),
-    legend.title = element_text(face = "bold", size = 12),
-    legend.text = element_text(size = 11),
-    axis.text.x = element_text(size = 11, angle = 90, hjust = 1),
-    axis.text.y = element_text(size = 11)
-  )
-
-```
-
-```{r, results='asis'}
-plot(slidingHapDiversityPlot)
-
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/sliding_HapDiversity.jpg", height = 8, width = 11, units = "in", res = 500)
-plot(slidingHapDiversityPlot)
-graphics.off()
-
-```
-
-
-
-### Sliding Window Neutral Summary Statistics 
-
-```{r}
-
-out <- tibble::tibble(popn = gsub(" ", "", rownames(PopGenome::get.neutrality(mtdna.struct.slide))),
-                      neutrality = PopGenome::get.neutrality(mtdna.struct.slide)
-                      )
-
-out$neutrality <- purrr::map(out$neutrality, function(x){
-  ret <- as.data.frame(x)
-  ret$intervals <- rownames(x)
-  ret$intervals <- gsub(" :", "", ret$intervals)
-  return(ret)
-})
-
-
-out <- dplyr::left_join(liftover.mtdna_struct_slide, out, by = "popn") %>% 
-  dplyr::select(-c("popn"))
-
-out <- out %>% 
-  tidyr::unnest(cols = "neutrality")
-
-
-```
-
-```{r, results='asis'}
-
-out %>% 
-  dplyr::mutate_if(is.numeric, round, 2) %>% 
-  DT::datatable(., extensions='Buttons',
-               options = list(
-              searching = T,
-              pageLength = 10,
-              dom = 'Bfrtip', 
-              buttons = c('csv')))
-```
-
-
-```{r}
-
-slidingTajimasDPlot <- out %>% 
-  dplyr::select(c("intervals", "pop", "Tajima.D")) %>% 
-  dplyr::mutate(intervals_fct = factor(intervals, levels = unlist(intrvllevels), ordered = T)) %>% 
-  dplyr::group_by(pop) %>% 
-  ggplot(aes(x = intervals_fct, y = Tajima.D, 
-             group = factor(pop), color = factor(pop))) +
-  geom_point(size = 2, alpha = 0.8) +
-  scale_color_manual("Region",
-                     values = c("#fdae6b", # AF
-                                "#a6bddb", #CAm
-                                "#e41a1c", # DRC
-                                "#c7e9c0", # EAs
-                                "#000000", # internal
-                                "#74c476", #ME
-                                "#4a1486", # NHA
-                                "#238b45", #SAm
-                                "#4292c6", # SAs
-                                "#084594" #SEA
-                                )) +
-  geom_hline(yintercept = 0, col = "red") +
-  ylab("Within-Region Tajima's D") +
-  theme_classic() +
-  theme(
-    axis.line = element_line(colour = 'black', size = 1.5),
-    axis.title.x = element_blank(),
-    axis.title.y = element_text(face = "bold", size = 12),
-    legend.title = element_text(face = "bold", size = 12),
-    legend.text = element_text(size = 11),
-    axis.text.x = element_text(size = 11, angle = 90, hjust = 1),
-    axis.text.y = element_text(size = 11)
-  )
-
-```
-```{r, results='asis'}
-
-plot( slidingTajimasDPlot )
-
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/sliding_TajimasD.jpg", height = 8, width = 11, units = "in", res = 500)
-plot(slidingTajimasDPlot)
-graphics.off()
-
 ```
 

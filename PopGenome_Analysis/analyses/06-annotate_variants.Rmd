@@ -14,16 +14,14 @@ library(Biostrings)
 #.................................
 # Read in data
 #.................................
-
-snps <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/final_vcf_snps.RDS")
-
-
+snps <-  readRDS("data/derived_data/final_vcf_snps_long.RDS")
+# get counts of biallelics
 snps.count <- snps %>% 
   dplyr::group_by(POS) %>% 
   dplyr::summarise(seg = length(unique(gt_GT))) %>% 
   dplyr::filter(seg == 1) 
 
-
+# subset to those positions (it's all from upsteam)
 snps.red <- snps %>% 
   dplyr::filter(! POS %in% snps.count$POS)
 

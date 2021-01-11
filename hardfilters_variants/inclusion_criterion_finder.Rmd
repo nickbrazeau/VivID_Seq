@@ -78,29 +78,6 @@ DT::datatable(qc.results.long, extensions='Buttons',
 
 ```
 
-## Mean Depth
-```{r}
-
-read_mosdepth <- function(path){
-  ret <- readr::read_tsv(path, col_names = F)
-  ret$smpl <- basename(path)
-  ret$smpl <- gsub(".regions.bed.gz", "", ret$smpl)
-
-  return(ret)
-
-}
-
-globalqc <- list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/wgs_qc_improved_global/qc/",
-                       pattern = ".regions.bed.gz$", full.names = T)
-vividqc <- list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/wgs_qc_improved_ViVIDSmpls/qc/",
-                       pattern = ".regions.bed.gz$", full.names = T)
-qcpaths <- c(globalqc, vividqc)
-
-qc.results <- lapply(qcpaths, read_mosdepth) %>%
-  dplyr::bind_rows()
-
-
-```
 
 ```{r, results='asis'}
 

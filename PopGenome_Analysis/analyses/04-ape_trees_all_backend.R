@@ -10,7 +10,7 @@ library(phangorn)
 #----------------------------------------------------
 # Read In
 #----------------------------------------------------
-mtdna <- Biostrings::readDNAStringSet(filepath = "data/fasta/mtdna_anc.fa")
+mtdna <- Biostrings::readDNAStringSet(filepath = "data/noclonefasta/unique_mtdna.fa")
 
 
 #.................................

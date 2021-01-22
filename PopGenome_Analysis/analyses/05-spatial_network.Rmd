@@ -11,6 +11,7 @@ Connections show haplotypes with one base-pair differences. The size of the circ
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
                       fig.align = 'center', fig.width = 8, fig.height = 8)
+knitr::opts_knit$set(root.dir = here::here())
 ```
 
 

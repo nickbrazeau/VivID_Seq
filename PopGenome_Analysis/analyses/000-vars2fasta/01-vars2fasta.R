@@ -38,7 +38,7 @@ vcf.snp <- vcf.snp[vcfR::is.biallelic(vcf.snp), ]
 
 #........................................................
 # Find samples that could not be resolved by joint
-# genotyping and had
+# genotyping and had more than 5% missing
 #........................................................
 smpl_missinglocivcf <- vcfRmanip::calc_loci_missingness_by_smpl(vcf.snp)
 smpl_missingpass <- smpl_missinglocivcf$sample[smpl_missinglocivcf$missprop < 0.05]
@@ -93,9 +93,9 @@ saveRDS(object = vcf.snp.mncnl.long,
 #........................................................
 mksngbp <- function(x){
   if (is.na(x)) {
-    x <- "-"
+    x <- "N"
   } else {
-    x <- stringr::str_split_fixed(x, "/", n=2)[,1]
+    x <- stringr::str_split_fixed(x, "/", n=2)[,1] # this [,1] works because I have forced to homozyg
   }
   return(x)
 }
@@ -114,7 +114,7 @@ posgtcount <- vcf.snp.mncnl.long %>%
   dplyr::filter(!is.na(gt_GT_alleles))
 
 
-# final seq sit poitions
+# final seq sit positions
 segsite <- unique(posgtcount$POS)
 pos <- pos[pos %in% segsite]
 saveRDS(object = pos, file = "data/derived_data/final_positions.rds")

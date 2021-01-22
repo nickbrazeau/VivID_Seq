@@ -5,6 +5,11 @@ editor_options:
 ---
 
 # Annotate Variants 
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
+                      fig.align = 'center')
+knitr::opts_knit$set(root.dir = here::here())
+```
 ```{r}
 library(tidyverse)
 library(Biostrings)
@@ -67,7 +72,7 @@ geneid.gff.mtdna$refseq <- purrr::pmap(geneid.gff.mtdna[,c("start", "end")], fun
 
 geneid.gff.mtdna <- geneid.gff.mtdna %>% 
   dplyr::rename(chrom = seqname)
-  
+
 ```
 
 ```{r}
@@ -76,14 +81,14 @@ geneid.gff.mtdna <- geneid.gff.mtdna %>%
 # Fuzzy join
 #.................................
 snps.annot <- snps.red %>% 
-  dplyr::mutate(start = POS, 
+  dplyr::mutate(start = POS,
                 end = POS,
                 allele = stringr::str_split_fixed(gt_GT_alleles, "/", n=2)[,1],
                 chrom = "PvP01_MIT_v1") %>% 
   fuzzyjoin::genome_left_join(., geneid.gff.mtdna, by = c("chrom", "start", "end")) %>% 
   dplyr::filter(!is.na(info)) %>% # subset to protein coding SNPs only
   dplyr::select(-c("start.x", "end.x", "chrom.x", "chrom.y", "Key", "source", "feature", "score", "frame"))
-  
+
 
 ```
 
@@ -93,6 +98,7 @@ snps.annot <- snps.red %>%
 #.................................
 
 snps.annot$mutseq <- pmap(snps.annot[,c("POS", "start.y", "refseq", "allele")], function(POS, start.y, refseq, allele){
+  allele <- ifelse(allele == "", "N", allele)
   relpos <- POS - start.y + 1 
   mutseq <- refseq
   mutseq[relpos] <- allele
@@ -101,30 +107,32 @@ snps.annot$mutseq <- pmap(snps.annot[,c("POS", "start.y", "refseq", "allele")], 
 })
 
 #.................................
-# Get Annotations
+# Get Annotations on complete samples
 #.................................
-
 snps.annot$AAsub <- pmap(snps.annot[,c("refseq", "mutseq", "strand")], function(refseq, mutseq, strand){
-  if(strand == "-"){
-    AAref <- Biostrings::translate(Biostrings::reverseComplement(refseq))
-    AAmut <- Biostrings::translate(Biostrings::reverseComplement(mutseq))  
-  } else if(strand == "+"){
-    AAref <- Biostrings::translate(refseq)
-    AAmut <- Biostrings::translate(mutseq)
-  }
-  
-  AAref <- as.character(as.vector(AAref))
-  AAmut <- as.character(as.vector(AAmut))
-  AApos <- which(AAref != AAmut)
-  
-  if(length(AApos) > 0){
-    ret <- paste0(AAref[AApos], AApos, AAmut[AApos])
+  if (stringr::str_detect(as.character(mutseq), "N")) {
+    return(NA)
   } else {
-    ret <- "REF"
+    
+    if(strand == "-"){
+      AAref <- Biostrings::translate(Biostrings::reverseComplement(refseq))
+      AAmut <- Biostrings::translate(Biostrings::reverseComplement(mutseq))  
+    } else if(strand == "+"){
+      AAref <- Biostrings::translate(refseq)
+      AAmut <- Biostrings::translate(mutseq)
+    }
+    
+    AAref <- as.character(as.vector(AAref))
+    AAmut <- as.character(as.vector(AAmut))
+    AApos <- which(AAref != AAmut)
+    
+    if(length(AApos) > 0){
+      ret <- paste0(AAref[AApos], AApos, AAmut[AApos])
+    } else {
+      ret <- "REF"
+    }
+    return(ret)
   }
-  
-  return(ret)
-
 })
 
 snps.annot$AAsub <- unlist(snps.annot$AAsub)
@@ -141,11 +149,11 @@ snps.annot %>%
   dplyr::select(c("acc", "POS", "country", "vividregion", "name", "AAsub")) %>% 
   dplyr::rename(gene = name) %>% 
   DT::datatable(., extensions='Buttons',
-               options = list(
-              searching = T,
-              pageLength = 10,
-              dom = 'Bfrtip', 
-              buttons = c('csv')))
+                options = list(
+                  searching = T,
+                  pageLength = 10,
+                  dom = 'Bfrtip', 
+                  buttons = c('csv')))
 
 ```
 
@@ -157,11 +165,11 @@ snps.annot %>%
   dplyr::rename(gene = name) %>% 
   dplyr::filter(AAsub != "REF") %>% 
   DT::datatable(., extensions='Buttons',
-               options = list(
-              searching = T,
-              pageLength = 10,
-              dom = 'Bfrtip', 
-              buttons = c('csv')))
+                options = list(
+                  searching = T,
+                  pageLength = 10,
+                  dom = 'Bfrtip', 
+                  buttons = c('csv')))
 
 ```
 
@@ -174,11 +182,11 @@ snps.annot %>%
   dplyr::filter(AAsub != "REF") %>% 
   dplyr::filter(!duplicated(.)) %>% 
   DT::datatable(., extensions='Buttons',
-               options = list(
-              searching = T,
-              pageLength = 10,
-              dom = 'Bfrtip', 
-              buttons = c('csv')))
+                options = list(
+                  searching = T,
+                  pageLength = 10,
+                  dom = 'Bfrtip', 
+                  buttons = c('csv')))
 
 ```
 
@@ -194,5 +202,5 @@ cytb <- snps.annot[6,]$refseq
 paste(Biostrings::translate(Biostrings::reverseComplement(cox3[[1]])))
 paste(Biostrings::translate(cox1[[1]]))
 Biostrings::translate(cytb[[1]])
-                      
+
 ```

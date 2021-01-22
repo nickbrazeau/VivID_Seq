@@ -19,6 +19,9 @@ fnlsmpls <- data.frame(smpls = fnlsmpls, stringsAsFactors = F)
 fnlsmpls <- dplyr::left_join(fnlsmpls, smpls, by = "smpls")
 fnlsmpls$country[is.na(fnlsmpls$country) & fnlsmpls$smpls %in%  c("D9U3K", "O6Y4K", "Q8J6O")] <- "CD"
 fnlsmpls$vividregion[is.na(fnlsmpls$vividregion) & fnlsmpls$smpls %in%  c("D9U3K", "O6Y4K", "Q8J6O")] <- "AF"
+# consider "apes" as own country
+fnlsmpls$country[fnlsmpls$vividregion == "NHA"] <- "NHA"
+
 
 # pull out lab samples which we will consider separately
 labsmpls <- fnlsmpls[fnlsmpls$vividregion == "Lab",]

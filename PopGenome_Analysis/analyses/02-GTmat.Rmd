@@ -97,7 +97,7 @@ seqmat.long <- seqmat %>%
   dplyr::mutate(POS = factor(POS, levels = c(1:5989), ordered = T)) 
 
 gtplot <- seqmat.long %>% 
-  dplyr::mutate(GT = ifelse(GT == "-", NA, GT)) %>% 
+  dplyr::mutate(GT = ifelse(GT == "N", NA, GT)) %>% 
   ggplot() + 
   geom_tile(aes(x = smpls, y = POS, fill = GT)) + 
   scale_fill_manual("Alleles", values = c("#4daf4a", "#377eb8", "#ffff33", "#e41a1c")) +
@@ -133,7 +133,7 @@ seqmat.long <- seqmat %>%
   dplyr::mutate(POS = factor(POS, levels = c(1:5989), ordered = T)) 
 
 gtplot <- seqmat.long %>% 
-  dplyr::mutate(GT = ifelse(GT == "-", NA, GT)) %>% 
+  dplyr::mutate(GT = ifelse(GT == "N", NA, GT)) %>% 
   ggplot() + 
   geom_tile(aes(x = smpls, y = POS, fill = GT)) + 
   scale_fill_manual("Alleles", values = c("#4daf4a", "#377eb8", "#ffff33", "#e41a1c")) +
@@ -165,7 +165,7 @@ segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( length(unique
 seqmat.long <- seqmat %>% 
   dplyr::filter(segsites) %>% 
   tidyr::gather(., key = "smpls", value = "GT", 2:ncol(.)) %>% 
-  dplyr::mutate(GT = ifelse(GT == "-", NA, GT)) %>% 
+  dplyr::mutate(GT = ifelse(GT == "N", NA, GT)) %>% 
   dplyr::mutate(GT = factor(GT)) %>% 
   dplyr::left_join(., mtdt, by = "smpls") %>% 
   dplyr::filter(hapuid == "Y") %>% 
@@ -207,7 +207,7 @@ segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( length(unique
 seqmat.long <- seqmat %>% 
   dplyr::filter(segsites) %>% 
   tidyr::gather(., key = "smpls", value = "GT", 2:ncol(.)) %>% 
-  dplyr::mutate(GT = ifelse(GT == "-", NA, GT)) %>% 
+  dplyr::mutate(GT = ifelse(GT == "N", NA, GT)) %>% 
   dplyr::mutate(GT = factor(GT)) %>% 
   dplyr::left_join(., mtdt, by = "smpls") %>% 
   dplyr::filter(hapuid == "Y") %>% 

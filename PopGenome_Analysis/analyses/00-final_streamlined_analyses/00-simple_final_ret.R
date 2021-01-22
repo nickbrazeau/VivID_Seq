@@ -166,7 +166,7 @@ set.seed(48)
 library(ape)
 library(phangorn)
 mtdna.ape <- ape::as.DNAbin(mtdna_uniq)
-mtdna.dist.JC <- ape::dist.dna(mtdna.ape, model="JC69")
+mtdna.dist.JC <- ape::dist.dna(mtdna.ape, model="N")
 # Phangorn
 mtdna.phangorn <- phangorn::as.phyDat(mtdna.ape)
 tree.init <- ape::nj(mtdna.dist.JC)

@@ -29,6 +29,8 @@ mtdna_uniq <- Biostrings::readDNAStringSet(filepath = "data/noclonefasta/unique_
 # bootstrap tree
 #...........................................................
 mtdna.ape <- ape::as.DNAbin(mtdna_uniq)
+tree.init <- ape::nj(ape::dist.dna(mtdna.ape, model="N"))
+
 # Phangorn
 mtdna.phangorn <- phangorn::as.phyDat(mtdna.ape)
 # GTR Model

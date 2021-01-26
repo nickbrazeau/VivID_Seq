@@ -40,11 +40,11 @@ fitGTR <- phangorn::optim.pml(fitGTR.init, model = "GTR",
                               optNni=TRUE, optBf=TRUE, optQ=TRUE, optGamma=TRUE)
 
 # Bootstrap GTR which is better model
-iters <- 1e4
+iters <- 1e3
 GTRbs <- phangorn::bootstrap.pml(fitGTR, bs=iters,
                                  optNni = TRUE,
                                  rearrangement = "stochastic")
 
-dir.create("analyses/00-final_streamlined_analyses/tree_results", recursive = T)
-saveRDS(fitGTR, "analyses/00-final_streamlined_analyses/tree_results/tree_ml.rds")
-saveRDS(GTRbs, "analyses/00-final_streamlined_analyses/tree_results/tree_boot.rds")
+dir.create("analyses/00-final_streamlined_analyses/tree_results_sm", recursive = T)
+saveRDS(fitGTR, "analyses/00-final_streamlined_analyses/tree_results_sm/tree_ml.rds")
+saveRDS(GTRbs, "analyses/00-final_streamlined_analyses/tree_results_sm/tree_boot.rds")

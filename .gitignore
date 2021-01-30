@@ -3,7 +3,7 @@ zraw_Ebro1944/
 **/touch_files.sh
 figures/
 tables/
-
+depreciated/
 # slurm outs and logs
 **/*out
 **/.log

@@ -7,13 +7,13 @@ library(Biostrings)
 #----------------------------------------------------
 # Read In
 #----------------------------------------------------
-mtdna <- Biostrings::readDNAStringSet(file = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/fasta/mtdna_anc.fa")
+mtdna <- Biostrings::readDNAStringSet(file = "data/fasta/mtdna_anc.fa")
 
 
-smpls <- readxl::read_excel("~/Documents/GitHub/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx") %>%
+smpls <- readxl::read_excel("../scrape_pubseqs/vivid_seq_public_NGS.xlsx") %>%
   dplyr::rename(smpls = acc) %>%
   dplyr::select(c("smpls", "country", "vividregion"))
-fnlsmpls <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/final_smpl_list.RDS")
+fnlsmpls <- readRDS("data/derived_data/final_smpl_list.RDS")
 
 fnlsmpls <- data.frame(smpls = fnlsmpls, stringsAsFactors = F)
 fnlsmpls <- dplyr::left_join(fnlsmpls, smpls, by = "smpls")
@@ -56,31 +56,72 @@ findclones <- function(countrymtdna){
 
 }
 
-mtdna.uniquehap.list <- lapply(mtdna.list, findclones)
+mtdna.uniquehap.fulllist <- lapply(mtdna.list, findclones)
 
 
-
-#----------------------------------------------------
-# Write out Clonal Corrections For Later Use
-#----------------------------------------------------
-saveRDS(object = mtdna.uniquehap.list,
+# save this out
+saveRDS(object = mtdna.uniquehap.fulllist,
         file = "data/derived_data/mtdna_uniquehap_list.RDS")
 
-mtdna.uniquehap.list <- purrr::map(mtdna.uniquehap.list, "uniquehaps")
+# extract unique haps
+mtdna.uniquehap.list <- purrr::map(mtdna.uniquehap.fulllist, "uniquehaps")
 
 mtdna.unique <- NULL
 for(i in 1:length(mtdna.uniquehap.list)){
   mtdna.unique <- append(mtdna.unique, mtdna.uniquehap.list[[i]])
 }
 
-#......................
-# add lab strains back in
-#......................
-labsmpls_mtdna <- mtdna[names(mtdna) %in% labsmpls$smpls]
-mtdna.unique <- append(mtdna.unique, labsmpls_mtdna)
 
 
+#----------------------------------------------------
+# Write out Clonal Corrections (sans lab) For Later Use
+#----------------------------------------------------
 dir.create("data/noclonefasta/")
 Biostrings::writeXStringSet(x = mtdna.unique,
                             format = "fasta",
                             filepath = "data/noclonefasta/unique_mtdna.fa")
+
+
+#----------------------------------------------------
+# Write out Representative Sequences based on fastas
+#----------------------------------------------------
+# extract counts
+mtdna_uniquehap_cnts <- purrr::map(mtdna.uniquehap.fulllist, "unihapcounts") %>%
+  dplyr::bind_rows(., .id = "country")
+
+# get representative
+mtdna_rep_keep <- mtdna_uniquehap_cnts %>%
+  dplyr::group_by(country) %>%
+  dplyr::filter(hapuid_count == max(hapuid_count)) %>%
+  dplyr::filter(!country %in% c("VN", "NHA")) %>% # see below
+  dplyr::pull("smpls")
+
+# random sample VN
+set.seed(48)
+all_vn_smpls <- mtdna_uniquehap_cnts %>%
+  dplyr::filter(country == "VN") %>%
+  dplyr::pull("smpls")
+VNsmpl <- sample(all_vn_smpls, 1)
+# add back in NHA
+NHAsmpls <- mtdna.uniquehap.fulllist$NHA$unihapcounts$smpls
+# bring together
+mtdna_rep_keep <- c(mtdna_rep_keep, VNsmpl, NHAsmpls)
+# no make new small fasta
+mtdna.rep <- mtdna[names(mtdna) %in% mtdna_rep_keep]
+
+dir.create("data/rep_smpls_noclones/")
+Biostrings::writeXStringSet(x = mtdna.rep,
+                            format = "fasta",
+                            filepath = "data/rep_smpls_noclones/rep_mtdna.fa")
+
+
+
+#----------------------------------------------------
+# Haplotype counts
+#----------------------------------------------------
+hapcount <- tibble::tibble(country = names(mtdna.list),
+                           unihap = sapply(mtdna.uniquehap.list, length),
+                           counthap = sapply(mtdna.list, length))
+# write out
+dir.create("tables")
+readr::write_csv(hapcount, "tables/basic_hapcount.csv")

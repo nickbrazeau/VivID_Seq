@@ -4,6 +4,7 @@ zraw_Ebro1944/
 figures/
 tables/
 depreciated/
+
 # slurm outs and logs
 **/*out
 **/.log

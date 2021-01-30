@@ -87,13 +87,20 @@ color_order <- color_order %>%
   dplyr::left_join(., prettdir, by = "country")
 
 min_span_net$colors <- color_order$hexcolor
+
+
+# save out
+png("figures/minimum_spanning_network_rep_mtdna.png",
+    width = 6, height = 6, units = "in", res  = 500)
 plot_poppr_msn(genclone, min_span_net,
                inds = "none",
                mlg = F,
                wscale = T,
                nodelab = 999,
+               nodescale = 100,
                quantiles = F,
                palette = min_span_net$colors,
                pop.leg = T,
                layout = layout_with_kk)
+graphics.off()
 

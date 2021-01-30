@@ -63,7 +63,8 @@ plotdat$ypos = plotdat$yclockposition + rnorm(nrow(plotdat), mean = 0, sd = 1)
 # DRC data
 drcdat <- tibble::tibble(distance = 0, ypos = 0)
 
-plotdat %>%
+# plot
+plotObj <- plotdat %>%
   ggplot() +
   geom_point(data = drcdat, aes(x = distance, y = ypos),
              color = "#FF0018", shape = 8, size = 3) +
@@ -72,22 +73,22 @@ plotdat %>%
   coord_polar(theta = "y") +
   xlab("Hamming's Distance") +
   scale_color_manual(name = "Country",
-                     labels =c("Brazil","China","Colombia","Ebro1944",
-                               "Ethiopia","Indonesia","India","Cambodia",
-                               "Laos", "Sri Lanka",
-                               "Madagascar","Myanmar",
-                               "Mexico","Malaysia","NHA",
-                               "Peru","Papua New Guinea",
-                               "Thailand","Vietnam"),
+                     labels =c("BR","CN","CO","Ebro1944",
+                               "ET","ID","IN","KH",
+                               "LA", "LK",
+                               "MG","MM",
+                               "MX","MY","NHA",
+                               "PE","PG",
+                               "TH","VN"),
                      values = c(prettdir$hexcolor)) +
   scale_shape_manual(name = "Country",
-                     labels =c("Brazil","China","Colombia","Ebro1944",
-                               "Ethiopia","Indonesia","India","Cambodia",
-                               "Laos", "Sri Lanka",
-                               "Madagascar","Myanmar",
-                               "Mexico","Malaysia","NHA",
-                               "Peru","Papua New Guinea",
-                               "Thailand","Vietnam"),
+                     labels =c("BR","CN","CO","Ebro1944",
+                               "ET","ID","IN","KH",
+                               "LA", "LK",
+                               "MG","MM",
+                               "MX","MY","NHA",
+                               "PE","PG",
+                               "TH","VN"),
                      values =  c(prettdir$shape)) +
   guides(color = guide_legend(nrow = 4, byrow = TRUE)) +
   theme_minimal() +
@@ -100,4 +101,14 @@ plotdat %>%
         legend.text = element_text(family = "Helvetica", hjust = 0.5, vjust = 0.5, size = 10))
 
 
+#......................
+# bring together for manuscript
+#......................
+whitespace <- ggplot() +
+  theme_void()
 
+svglite::svglite("figures/clock_msn_figure.svg",
+                 width = 10, height = 7)
+cowplot::plot_grid(plotObj, whitespace,
+                   nrow = 1, labels = c("(A)", "(B)"))
+graphics.off()

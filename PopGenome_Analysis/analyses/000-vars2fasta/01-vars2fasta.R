@@ -11,7 +11,7 @@ set.seed(48)
 #........................................................
 # Read in metadata
 #........................................................
-smpls <- readxl::read_excel("~/Documents/GitHub/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx") %>%
+smpls <- readxl::read_excel("../scrape_pubseqs/vivid_seq_public_NGS.xlsx") %>%
   dplyr::select(c("iid", "acc", "country", "vividregion"))
 
 drc <- data.frame(iid = c("D9U3K", "O6Y4K", "Q8J6O"),
@@ -136,9 +136,6 @@ mkmut <- function(x){
 }
 
 finalfastas <- lapply(seqlist, mkmut)
-
-
-
 
 
 

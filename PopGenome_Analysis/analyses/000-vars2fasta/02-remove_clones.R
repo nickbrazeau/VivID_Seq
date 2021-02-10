@@ -97,7 +97,7 @@ mtdna_rep_keep <- mtdna_uniquehap_cnts %>%
   dplyr::pull("smpls")
 
 # random sample VN
-set.seed(48)
+set.seed(1234)
 all_vn_smpls <- mtdna_uniquehap_cnts %>%
   dplyr::filter(country == "VN") %>%
   dplyr::pull("smpls")

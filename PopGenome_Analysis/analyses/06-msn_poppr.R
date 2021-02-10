@@ -33,16 +33,12 @@ prettdir <- readxl::read_excel("aesthetics/msn_colors.xlsx")
 # metadat
 mtdt <- readRDS("data/derived_data/mtdt.RDS")
 mtdt <- mtdt %>%
-  dplyr::mutate(country = ifelse(vividregion == "Lab", "Lab",
-                                    ifelse(vividregion == "NHA", "NHA",
-                                           country)))
+  dplyr::mutate(country = ifelse(vividregion == "NHA", "NHA",
+                                           country))
 # ebro
 mtdt <- mtdt %>%
   dplyr::mutate(country = ifelse(smpls == "Ebro1944", "Ebro1944", country))
 
-# cynomolgi
-mtdt <- mtdt %>%
-  dplyr::mutate(country = ifelse(smpls == "ERS001838", "PcyM", country))
 
 # drop to samples were are considering
 mtdt <- mtdt %>%

@@ -35,28 +35,35 @@ mtdna_uniq <- Biostrings::readDNAStringSet(filepath = "data/noclonefasta/unique_
 #......................
 mtdna_uniq
 mtdna_all
-# get seg sites
-seqmat <-  tibble::as_tibble( t(as.matrix(mtdna_all) ) )
-seqmat <- cbind.data.frame(POS = 1:nrow(seqmat), seqmat)
-segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){
+# get seg sites all
+seqmat_all <-  tibble::as_tibble( t(as.matrix(mtdna_all) ) )
+seqmat_all <- cbind.data.frame(POS = 1:nrow(seqmat_all), seqmat_all)
+segsites <- apply(seqmat_all[,2:ncol(seqmat_all)], 1, function(x){
   ret <- unique(x)
   ret <- ret[ret != "N"]
   return(ret)
 })
 sum(sapply(segsites, length) != 1)
 
+# get seg sites unique
+seqmat_uniq <-  tibble::as_tibble( t(as.matrix(mtdna_uniq) ) )
+seqmat_uniq <- cbind.data.frame(POS = 1:nrow(seqmat_uniq), seqmat_uniq)
+segsites <- apply(seqmat_uniq[,2:ncol(seqmat_uniq)], 1, function(x){
+  ret <- unique(x)
+  ret <- ret[ret != "N"]
+  return(ret)
+})
+sum(sapply(segsites, length) != 1)
+
+
 # define countries
 mtdt <- mtdt %>%
-  dplyr::mutate(effcountry = ifelse(vividregion == "Lab", "Lab",
-                                    ifelse(vividregion == "NHA", "NHA",
-                                           country)))
-# cynomolgi
-mtdt <- mtdt %>%
-  dplyr::mutate(effcountry = ifelse(smpls == "ERS001838", "PcyM", effcountry))
-
+  dplyr::filter(smpls %in% names(mtdna_uniq)) %>%
+  dplyr::mutate(effcountry = ifelse(vividregion == "NHA", "NHA",
+                                    country))
 
 # read in and set up popgenome object
-fa_popgen <- PopGenome::readData(path = "data/fasta/",
+fa_popgen <- PopGenome::readData(path = "data/noclonefasta/",
                                  format = "fasta",
                                  include.unknown = T,
                                  progress_bar_switch=T,
@@ -76,7 +83,6 @@ get.sum.data(fa_popgen)
 # must be calculated first before diversity and neutrality
 fa_popgen <- PopGenome::F_ST.stats(fa_popgen)
 fa_popgen <- PopGenome::diversity.stats.between(fa_popgen)
-fa_popgen <- PopGenome::neutrality.stats(fa_popgen)
 ret <- PopGenome::get.diversity(fa_popgen, between = F)
 popn <- gsub(" ", "", rownames(ret))
 tbout <- lapply(ret, as.data.frame) %>%
@@ -90,8 +96,14 @@ dir.create("tables")
 readr::write_csv(tbout, path = "tables/basic_popgen_summstat.csv")
 
 #............................................................
-# basic hammings distance
+###### Section 1: basic hammings distance #####
 #...........................................................
+# tidy mtdt
+mtdt <- readRDS("data/derived_data/mtdt.RDS") %>%
+  dplyr::mutate(effcountry = ifelse(vividregion == "Lab", "Lab",
+                                    ifelse(vividregion == "NHA", "NHA",
+                                           country)))
+# hammdist
 hammdist <- ape::dist.dna(ape::as.DNAbin(mtdna_all), model = "N")
 zerodist <- hammdist %>%
   broom::tidy(.) %>%
@@ -134,12 +146,15 @@ alldrcpairs <- hammdist %>%
 summary(alldrcpairs)
 
 #............................................................
-###### Section 2: GT Viz #####
+###### Section 3: GT Viz #####
 #...........................................................
 # find seg sites from fasta
 seqmat <-  tibble::as_tibble( t(as.matrix(mtdna_all) ) )
 seqmat <- cbind.data.frame(POS = 1:nrow(seqmat), seqmat)
 segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( length(unique(x)) > 1 ) })
+
+# 135 because we have missing and one missing site has two N's
+table(apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( sum(x == "N") ) }))
 
 # take to long
 seqmat.long <- seqmat %>%

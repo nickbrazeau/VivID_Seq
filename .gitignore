@@ -4,6 +4,7 @@ figures/
 tables/
 depreciated/
 internal/
+arXive/
 
 # slurm outs and logs
 **/*out

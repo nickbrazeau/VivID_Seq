@@ -143,15 +143,6 @@ read_alignment_summary_metrics <- function(ff, ...) {
 	
 }
 
-#' Read cumulative distribution of global depth-of-coverage produced by `mosdepth`
-read_mosdepth_coverage_hist <- function(ff, force.chroms = TRUE, ...) {
-	
-	x <- read_tsv(ff, col_names = c("chr","depth","pct"))
-	if (force.chroms)
-		x$chr <- factor_chrom(x$chr)
-	return(x)
-	
-}
 
 
 #' Check result from Picard ValidateSamFile (summary mode)
@@ -270,37 +261,14 @@ if (any(!isvalid$is_valid)) {
 
 ```
 
-## What is distribution of global coverage per sample?
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-dphist <- myldply(setNames(iids, iids),
-				  function(f) read_mosdepth_coverage_hist(file.path(config$where, paste0(f, ".mosdepth.global.dist.txt")), FALSE),
-				  .id = "iid")
-
-subset(dphist, chr == "total") %>%
-	plot_sample_coverage_whiskers()
-subset(dphist, chr == "total") %>%
-	group_by(iid) %>%
-	get_depth_quantiles() %>%
-	write_tsv(., file.path(config$where, "all.coverage_quantiles.txt"))
-subset(dphist, chr == "total") %>%
-	group_by(iid) %>%
-	get_depth_cutoffs() %>%
-	write_tsv(., file.path(config$where, "all.coverage_cutoffs.txt"))
-```
-
 ## What proportion of loci are "callable" per sample?
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 callable <- myldply(setNames(iids, iids),
 				  function(f) read_callable_summary(file.path(config$where, paste0(f, ".callable_summary.txt"))),
 				  .id = "iid")
-so <- subset(dphist, chr == "total") %>%
-	group_by(iid) %>%
-	get_depth_quantiles() %>%
-	arrange(med)
-so <- so$iid
 
 CUTOFF <- as.numeric(config$callable_cutoff)
-callable$iid <- factor(callable$iid, so)
+callable$iid <- factor(callable$iid)
 ggplot(callable) +
 	geom_bar(aes(x = iid, y = prop, fill = state), stat = "identity",
 			 position = position_fill(reverse = TRUE)) +
@@ -319,29 +287,4 @@ alnsm <- myldply(setNames(iids, iids),
 				 function(f) read_alignment_summary_metrics(file.path(config$where, paste0(f, ".AlignmentSummaryMetrics.txt"))),
 				 .id = "iid")
 DT::datatable(select(alnsm, -SAMPLE, -LIBRARY, -READ_GROUP))
-```
-
-# Plots by sample
-```{r echo=FALSE, message=FALSE, warning=FALSE, results="asis"}
-for (iid in iids) {
-	
-	message(">>>>>>>>>>>>>>>>>>>>>>>>", iid)
-	cat("##", iid)
-	
-	cvg <- read_tsv(file.path(config$where, paste0(iid, ".regions.bed.gz")),
-					col_names = c("chr","start","end","name","depth"))
-	cvg$chr <- factor_chrom(cvg$chr)
-	dphist <- read_mosdepth_coverage_hist(file.path(config$where, paste0(iid, ".mosdepth.global.dist.txt")))
-	dphist <- subset(dphist, is_nuclear(chr))
-	
-	p1 <- plot_genome_coverage(cvg)
-	p2 <- plot_sample_coverage_cutoffs(dphist)
-	p3 <- plot_chrom_coverage_whiskers(dphist)
-	
-	p <- cowplot::plot_grid(p1, cowplot::plot_grid(p2, p3, nrow = 2, ncol = 1), ncol = 2)
-	print(p)
-	
-	cat("\n")
-	
-}
 ```

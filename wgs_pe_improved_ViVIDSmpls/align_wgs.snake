@@ -104,7 +104,7 @@ rule trim_and_align:
 		read1 = os.path.join(SEQROOT, "{sample}/{rg}_1.fastq.gz"),
 		read2 = os.path.join(SEQROOT, "{sample}/{rg}_2.fastq.gz")
 	output:
-		aligned = temp( os.path.join(ALNROOT, "lanes_raw/{sample}/{rg}.aligned.bam") ),
+		aligned = os.path.join(ALNROOT, "lanes_raw/{sample}/{rg}.aligned.bam"),
 		trimlog = os.path.join(SEQROOT, "{sample}/{rg}_trimming.log")
 		# split = "{alnroot}/lanes_raw/{sample}_{barcode}_{lane}.split.bam",
 		# discordant = "{alnroot}/lanes_raw/{sample}_{barcode}_{lane}.discordant.bam",

@@ -81,8 +81,7 @@ targets = {
 	"flagstats": expand(os.path.join(OUTDIR, "{sample}.flagstats"), sample = samples),
 	"ValidateSamFile": expand(os.path.join(OUTDIR, "{sample}.isvalid"), sample = samples),
 	"callable_summary": expand(os.path.join(OUTDIR, "{sample}.callable_summary.txt"), sample = samples),
-	"callable_intervals": expand(os.path.join(OUTDIR, "{sample}.callable.bed"), sample = samples),
-	"coverage": expand(os.path.join(OUTDIR, "{sample}.regions.bed.gz"), sample = samples)
+	"callable_intervals": expand(os.path.join(OUTDIR, "{sample}.callable.bed"), sample = samples)
 }
 report_file = os.path.join(OUTDIR, "report.html")
 
@@ -107,17 +106,6 @@ rule create_report:
 		r"""
 		Rscript -e \
 			"rmarkdown::render('{input.RMD}', clean=TRUE, output_file='{output}', output_format='html_document');"
-		"""
-
-rule windowed_coverage:
-	input:
-		bam = os.path.join(ALNROOT, "{sample}.bam"),
-		windows = os.path.expandvars(config["windows"])
-	output:
-		os.path.join(OUTDIR, "{sample}.regions.bed.gz")
-	shell:
-		r"""
-		mosdepth --by {input.windows} -n {OUTDIR}/{wildcards.sample} {input.bam}
 		"""
 
 rule aggregate_callable:

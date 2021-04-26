@@ -2,7 +2,7 @@ library(tidyverse)
 ###############################################
 ####             Read in mtdt              ####
 ###############################################
-smpls <- readxl::read_excel("~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/scrape_pubseqs/vivid_seq_public_NGS.xlsx")
+smpls <- readxl::read_excel("scrape_pubseqs/vivid_seq_public_NGS.xlsx")
 
 ###############################################
 ####              Read in QC               ####
@@ -33,8 +33,7 @@ qc.results <- lapply(qcpaths, read_callable_loci) %>%
 
 qc.passed <- qc.results %>%
   dplyr::filter(nBases >= callable) %>%
-  dplyr::select(c("smpl")) %>%
-  unlist(.)
+  dplyr::pull("smpl")
 
 
 
@@ -42,13 +41,13 @@ qc.passed <- qc.results %>%
 ###############################################
 ####     Read in paths for gvcfs           ####
 ###############################################
-all_gvcfs <- tibble::enframe( list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/vcfs_gatk_joint_raw/chunks/all/",
+all_gvcfs <- tibble::enframe( list.files(path = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/vcfs_gatk_joint_raw/chunks/all",
                                          pattern = ".g.vcf.gz$",
                                          full.names = T),
                               name = NULL )
 
 # fix local to remote
-all_gvcfs$value <- gsub("/Users/nickbrazeau/Documents/MountPoints/mountedScratchLL/",
+all_gvcfs$value <- gsub("/Users/nbrazeau/Documents/MountPoints/mountedScratchLL/",
                        "/pine/scr/n/f/nfb/", all_gvcfs$value)
 
 all_gvcfs$basenames <- gsub(".g.vcf.gz", "", basename(all_gvcfs$value))
@@ -59,14 +58,9 @@ all_gvcfs$basenames <- gsub(".g.vcf.gz", "", basename(all_gvcfs$value))
 ###############################################
 ####      Write Filtered Samples           ####
 ###############################################
-passed_smpls <- all_gvcfs$value[ !all_gvcfs$basenames %in% smpls$acc[smpls$host == "Lab_strain"] &
-                                   all_gvcfs$basenames %in% qc.passed
-                                   ]
+passed_smpls <- all_gvcfs$value[ all_gvcfs$basenames %in% qc.passed ]
 passed_smpls <- tibble::enframe( passed_smpls, name = NULL )
 
 readr::write_tsv(x = passed_smpls,
-                 path = "~/Documents/MountPoints/mountedMeshnick/Projects/VivID_Seq/lists/passed_smpls.gvcfs.list",
+                 path = "lists/passed_smpls.gvcfs.list",
                  col_names = F)
-
-
-

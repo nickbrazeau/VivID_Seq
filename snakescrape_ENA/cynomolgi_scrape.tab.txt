@@ -1,9 +1,0 @@
-acc	R1	R2
-DRS000258	ftp.sra.ebi.ac.uk/vol1/fastq/DRR000/DRR000476/DRR000476_1.fastq.gz	ftp.sra.ebi.ac.uk/vol1/fastq/DRR000/DRR000476/DRR000476_2.fastq.gz
-DRS000258	ftp.sra.ebi.ac.uk/vol1/fastq/DRR000/DRR000477/DRR000477_1.fastq.gz	ftp.sra.ebi.ac.uk/vol1/fastq/DRR000/DRR000477/DRR000477_2.fastq.gz
-ERS001838	ftp.sra.ebi.ac.uk/vol1/fastq/ERR019/ERR019324/ERR019324_1.fastq.gz	ftp.sra.ebi.ac.uk/vol1/fastq/ERR019/ERR019324/ERR019324_2.fastq.gz
-ERS001838	ftp.sra.ebi.ac.uk/vol1/fastq/ERR019/ERR019325/ERR019325_1.fastq.gz	ftp.sra.ebi.ac.uk/vol1/fastq/ERR019/ERR019325/ERR019325_2.fastq.gz
-ERS001838	ftp.sra.ebi.ac.uk/vol1/fastq/ERR019/ERR019326/ERR019326_1.fastq.gz	ftp.sra.ebi.ac.uk/vol1/fastq/ERR019/ERR019326/ERR019326_2.fastq.gz
-ERS001838	ftp.sra.ebi.ac.uk/vol1/fastq/ERR019/ERR019327/ERR019327_1.fastq.gz	ftp.sra.ebi.ac.uk/vol1/fastq/ERR019/ERR019327/ERR019327_2.fastq.gz
-ERS001838	ftp.sra.ebi.ac.uk/vol1/fastq/ERR019/ERR019328/ERR019328_1.fastq.gz	ftp.sra.ebi.ac.uk/vol1/fastq/ERR019/ERR019328/ERR019328_2.fastq.gz
-ERS023609	ftp.sra.ebi.ac.uk/vol1/fastq/ERR035/ERR035469/ERR035469_1.fastq.gz	ftp.sra.ebi.ac.uk/vol1/fastq/ERR035/ERR035469/ERR035469_2.fastq.gz

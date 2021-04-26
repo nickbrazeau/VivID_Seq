@@ -7,23 +7,22 @@ editor_options:
 # Visualization of the Genotype Matrix
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = T, warning = F, message = F, eval = T, results = 'hide',
-                      fig.align = 'center', fig.width = 8, fig.height = 8)
+                      fig.align = 'center')
+knitr::opts_knit$set(root.dir = here::here())
 ```
 
 ```{r}
-
 library(tidyverse)
 library(vcfR)
 library(Biostrings)
-source("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/R/vcf_utils.R")
-
+source("R/vcf_utils.R")
 ```
 
 ```{r}
 #.................................
 # Read in Metadata
 #.................................
-mtdt <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_data/mtdt.RDS")
+mtdt <- readRDS("data/derived_data/mtdt.RDS")
 ```
 
 
@@ -35,56 +34,17 @@ mtdt <- readRDS("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/derived_da
 I have subsetted to SNPs and excluded samples with more than 20% heterozygous sites (i.e. I think there is MOI or more technically, heteroplasmy). 
 ```{r}
 #........................................................
-# Read in vcf
+# Read in long vcf
 #........................................................
-vcf <- vcfR::read.vcfR(file = "~/Documents/MountPoints/mountedScratchLL/Projects/VivID_Seq/vcfs_hardfilt_variants/passed.joint.vcf.gz")
-vcf.snp <- vcfR::extract.indels(vcf, return.indels = F)
-vcf.snp
-
-#........................................................
-# Find samples with a high level of heterozygosity
-# which mimicks COI > 1 but is really heteroplasmy
-# or sequencing error
-#........................................................
-smplhet <- apply(vcfR::is.het(vcfR::extract.gt(vcf.snp)), 2, mean)
-smplhet <- tibble::tibble(smpls = names(smplhet),
-                          hetprop = smplhet)
-smplhetpass <- smplhet$smpls[smplhet$hetprop < 0.2] # less than 20%
-
-vcf.snp <- vcfRmanip::select_samples(vcfRobject = vcf.snp,
-                                     smplvctr = smplhetpass)
-
-
-
-#........................................................
-# Remove loci that have deleted allele alternative
-# which is encoded in vcf as a *
-#........................................................
-alts <- vcfR::getALT(vcf.snp)
-asterickfilt <- grepl(pattern = "\\*", x = alts)
-asterickfilt <- data.frame(seqname = vcfR::getCHROM(vcf.snp),
-                           start = vcfR::getPOS(vcf.snp),
-                           end = vcfR::getPOS(vcf.snp),
-                           geneid = 1:length(vcfR::getPOS(vcf.snp))) %>%
-  dplyr::filter(asterickfilt)
-
-vcf.snp <- vcfRmanip::vcffilter_ChromPos(vcfRobject = vcf.snp,
-                                         chromposbed = asterickfilt)
-
-vcf.snp.ss <- vcfR_filter_unique_sites(vcf.snp)
-
-# tidyverse 
-vcf.snp.ss.long_gt <- vcfR::extract_gt_tidy(vcf.snp.ss, format_fields = "GT")
+vcf.snp.ss.long_gt <- readRDS("data/derived_data/final_vcf_snps_long.RDS")
 vcf.snp.ss.long_gt <- vcf.snp.ss.long_gt %>% 
-  dplyr::rename(smpls = Indiv) %>% 
-  dplyr::left_join(., y=mtdt, by = "smpls") %>% 
+  dplyr::left_join(., y = mtdt, by = c("iid", "country", "vividregion")) %>% 
   dplyr::filter(passed == "Y") %>% 
-  dplyr::group_by(smpls) %>% 
-  dplyr::mutate(POS = vcfR::getPOS(vcf.snp.ss),
-                POS = factor(POS, levels = c(1:5989), ordered = T))  %>% 
-  dplyr::ungroup()
+  dplyr::mutate(POS = factor(POS, levels = c(1:5989), ordered = T))  
 
 gtplot <- vcf.snp.ss.long_gt %>% 
+  dplyr::mutate(country = ifelse(vividregion == "Lab", iid, country),
+                country = stringr::str_replace_all(country, "_", " ")) %>% 
   ggplot() + 
   geom_tile(aes(x = smpls, y = POS, fill = gt_GT)) + 
   scale_fill_brewer("GT Calls", type = "qual", palette = "Dark2") +
@@ -93,8 +53,7 @@ gtplot <- vcf.snp.ss.long_gt %>%
         axis.title.x = element_blank())
 
 
-dir.create("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/")
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/raw_all_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
+jpeg("figures/raw_all_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 
@@ -105,34 +64,40 @@ graphics.off()
 
 ```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
 plot(gtplot)
-
 ```
 
 
-### Filtered Calls, All Samples
+### Filtered Calls, All Natural/Globally Sourced Samples
 ```{r}
-
-mtdna <- Biostrings::readDNAStringSet(filepath = "~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/data/fasta/mtdna_anc.fa")
-
-# going to drop the ancestral haplo here because I will do an unrooted tree
-# since we are not estimating the molecular clock
-mtdna <- mtdna[!names(mtdna) %in% "Pcynomolgi"]
+mtdna <- Biostrings::readDNAStringSet(filepath = "data/fasta/mtdna_anc.fa")
+# going to drop cynomolgi and lab strains here
+mtdna <- mtdna[!names(mtdna) %in% c("SRS417748",
+                                    "SRS365051",
+                                    "SRS365050",
+                                    "SRS258178",
+                                    "SRS258349",
+                                    "SRS258091",
+                                    "SRS693469",
+                                    "SRS693266",
+                                    "SRS693348",
+                                    "SRS693899",
+                                    "SRS258286",
+                                    "ERS001838")]
 
 seqmat <-  tibble::as_tibble( t(as.matrix(mtdna) ) )
 seqmat <- cbind.data.frame(POS = 1:nrow(seqmat), seqmat)
 
 segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( length(unique(x)) > 1 ) })
 
-
 seqmat.long <- seqmat %>% 
   dplyr::filter(segsites) %>% 
   tidyr::gather(., key = "smpls", value = "GT", 2:ncol(.)) %>% 
-  dplyr::mutate(GT = factor(GT)) %>% 
   dplyr::left_join(., mtdt, by = "smpls") %>% 
   dplyr::filter(passed == "Y") %>% 
   dplyr::mutate(POS = factor(POS, levels = c(1:5989), ordered = T)) 
 
 gtplot <- seqmat.long %>% 
+  dplyr::mutate(GT = ifelse(GT == "N", NA, GT)) %>% 
   ggplot() + 
   geom_tile(aes(x = smpls, y = POS, fill = GT)) + 
   scale_fill_manual("Alleles", values = c("#4daf4a", "#377eb8", "#ffff33", "#e41a1c")) +
@@ -140,24 +105,22 @@ gtplot <- seqmat.long %>%
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank())
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_all_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
+jpeg("figures/filtered_all_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 
 ```
 ```{r, results='asis', fig.width=11, fig.height=8, fig.align='center'}
 plot(gtplot)
-
 ```
 
-### Filtered Calls, All Samples except NHA
+### Segsites, All Globally Sourced Samples
 ```{r}
-
 
 seqmat <-  tibble::as_tibble( t(as.matrix(mtdna) ) )
 seqmat <- cbind.data.frame(POS = 1:nrow(seqmat), seqmat)
 
-seqmat <- seqmat[, !colnames(seqmat) %in% mtdt$smpls[mtdt$vividregion == "NHA"]]
+seqmat <- seqmat[, !colnames(seqmat) %in% mtdt$smpls[mtdt$vividregion == "Lab"]]
 
 segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( length(unique(x)) > 1 ) })
 
@@ -165,12 +128,12 @@ segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( length(unique
 seqmat.long <- seqmat %>% 
   dplyr::filter(segsites) %>% 
   tidyr::gather(., key = "smpls", value = "GT", 2:ncol(.)) %>% 
-  dplyr::mutate(GT = factor(GT)) %>% 
   dplyr::left_join(., mtdt, by = "smpls") %>% 
   dplyr::filter(passed == "Y") %>% 
   dplyr::mutate(POS = factor(POS, levels = c(1:5989), ordered = T)) 
 
 gtplot <- seqmat.long %>% 
+  dplyr::mutate(GT = ifelse(GT == "N", NA, GT)) %>% 
   ggplot() + 
   geom_tile(aes(x = smpls, y = POS, fill = GT)) + 
   scale_fill_manual("Alleles", values = c("#4daf4a", "#377eb8", "#ffff33", "#e41a1c")) +
@@ -178,7 +141,7 @@ gtplot <- seqmat.long %>%
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank())
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_noape_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
+jpeg("figures/filtered_segsites_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 
@@ -187,7 +150,7 @@ graphics.off()
 plot(gtplot)
 
 ```
-**Without the non-human ape calls, we have 11 SNPs that we are making trees and calls on. Not a lot of information...**.
+
 
 
 ### Filtered Calls, Removed Clones 
@@ -202,6 +165,7 @@ segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( length(unique
 seqmat.long <- seqmat %>% 
   dplyr::filter(segsites) %>% 
   tidyr::gather(., key = "smpls", value = "GT", 2:ncol(.)) %>% 
+  dplyr::mutate(GT = ifelse(GT == "N", NA, GT)) %>% 
   dplyr::mutate(GT = factor(GT)) %>% 
   dplyr::left_join(., mtdt, by = "smpls") %>% 
   dplyr::filter(hapuid == "Y") %>% 
@@ -215,7 +179,7 @@ gtplot <- seqmat.long %>%
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank())
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_noclones_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
+jpeg("figures/filtered_noclones_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 
@@ -243,6 +207,7 @@ segsites <- apply(seqmat[,2:ncol(seqmat)], 1, function(x){ return( length(unique
 seqmat.long <- seqmat %>% 
   dplyr::filter(segsites) %>% 
   tidyr::gather(., key = "smpls", value = "GT", 2:ncol(.)) %>% 
+  dplyr::mutate(GT = ifelse(GT == "N", NA, GT)) %>% 
   dplyr::mutate(GT = factor(GT)) %>% 
   dplyr::left_join(., mtdt, by = "smpls") %>% 
   dplyr::filter(hapuid == "Y") %>% 
@@ -256,7 +221,7 @@ gtplot <- seqmat.long %>%
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank())
 
-jpeg("~/Documents/GitHub/VivID_Seq/PopGenome_Analysis/figures/filtered_noclones_nonha_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
+jpeg("figures/filtered_noclones_nonha_samples_gtplot.jpg", height = 8, width = 14, units = "in", res = 500)
 plot(gtplot)
 graphics.off()
 

@@ -1,9 +1,9 @@
 # my files
-zraw_Ebro1944/
 **/touch_files.sh
 figures/
 tables/
 depreciated/
+internal/
 
 # slurm outs and logs
 **/*out
